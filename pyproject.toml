@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "movieclub"
+version = "0.1.0"
+description = "ActivityPub-powered movie reviews"
+authors = ["Dan Jacob <danjac2018@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+tmdbv3api = "^1.9.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.21.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
