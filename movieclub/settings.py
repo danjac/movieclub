@@ -92,12 +92,9 @@ MIDDLEWARE: list[str] = [
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
-    # "movieclub.middleware.CacheControlMiddleware",
-    # "movieclub.middleware.HtmxMessagesMiddleware",
-    # "movieclub.middleware.HtmxRedirectMiddleware",
-    # "movieclub.middleware.OrderingMiddleware",
-    # "movieclub.middleware.PaginationMiddleware",
-    # "movieclub.middleware.SearchMiddleware",
+    "movieclub.middleware.CacheControlMiddleware",
+    "movieclub.middleware.HtmxMessagesMiddleware",
+    "movieclub.middleware.HtmxRedirectMiddleware",
 ]
 
 # Databases
