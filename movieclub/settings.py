@@ -72,6 +72,7 @@ INSTALLED_APPS: list[str] = [
     "health_check.contrib.redis",
     "heroicons",
     "template_partials",
+    "movieclub.users",
 ]
 
 
@@ -214,7 +215,7 @@ SUPPORT_EMAIL = env.str("SUPPORT_EMAIL", default=f"support@{EMAIL_HOST}")
 # authentication settings
 # https://docs.djangoproject.com/en/dev/ref/settings/#authentication-backends
 
-# TBD: add AUTH_USER_MODEL = "users.User"
+AUTH_USER_MODEL = "users.User"
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
