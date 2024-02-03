@@ -2,9 +2,13 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 
+from movieclub import views
+
 admin.site.site_header = settings.ADMIN_SITE_HEADER
 
+
 urlpatterns = [
+    path("", views.landing_page, name="landing_page"),
     path("account/", include("allauth.urls")),
     path("ht/", include("health_check.urls")),
     path(settings.ADMIN_URL, admin.site.urls),
