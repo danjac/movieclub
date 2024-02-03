@@ -1,4 +1,4 @@
-name: movieclub Project CI/CD
+name: Movieclub Project CI/CD
 on: [pull_request, push]
 run-name: ${{ github.actor }} is running checks
 jobs:
