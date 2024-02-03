@@ -5,11 +5,20 @@ import pytest
 
 from movieclub.client import get_client
 from movieclub.movies import tmdb
+from movieclub.movies.tests.factories import acreate_movie
 
 MOCKS_DIR = pathlib.Path(__file__).parent / "mocks"
 
 
 class TestGetOrCreateMovie:
+    @pytest.mark.asyncio()
+    @pytest.mark.django_db(transaction=True)
+    async def test_existing_movie(self):
+        movie = await acreate_movie()
+        new_movie, created = await tmdb.get_or_create_movie(get_client(), movie.tmdb_id)
+        assert created is False
+        assert new_movie == movie
+
     @pytest.mark.asyncio()
     @pytest.mark.django_db(transaction=True)
     async def test_new_movie(self, httpx_mock):
