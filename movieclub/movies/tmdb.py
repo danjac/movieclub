@@ -6,6 +6,18 @@ from movieclub.movies.models import CastMember, CrewMember, Genre, Movie
 from movieclub.people.models import Person
 
 
+async def search_movies(client: httpx.AsyncClient, query: str) -> list[dict]:
+    """Searches movies."""
+    response = await tmdb.fetch_json(
+        client,
+        "search/movie",
+        params={
+            "query": query,
+        },
+    )
+    return response["results"]
+
+
 async def get_or_create_movie(
     client: httpx.AsyncClient, tmdb_id: int
 ) -> tuple[Movie, bool]:
