@@ -231,7 +231,7 @@ AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-LOGIN_REDIRECT_URL = reverse_lazy("podcasts:index")
+LOGIN_REDIRECT_URL = reverse_lazy("landing_page")
 
 LOGIN_URL = "account_login"
 

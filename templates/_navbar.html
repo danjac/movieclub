@@ -45,20 +45,20 @@
                     <a href=""
                        aria-label="Settings for {{ user.username }}"
                        title="Settings for {{ user.username }}"
-                       class="flex items-center font-bold">
+                       class="flex items-center space-x-2 font-bold hover:text-blue-300">
                         {% heroicon_mini "user" title="User" %}
                         <span class="hidden md:inline-block">{{ user.username|slice:12 }}</span>
                     </a>
                 </li>
                 <li>
-                    <form class="inline-flex items-center"
+                    <form class="flex items-center"
                           hx-disable="true"
                           action="{% url 'account_logout' %}"
                           method="post">
                         {% csrf_token %}
                         <button class="flex items-center space-x-2 font-bold hover:text-blue-300">
                             {% heroicon_mini "arrow-left-on-rectangle" title="Sign out" %}
-                            Logout
+                            <span class="hidden md:inline-block">Logout</span>
                         </button>
                     </form>
                 </li>
