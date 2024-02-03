@@ -23,12 +23,12 @@ class TestGetOrCreateMovie:
     @pytest.mark.django_db(transaction=True)
     async def test_new_movie(self, httpx_mock):
         httpx_mock.add_response(
-            url="https://api.themoviedb.org/3/movie/245891?api_key=NOTSET",
+            url="https://api.themoviedb.org/3/movie/245891",
             json=json.load((MOCKS_DIR / "movie.json").open("r")),
         )
 
         httpx_mock.add_response(
-            url="https://api.themoviedb.org/3/movie/245891/credits?api_key=NOTSET",
+            url="https://api.themoviedb.org/3/movie/245891/credits",
             json=json.load((MOCKS_DIR / "credits.json").open("r")),
         )
 
