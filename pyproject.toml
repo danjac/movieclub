@@ -89,6 +89,7 @@ omit=[
     "*/nltk/*",
     "*/static/*",
     "*/tests/*",
+    "*/asgi.py",
     "*/settings.py",
     "*/wsgi.py",
 ]
