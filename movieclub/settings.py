@@ -202,7 +202,7 @@ CONTACT_EMAIL = config("CONTACT_EMAIL", default=f"support@{EMAIL_HOST}")
 # authentication settings
 # https://docs.djangoproject.com/en/dev/ref/settings/#authentication-backends
 
-AUTH_USER_MODEL = "users.User"
+# TBD: add AUTH_USER_MODEL = "users.User"
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",

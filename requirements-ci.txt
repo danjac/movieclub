@@ -63,6 +63,7 @@ pexpect==4.9.0 ; python_version >= "3.12" and python_version < "4.0" and sys_pla
 pillow==10.2.0 ; python_version >= "3.12" and python_version < "4.0"
 pluggy==1.4.0 ; python_version >= "3.12" and python_version < "4.0"
 prompt-toolkit==3.0.43 ; python_version >= "3.12" and python_version < "4.0"
+psutil==5.9.8 ; python_version >= "3.12" and python_version < "4.0"
 psycopg-binary==3.1.17 ; implementation_name != "pypy" and python_version >= "3.12" and python_version < "4.0"
 psycopg[binary]==3.1.17 ; python_version >= "3.12" and python_version < "4.0"
 ptyprocess==0.7.0 ; python_version >= "3.12" and python_version < "4.0" and sys_platform != "win32"
