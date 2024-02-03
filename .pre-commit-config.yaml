@@ -78,6 +78,7 @@ repos:
           - id: poetry-export
             args: ["-o", "requirements.txt", "--without-hashes"]
             verbose: true
+            files: ^(pyproject.toml|poetry.lock)$
           - id: poetry-export
             args:
                 [
@@ -88,3 +89,4 @@ repos:
                     "--without-hashes",
                 ]
             verbose: true
+            files: ^(pyproject.toml|poetry.lock)$
