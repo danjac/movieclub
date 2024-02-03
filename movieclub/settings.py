@@ -113,7 +113,7 @@ TEMPLATES = [
         "DIRS": [BASE_DIR / "templates"],
         "OPTIONS": {
             "builtins": [
-                "movieclub.template",
+                # "movieclub.template",
             ],
             "debug": config("TEMPLATE_DEBUG", default=False, cast=bool),
             "context_processors": [
@@ -258,7 +258,7 @@ SOCIALACCOUNT_PROVIDERS = {
 
 ADMIN_URL = config("ADMIN_URL", default="admin/")
 
-ADMIN_SITE_HEADER = config("ADMIN_SITE_HEADER", default="movieclub Admin")
+ADMIN_SITE_HEADER = config("ADMIN_SITE_HEADER", default="Movieclub Admin")
 
 # Internationalization/Localization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
