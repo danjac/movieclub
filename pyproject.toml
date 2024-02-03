@@ -3,7 +3,7 @@ name = "movieclub"
 version = "0.1.0"
 description = "ActivityPub-powered movie reviews"
 authors = ["Dan Jacob <danjac2018@gmail.com>"]
-license = "MIT"
+license = "ACSL"
 readme = "README.md"
 
 [tool.poetry.dependencies]
