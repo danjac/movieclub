@@ -68,8 +68,8 @@ class CastMember(models.Model):
     order = models.PositiveSmallIntegerField(null=True, blank=True)
 
     def __str__(self) -> str:
-        """Returns person"""
-        return f"{self.character}"
+        """Returns character name."""
+        return self.character
 
 
 class CrewMember(models.Model):
@@ -88,5 +88,5 @@ class CrewMember(models.Model):
     job = models.CharField(max_length=120)
 
     def __str__(self) -> str:
-        """Returns person."""
-        return f"{self.job}"
+        """Returns job."""
+        return self.job
