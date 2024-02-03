@@ -214,7 +214,7 @@ ADMINS = getaddresses(env("ADMINS"))
 
 SERVER_EMAIL = env.str("SERVER_EMAIL", default=f"errors@{EMAIL_HOST}")
 DEFAULT_FROM_EMAIL = env.str("DEFAULT_FROM_EMAIL", default=f"no-reply@{EMAIL_HOST}")
-SUPPORT_EMAIL = env.str("SUPPORT_EMAIL", default=f"supportreply@{EMAIL_HOST}")
+SUPPORT_EMAIL = env.str("SUPPORT_EMAIL", default=f"support@{EMAIL_HOST}")
 
 # authentication settings
 # https://docs.djangoproject.com/en/dev/ref/settings/#authentication-backends
