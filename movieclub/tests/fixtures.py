@@ -21,6 +21,7 @@ def _settings_overrides(settings: Settings) -> None:
     }
     settings.LOGGING = None
     settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+    settings.MOVIECLUB_TMDB_API_KEY = "NOTSET"
 
 
 @pytest.fixture()
