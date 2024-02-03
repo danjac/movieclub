@@ -1,0 +1,30 @@
+{% extends "account/settings_base.html" %}
+{% load heroicons %}
+{% block title %}
+    {{ block.super }} | Delete Account
+{% endblock title %}
+{% block settings_selected_item %}
+    {% heroicon_mini "trash" class="mr-3" %}
+    Delete Account
+{% endblock settings_selected_item %}
+{% block settings_content %}
+    <div class="space-y-3 w-full">
+        <p>Please confirm that you want to delete your account. You will not be able to undo this action!</p>
+        <div>
+            <form method="post"
+                  hx-disable="true"
+                  action="{% url 'users:delete_account' %}"
+                  onSubmit="return confirm('Are you sure?')">
+                {% csrf_token %}
+                <div>
+                    <button class="inline-flex items-center btn btn-danger"
+                            name="confirm-delete"
+                            value="true">
+                        {% heroicon_mini "trash" class="mr-2" %}
+                        Yes, delete my account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock settings_content %}

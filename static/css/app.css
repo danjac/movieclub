@@ -7,3 +7,229 @@
 [x-cloak] {
     display: none !important;
 }
+/* HTMX */
+
+#hx-indicator {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: #0076ff;
+    z-index: 9999;
+    transition:
+        width 300ms ease-out,
+        opacity 150ms 150ms ease-in;
+    transform: translate3d(0, 0, 0);
+}
+
+#hx-indicator.htmx-request {
+    display: block !important;
+}
+
+@layer components {
+    /* FORMS */
+
+    .form-control:not(.is-checkbox) input {
+        background-color: inherit;
+        color: inherit;
+        font-size: inherit;
+        padding: theme("spacing.1");
+        width: theme("width.64");
+        border-radius: 0.25rem;
+    }
+
+    .has-errors input {
+        border: solid theme("borderWidth.DEFAULT") theme("borderColor.red.800");
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .has-errors input {
+            border: solid theme("borderWidth.DEFAULT")
+                theme("borderColor.red.500");
+        }
+    }
+
+    /* search inputs */
+
+    input[type="search"]::-webkit-search-decoration,
+    input[type="search"]::-webkit-search-cancel-button,
+    input[type="search"]::-webkit-search-results-button,
+    input[type="search"]::-webkit-search-results-decoration {
+        display: none;
+    }
+
+    /* BUTTONS */
+
+    .btn {
+        padding: theme("padding.1") theme("padding.2");
+        border-radius: theme("borderRadius.DEFAULT");
+        font-weight: theme("fontWeight.semibold");
+        font-size: theme("fontSize.xs");
+    }
+
+    .btn-lg {
+        font-size: theme("fontSize.sm");
+    }
+
+    @media screen(md) {
+        .btn {
+            font-size: theme("fontSize.sm");
+        }
+        .btn-lg {
+            font-size: theme("fontSize.base");
+        }
+    }
+
+    .btn.focus {
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+    }
+
+    .btn-primary {
+        color: theme("colors.white");
+        background-color: theme("colors.blue.800");
+        border: solid theme("borderWidth.DEFAULT") theme("colors.blue.800");
+    }
+
+    .btn-primary:hover {
+        background-color: theme("colors.blue.600");
+    }
+
+    .btn:disabled,
+    .btn:hover:disabled {
+        background-color: theme("colors.gray.600");
+        border-color: theme("colors.gray.600");
+    }
+
+    .btn-default {
+        color: theme("colors.white");
+        background-color: theme("colors.purple.800");
+        border: solid theme("borderWidth.DEFAULT") theme("colors.purple.800");
+    }
+
+    .btn-default:hover {
+        background-color: theme("colors.purple.600");
+    }
+
+    .btn-danger {
+        color: theme("colors.white");
+        background-color: theme("colors.red.800");
+    }
+
+    .btn-danger:hover {
+        background-color: theme("colors.red.600");
+    }
+
+    .btn-outline {
+        background-color: inherit;
+    }
+
+    .btn-primary.btn-outline {
+        color: theme("colors.blue.800");
+        border: solid theme("borderWidth.DEFAULT") theme("colors.blue.800");
+    }
+
+    .btn-primary.btn-outline:hover {
+        color: theme("colors.blue.600");
+        background-color: theme("colors.gray.100");
+        border-color: theme("colors.blue.800");
+    }
+
+    .btn-default.btn-outline {
+        color: theme("colors.purple.800");
+        border: solid theme("borderWidth.DEFAULT") theme("colors.purple.800");
+    }
+
+    .btn-default.btn-outline:hover {
+        color: theme("colors.purple.600");
+        background-color: theme("colors.gray.100");
+        border-color: theme("colors.purple.800");
+    }
+
+    .btn-danger.btn-outline {
+        color: theme("colors.red.800");
+        border: solid theme("borderWidth.DEFAULT") theme("colors.red.800");
+    }
+
+    .btn-danger.btn-outline:hover {
+        color: theme("colors.red.600");
+        background-color: theme("colors.gray.100");
+        border-color: theme("colors.red.800");
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .btn-primary.btn-outline,
+        .btn-default.btn-outline {
+            color: theme("colors.white");
+            border-color: theme("colors.gray.500");
+        }
+
+        .btn-danger.btn-outline {
+            color: theme("colors.red.500");
+            border-color: theme("colors.red.500");
+        }
+
+        .btn-primary.btn-outline:hover {
+            color: theme("colors.blue.300");
+            background-color: inherit;
+            border-color: theme("colors.blue.300");
+        }
+
+        .btn-default.btn-outline:hover {
+            color: theme("colors.purple.400");
+            background-color: inherit;
+            border-color: theme("colors.purple.300");
+        }
+
+        .btn-danger.btn-outline:hover {
+            color: theme("colors.red.500");
+            background-color: inherit;
+            border-color: theme("colors.red.500");
+        }
+    }
+
+    /* LINKS */
+
+    .link {
+        color: theme("colors.gray.800");
+        font-weight: theme("fontWeight.semibold");
+    }
+
+    .link.active,
+    .link:hover {
+        color: theme("colors.blue.600");
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            color-scheme: dark;
+        }
+
+        .link {
+            color: theme("colors.gray.100");
+        }
+
+        .link.active,
+        .link:hover {
+            color: theme("colors.blue.300");
+        }
+    }
+
+    /* MESSAGES */
+    .message-error {
+        background-color: theme("colors.red.500");
+    }
+
+    .message-info {
+        background-color: theme("colors.blue.500");
+    }
+
+    .message-success {
+        background-color: theme("colors.green.500");
+    }
+
+    .message-warning {
+        background-color: theme("colors.yellow.500");
+    }
+}

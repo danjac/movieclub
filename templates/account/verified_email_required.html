@@ -1,0 +1,22 @@
+{% extends "account/base.html" %}
+{% block title %}
+    | Verify Your E-mail Address
+{% endblock title %}
+{% block content %}
+    <h1 class="flex justify-center items-center pb-3 mb-3 text-lg font-bold border-b sm:justify-start lg:text-xl xl:text-2xl">
+        Verify Your E-mail Address
+    </h1>
+    <p class="mb-3">
+        This part of the site requires us to verify that
+        you are who you claim to be. For this purpose, we require that you
+        verify ownership of your e-mail address.
+    </p>
+    <p class="mb-3">
+        We have sent an e-mail to you for
+        verification. Please click on the link inside this e-mail. Please
+        contact us if you do not receive it within a few minutes.
+    </p>
+    <p>
+        <strong>Note:</strong> you can still <a href="{% url 'account_email' %}">change your e-mail address</a>.
+    </p>
+{% endblock content %}
