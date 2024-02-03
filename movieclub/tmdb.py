@@ -8,6 +8,11 @@ BASE_URL: Final = "https://api.themoviedb.org/3/"
 BASE_IMAGE_URL: Final = "https://image.tmdb.org/t/p/original/"
 
 
+def get_image_url(path: str) -> str:
+    """Returns URL to original image."""
+    return urljoin(BASE_IMAGE_URL, path[1:])
+
+
 async def search_movies(client: httpx.AsyncClient, query: str) -> dict:
     """Search for movies."""
     return await _get_json(client, "search/movie", {"query": query})
@@ -21,6 +26,11 @@ async def get_movie_genres(client: httpx.AsyncClient) -> dict:
 async def get_movie(client: httpx.AsyncClient, movie_id: int) -> dict:
     """Fetch single movie detail."""
     return await _get_json(client, f"movie/{movie_id}")
+
+
+async def get_movie_credits(client: httpx.AsyncClient, movie_id: int) -> dict:
+    """Fetch single movie credits."""
+    return await _get_json(client, f"movie/{movie_id}/credits")
 
 
 async def search_tv_series(client: httpx.AsyncClient, query: str) -> dict:
@@ -41,13 +51,6 @@ async def get_tv_series(client: httpx.AsyncClient, series_id: int) -> dict:
 async def get_season(client: httpx.AsyncClient, series_id: int, season: int) -> dict:
     """Fetech single TV series season detail."""
     return await _get_json(client, f"tv/{series_id}/{season}")
-
-
-async def get_image(client: httpx.AsyncClient, path: str) -> bytes:
-    """Fetch image from Tmdb."""
-    response = await client.get(urljoin(BASE_IMAGE_URL, path[1:]))
-    response.raise_for_status()
-    return response.content
 
 
 async def _get_json(
