@@ -34,9 +34,9 @@ env = environ.Env(
     USE_BROWSER_RELOAD=(bool, False),
     USE_COLLECTSTATIC=(bool, True),
     USE_DEBUG_TOOLBAR=(bool, False),
+    USE_FASTDEV=(bool, False),
     USE_HSTS=(bool, False),
     USE_HTTPS=(bool, True),
-    USE_FASTDEV=(bool, False),
 )
 
 BASE_DIR = pathlib.Path(__file__).resolve(strict=True).parents[1]
@@ -314,7 +314,7 @@ if USE_HTTPS := env("USE_HTTPS"):
     )
     SECURE_SSL_REDIRECT = True
 
-# make sure to enable USE_HSTS if your load balancer is not using HSTS in production,
+# Make sure to enable USE_HSTS if your load balancer is not using HSTS in production,
 # otherwise leave disabled.
 
 if USE_HSTS := env("USE_HSTS"):
