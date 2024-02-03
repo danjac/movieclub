@@ -37,6 +37,7 @@ class TestGetOrCreateMovie:
         assert created is True
         assert movie.tmdb_id == 245891
         assert movie.title == "John Wick"
+        assert movie.countries[0].code == "US"
 
         num_genres = await movie.genres.acount()
         assert num_genres == 2
