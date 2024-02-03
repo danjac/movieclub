@@ -69,7 +69,7 @@ class CastMember(models.Model):
 
     def __str__(self) -> str:
         """Returns person"""
-        return f"{self.character}: {self.person}"
+        return f"{self.character}"
 
 
 class CrewMember(models.Model):
@@ -89,4 +89,4 @@ class CrewMember(models.Model):
 
     def __str__(self) -> str:
         """Returns person."""
-        return f"{self.job}: {self.person}"
+        return f"{self.job}"
