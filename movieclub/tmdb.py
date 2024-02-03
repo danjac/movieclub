@@ -13,9 +13,34 @@ async def search_movies(client: httpx.AsyncClient, query: str) -> dict:
     return await _get_json(client, "search/movie", {"query": query})
 
 
-async def search_tv_shows(client: httpx.AsyncClient, query: str) -> dict:
-    """Search for movies."""
+async def get_movie_genres(client: httpx.AsyncClient) -> dict:
+    """Returns all movie genres."""
+    return await _get_json(client, "genre/movie/list")
+
+
+async def get_movie(client: httpx.AsyncClient, movie_id: int) -> dict:
+    """Fetch single movie detail."""
+    return await _get_json(client, f"movie/{movie_id}")
+
+
+async def search_tv_series(client: httpx.AsyncClient, query: str) -> dict:
+    """Search for TV series."""
     return await _get_json(client, "search/tv", {"query": query})
+
+
+async def get_tv_genres(client: httpx.AsyncClient) -> dict:
+    """Returns all TV genres."""
+    return await _get_json(client, "genre/tv/list")
+
+
+async def get_tv_series(client: httpx.AsyncClient, series_id: int) -> dict:
+    """Fetch single TV series detail."""
+    return await _get_json(client, f"tv/{series_id}")
+
+
+async def get_season(client: httpx.AsyncClient, series_id: int, season: int) -> dict:
+    """Fetech single TV series season detail."""
+    return await _get_json(client, f"tv/{series_id}/{season}")
 
 
 async def get_image(client: httpx.AsyncClient, path: str) -> bytes:
