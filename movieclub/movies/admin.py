@@ -16,6 +16,7 @@ class GenreAdmin(admin.ModelAdmin):
 class MovieAdmin(admin.ModelAdmin):
     """Movie admin."""
 
+    date_hierarchy: ClassVar = "release_date"
     search_fields: ClassVar = ["title"]
 
 
@@ -23,7 +24,7 @@ class MovieAdmin(admin.ModelAdmin):
 class CastMemberAdmin(admin.ModelAdmin):
     """Cast members admin."""
 
-    list_display: ClassVar = ["movie", "person", "order"]
+    list_display: ClassVar = ["movie", "character", "person", "order"]
     list_select_related: ClassVar = True
     raw_id_fields: ClassVar = ["movie", "person"]
     search_fields: ClassVar = ["movie__title", "person__name"]
@@ -33,7 +34,7 @@ class CastMemberAdmin(admin.ModelAdmin):
 class CrewMemberAdmin(admin.ModelAdmin):
     """Crew members admin."""
 
-    list_display: ClassVar = ["movie", "person"]
+    list_display: ClassVar = ["movie", "job", "person"]
     list_select_related: ClassVar = True
     raw_id_fields: ClassVar = ["movie", "person"]
     search_fields: ClassVar = ["movie__title", "person__name"]

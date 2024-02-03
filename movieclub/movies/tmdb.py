@@ -22,33 +22,44 @@ async def get_or_create_movie(
 
     result = await tmdb.get_movie(client, tmdb_id)
 
-    country_codes = ",".join(
-        [c["iso_3166_1"] for c in result.get("production_countries", [])]
-    )
+    movie = await _create_movie(tmdb_id, result)
 
-    movie = await Movie.objects.acreate(
+    await _add_genres(client, movie, result)
+    await _add_credits(client, movie)
+
+    return movie, True
+
+
+async def _create_movie(tmdb_id: int, tmdb_result: dict) -> Movie:
+    return await Movie.objects.acreate(
         tmdb_id=tmdb_id,
-        countries=country_codes,
-        imdb_id=result["imdb_id"],
-        title=result["title"],
-        original_title=result["original_title"],
-        tagline=result["tagline"],
-        overview=result["overview"],
-        language=result["original_language"],
-        runtime=result["runtime"],
-        homepage=result["homepage"] or "",
-        release_date=arrow.get(result["release_date"], "YYYY-MM-DD").date()
-        if result["release_date"]
+        imdb_id=tmdb_result["imdb_id"],
+        title=tmdb_result["title"],
+        original_title=tmdb_result["original_title"],
+        tagline=tmdb_result["tagline"],
+        overview=tmdb_result["overview"],
+        language=tmdb_result["original_language"],
+        runtime=tmdb_result["runtime"],
+        homepage=tmdb_result["homepage"] or "",
+        release_date=arrow.get(tmdb_result["release_date"], "YYYY-MM-DD").date()
+        if tmdb_result["release_date"]
         else None,
-        backdrop=tmdb.get_image_url(result["backdrop_path"])
-        if result["backdrop_path"]
+        backdrop=tmdb.get_image_url(tmdb_result["backdrop_path"])
+        if tmdb_result["backdrop_path"]
         else "",
-        poster=tmdb.get_image_url(result["poster_path"])
-        if result["poster_path"]
+        poster=tmdb.get_image_url(tmdb_result["poster_path"])
+        if tmdb_result["poster_path"]
         else "",
+        countries=",".join(
+            [c["iso_3166_1"] for c in tmdb_result.get("production_countries", [])]
+        ),
     )
 
-    genre_dcts = result.get("genres", [])
+
+async def _add_genres(
+    client: httpx.AsyncClient, movie: Movie, tmdb_result: dict
+) -> None:
+    genre_dcts = tmdb_result.get("genres", [])
 
     # TBD: django command to prefetch all movie genres
     await Genre.objects.abulk_create(
@@ -65,9 +76,9 @@ async def get_or_create_movie(
 
     await movie.genres.aset(genres)
 
-    # get credits
 
-    credits = await tmdb.get_movie_credits(client, tmdb_id)
+async def _add_credits(client: httpx.AsyncClient, movie: Movie) -> None:
+    credits = await tmdb.get_movie_credits(client, movie.tmdb_id)
 
     # extract all the people first
 
@@ -108,8 +119,6 @@ async def get_or_create_movie(
     ]
 
     await CrewMember.objects.abulk_create(crew_members, ignore_conflicts=True)
-
-    return movie, True
 
 
 def _get_person_from_credit(credit: dict) -> Person:
