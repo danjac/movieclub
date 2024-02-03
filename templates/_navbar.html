@@ -1,5 +1,5 @@
 {% load static heroicons %}
-<header class="sticky top-0 z-20 w-full text-white bg-blue-900"
+<header class="sticky top-0 z-20 w-full text-white bg-slate-900 dark:bg-slate-600"
         :class="scrolling ? 'drop-shadow-xl': ''"
         x-data="{showMenu: false, scrolling: false}"
         @scroll.window="scrolling = window.pageYOffset > 0"
@@ -27,20 +27,40 @@
             <li>
                 <a href="" aria-label="" title="" class="flex items-center font-bold">Collections</a>
             </li>
+            {% if user.is_authenticated %}
+                <li>
+                    <a href="" aria-label="" title="" class="flex items-center font-bold">Watchlist</a>
+                </li>
+                <li>
+                    <a href="" aria-label="" title="" class="flex items-center font-bold">Reviews</a>
+                </li>
+            {% endif %}
             <li>
-                <a href="" aria-label="" title="" class="flex items-center font-bold">Watchlist</a>
-            </li>
-            <li>
-                <a href="" aria-label="" title="" class="flex items-center font-bold">Reviews</a>
+                <a href="" aria-label="" title="" class="flex items-center font-bold">About</a>
             </li>
         </ul>
-        <ul class="flex items-center space-x-3">
+        <ul class="flex items-center space-x-3 lg:space-x-6">
             {% if user.is_authenticated %}
                 <li>
                     <a href=""
                        aria-label="Settings for {{ user.username }}"
                        title="Settings for {{ user.username }}"
-                       class="flex items-center font-bold">{{ user.username|slice:12 }}</a>
+                       class="flex items-center font-bold">
+                        {% heroicon_mini "user" title="User" %}
+                        <span class="hidden md:inline-block">{{ user.username|slice:12 }}</span>
+                    </a>
+                </li>
+                <li>
+                    <form class="inline-flex items-center"
+                          hx-disable="true"
+                          action="{% url 'account_logout' %}"
+                          method="post">
+                        {% csrf_token %}
+                        <button class="flex items-center space-x-2 font-bold hover:text-blue-300">
+                            {% heroicon_mini "arrow-left-on-rectangle" title="Sign out" %}
+                            Logout
+                        </button>
+                    </form>
                 </li>
             {% else %}
                 <li>
@@ -110,6 +130,9 @@
                             <a href="" class="{{ MENU_CSS }}">Reviews</a>
                         </li>
                     {% endif %}
+                    <li>
+                        <a href="" aria-label="" title="" class="{{ MENU_CSS }}">About</a>
+                    </li>
                 </ul>
             </nav>
         {% endwith %}
