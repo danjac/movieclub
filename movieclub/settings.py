@@ -72,6 +72,8 @@ INSTALLED_APPS: list[str] = [
     "health_check.contrib.redis",
     "heroicons",
     "template_partials",
+    "movieclub.movies",
+    "movieclub.people",
     "movieclub.users",
 ]
 

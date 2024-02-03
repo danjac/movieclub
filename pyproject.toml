@@ -32,6 +32,8 @@ heroicons = {extras = ["django"], version = "^2.6.0"}
 psutil = "^5.9.8"
 django-environ = "^0.11.2"
 django-countries = "^7.5.1"
+arrow = "^1.3.0"
+setuptools = "^69.0.3"
 
 
 [tool.poetry.group.dev.dependencies]

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.db import models
 from django_countries.fields import CountryField
 
@@ -47,3 +49,44 @@ class Movie(models.Model):
     def __str__(self) -> str:
         """Returns title."""
         return self.title
+
+
+class CastMember(models.Model):
+    """A cast or crew member"""
+
+    movie = models.ForeignKey(
+        Movie,
+        related_name="cast_members",
+        on_delete=models.CASCADE,
+    )
+    person = models.ForeignKey(
+        "people.Person",
+        related_name="movies_as_cast_member",
+        on_delete=models.CASCADE,
+    )
+    character = models.CharField(max_length=120)
+    order = models.PositiveSmallIntegerField(null=True, blank=True)
+
+    def __str__(self) -> str:
+        """Returns person"""
+        return f"{self.character}: {self.person}"
+
+
+class CrewMember(models.Model):
+    """A cast or crew member"""
+
+    movie = models.ForeignKey(
+        Movie,
+        related_name="crew_members",
+        on_delete=models.CASCADE,
+    )
+    person = models.ForeignKey(
+        "people.Person",
+        related_name="movies_as_crew_member",
+        on_delete=models.CASCADE,
+    )
+    job = models.CharField(max_length=120)
+
+    def __str__(self) -> str:
+        """Returns person."""
+        return f"{self.job}: {self.person}"
