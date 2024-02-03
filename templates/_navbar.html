@@ -17,6 +17,23 @@
                 </a>
             </div>
         {% endwith %}
+        <ul class="hidden items-center space-x-6 lg:flex">
+            <li>
+                <a href="" aria-label="" title="" class="flex items-center font-bold">Movies</a>
+            </li>
+            <li>
+                <a href="" aria-label="" title="" class="flex items-center font-bold">TV Shows</a>
+            </li>
+            <li>
+                <a href="" aria-label="" title="" class="flex items-center font-bold">Collections</a>
+            </li>
+            <li>
+                <a href="" aria-label="" title="" class="flex items-center font-bold">Watchlist</a>
+            </li>
+            <li>
+                <a href="" aria-label="" title="" class="flex items-center font-bold">Reviews</a>
+            </li>
+        </ul>
         <ul class="flex items-center space-x-3">
             {% if user.is_authenticated %}
                 <li>
@@ -45,7 +62,7 @@
                     </a>
                 </li>
             {% endif %}
-            <li class="flex items-center xl:hidden">
+            <li class="flex items-center lg:hidden">
                 <button class="transition transform focus:outline-none"
                         aria-label="Show Menu"
                         title="Show Menu"
@@ -64,15 +81,37 @@
             </li>
         </ul>
     </nav>
-    {% if user.is_authenticated %}
-        <div class="absolute left-0 z-50 py-6 w-full bg-white shadow-xl xl:hidden dark:bg-black"
-             x-cloak
-             x-show.transition="showMenu"
-             x-transition:enter="transition ease-out duration-75"
-             x-transition:enter-start="transform opacity-0 scale-95"
-             x-transition:enter-end="transform opacity-100 scale-100"
-             x-transition:leave="transition ease-in duration-75"
-             x-transition:leave-start="transform opacity-100 scale-100"
-             x-transition:leave-end="transform opacity-0 scale-95">Menu goes here...</div>
-    {% endif %}
+    <div class="absolute left-0 z-50 py-6 w-full bg-white shadow-xl lg:hidden dark:bg-black"
+         x-cloak
+         x-show.transition="showMenu"
+         x-transition:enter="transition ease-out duration-75"
+         x-transition:enter-start="transform opacity-0 scale-95"
+         x-transition:enter-end="transform opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-75"
+         x-transition:leave-start="transform opacity-100 scale-100"
+         x-transition:leave-end="transform opacity-0 scale-95">
+        {% with MENU_CSS="inline-flex items-center w-full sm:w-auto link" %}
+            <nav class="pl-3 text-base md:text-lg">
+                <li>
+                    <ul class="space-y-3">
+                        <a href="" class="{{ MENU_CSS }}">Movies</a>
+                    </li>
+                    <li>
+                        <a href="" class="{{ MENU_CSS }}">TV Shows</a>
+                    </li>
+                    <li>
+                        <a href="" class="{{ MENU_CSS }}">Collections</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li>
+                            <a href="" class="{{ MENU_CSS }}">Watchlist</a>
+                        </li>
+                        <li>
+                            <a href="" class="{{ MENU_CSS }}">Reviews</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endwith %}
+    </div>
 </header>
