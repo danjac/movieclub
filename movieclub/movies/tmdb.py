@@ -20,8 +20,7 @@ async def get_or_create_movie(
     if movie is not None:
         return movie, False
 
-    result = await tmdb.get_movie(client, tmdb_id)
-
+    result = await _get_movie_from_tmdb(client, tmdb_id)
     movie = await _create_movie(tmdb_id, result)
 
     await _add_genres(client, movie, result)
@@ -84,7 +83,7 @@ async def _add_genres(
 
 
 async def _add_credits(client: httpx.AsyncClient, movie: Movie) -> None:
-    credits = await tmdb.get_movie_credits(client, movie.tmdb_id)
+    credits = await _get_credits_from_tmdb(client, movie.tmdb_id)
 
     cast_dct = credits.get("cast", [])
     crew_dct = credits.get("crew", [])
@@ -137,3 +136,13 @@ def _get_person_from_credit(credit: dict) -> Person:
         if credit["profile_path"]
         else "",
     )
+
+
+async def _get_movie_from_tmdb(client: httpx.AsyncClient, movie_id: int) -> dict:
+    """Fetch single movie detail."""
+    return await tmdb.fetch_json(client, f"movie/{movie_id}")
+
+
+async def _get_credits_from_tmdb(client: httpx.AsyncClient, movie_id: int) -> dict:
+    """Fetch single movie credits."""
+    return await tmdb.fetch_json(client, f"movie/{movie_id}/credits")

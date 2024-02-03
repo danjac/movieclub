@@ -29,7 +29,7 @@ env = environ.Env(
     SENTRY_URL=(str, ""),
     STATIC_URL=(str, "/static/"),
     TEMPLATE_DEBUG=(bool, False),
-    TMDB_API_KEY=(str, ""),
+    TMDB_API_ACCESS_TOKEN=(str, ""),
     USER_AGENT=(str, "movieclub/0.0.0"),
     USE_BROWSER_RELOAD=(bool, False),
     USE_COLLECTSTATIC=(bool, True),
@@ -426,4 +426,4 @@ if USE_DEBUG_TOOLBAR := env("USE_DEBUG_TOOLBAR"):
 
 # Project-specific settings
 
-MOVIECLUB_TMDB_API_KEY = env("TMDB_API_KEY")
+MOVIECLUB_TMDB_API_ACCESS_TOKEN = env("TMDB_API_ACCESS_TOKEN")
