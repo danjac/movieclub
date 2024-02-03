@@ -63,7 +63,13 @@ async def _add_genres(
 
     # TBD: django command to prefetch all movie genres
     await Genre.objects.abulk_create(
-        [Genre(tmdb_id=genre["id"], name=genre["name"]) for genre in genre_dcts],
+        [
+            Genre(
+                tmdb_id=genre["id"],
+                name=genre["name"],
+            )
+            for genre in genre_dcts
+        ],
         ignore_conflicts=True,
     )
 
@@ -80,22 +86,22 @@ async def _add_genres(
 async def _add_credits(client: httpx.AsyncClient, movie: Movie) -> None:
     credits = await tmdb.get_movie_credits(client, movie.tmdb_id)
 
-    # extract all the people first
-
-    persons: list[Person] = []
-
     cast_dct = credits.get("cast", [])
     crew_dct = credits.get("crew", [])
+
+    persons: list[Person] = []
 
     persons += [_get_person_from_credit(credit) for credit in cast_dct]
     persons += [_get_person_from_credit(credit) for credit in crew_dct]
 
     await Person.objects.abulk_create(persons, ignore_conflicts=True)
 
-    persons_dct: dict[int, Person] = {}
-
-    async for person in Person.objects.filter(tmdb_id__in={p.tmdb_id for p in persons}):
-        persons_dct[person.tmdb_id] = person
+    persons_dct: dict[int, Person] = {
+        person.tmdb_id: person
+        async for person in Person.objects.filter(
+            tmdb_id__in={p.tmdb_id for p in persons}
+        )
+    }
 
     cast_members = [
         CastMember(
