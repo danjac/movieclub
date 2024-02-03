@@ -38,6 +38,7 @@ class TestGetOrCreateMovie:
         assert movie.tmdb_id == 245891
         assert movie.title == "John Wick"
         assert movie.countries[0].code == "US"
+        assert movie.release_date.year == 2014
 
         num_genres = await movie.genres.acount()
         assert num_genres == 2

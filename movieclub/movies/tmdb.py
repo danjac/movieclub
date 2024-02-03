@@ -89,10 +89,9 @@ async def _add_credits(client: httpx.AsyncClient, movie: Movie) -> None:
     cast_dct = credits.get("cast", [])
     crew_dct = credits.get("crew", [])
 
-    persons: list[Person] = []
-
-    persons += [_get_person_from_credit(credit) for credit in cast_dct]
-    persons += [_get_person_from_credit(credit) for credit in crew_dct]
+    persons: list[Person] = [_get_person_from_credit(credit) for credit in cast_dct] + [
+        _get_person_from_credit(credit) for credit in crew_dct
+    ]
 
     await Person.objects.abulk_create(persons, ignore_conflicts=True)
 
@@ -103,28 +102,30 @@ async def _add_credits(client: httpx.AsyncClient, movie: Movie) -> None:
         )
     }
 
-    cast_members = [
-        CastMember(
-            person=persons_dct[credit["id"]],
-            movie=movie,
-            order=credit["order"],
-            character=credit["character"],
-        )
-        for credit in cast_dct
-    ]
+    await CastMember.objects.abulk_create(
+        [
+            CastMember(
+                person=persons_dct[credit["id"]],
+                movie=movie,
+                order=credit["order"],
+                character=credit["character"],
+            )
+            for credit in cast_dct
+        ],
+        ignore_conflicts=True,
+    )
 
-    await CastMember.objects.abulk_create(cast_members, ignore_conflicts=True)
-
-    crew_members = [
-        CrewMember(
-            person=persons_dct[credit["id"]],
-            movie=movie,
-            job=credit["job"],
-        )
-        for credit in crew_dct
-    ]
-
-    await CrewMember.objects.abulk_create(crew_members, ignore_conflicts=True)
+    await CrewMember.objects.abulk_create(
+        [
+            CrewMember(
+                person=persons_dct[credit["id"]],
+                movie=movie,
+                job=credit["job"],
+            )
+            for credit in crew_dct
+        ],
+        ignore_conflicts=True,
+    )
 
 
 def _get_person_from_credit(credit: dict) -> Person:
