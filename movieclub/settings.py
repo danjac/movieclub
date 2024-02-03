@@ -26,10 +26,6 @@ env = environ.Env(
         str,
         "django-insecure-a&tm18c2sd$gv@ah7gv3!ts#@hhi=@ojsc%&ddmc21m1u-b_8z",
     ),
-    SECURE_HSTS_INCLUDE_SUBDOMAINS=(bool, True),
-    SECURE_HSTS_PRELOAD=(bool, True),
-    SECURE_HSTS_SECONDS=(int, 15768001),
-    SECURE_PROXY_SSL_HEADER=(tuple, ("HTTP_X_FORWARDED_PROTO", "https")),
     SENTRY_URL=(str, ""),
     STATIC_URL=(str, "/static/"),
     TEMPLATE_DEBUG=(bool, False),
@@ -212,8 +208,8 @@ else:
 
 ADMINS = getaddresses(env("ADMINS"))
 
-SERVER_EMAIL = env.str("SERVER_EMAIL", default=f"errors@{EMAIL_HOST}")
 DEFAULT_FROM_EMAIL = env.str("DEFAULT_FROM_EMAIL", default=f"no-reply@{EMAIL_HOST}")
+SERVER_EMAIL = env.str("SERVER_EMAIL", default=f"errors@{EMAIL_HOST}")
 SUPPORT_EMAIL = env.str("SUPPORT_EMAIL", default=f"support@{EMAIL_HOST}")
 
 # authentication settings
@@ -311,16 +307,22 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 if USE_HTTPS := env("USE_HTTPS"):
-    SECURE_PROXY_SSL_HEADER = env("SECURE_PROXY_SSL_HEADER")
+    SECURE_PROXY_SSL_HEADER = tuple(
+        env.str(
+            "SECURE_PROXY_SSL_HEADER", default="HTTP_X_FORWARDED_PROTO, https"
+        ).split(","),
+    )
     SECURE_SSL_REDIRECT = True
 
 # make sure to enable USE_HSTS if your load balancer is not using HSTS in production,
 # otherwise leave disabled.
 
 if USE_HSTS := env("USE_HSTS"):
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = env("SECURE_HSTS_INCLUDE_SUBDOMAINS")
-    SECURE_HSTS_PRELOAD = env("SECURE_HSTS_PRELOAD")
-    SECURE_HSTS_SECONDS = env("SECURE_HSTS_SECONDS")
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool(
+        "SECURE_HSTS_INCLUDE_SUBDOMAINS", default=True
+    )
+    SECURE_HSTS_PRELOAD = env.bool("SECURE_HSTS_PRELOAD", default=True)
+    SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=15768001)
 #
 # Permissions Policy
 # https://pypi.org/project/django-permissions-policy/
