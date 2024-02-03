@@ -1,4 +1,4 @@
-# Movieclub: ActivityPub-powered movie reviews
+## Movieclub: ActivityPub-powered movie reviews
 
 * Movie details fetched from [TMDB](https://www.themoviedb.org/)
 * Reviews: add your comment or link to your blog
