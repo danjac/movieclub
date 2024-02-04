@@ -11,38 +11,42 @@ if TYPE_CHECKING:  # pragma: no cover
 class UserManager(BaseUserManager):
     """Custom Manager for User model."""
 
-    def create_user(
+    def create_user(self, *args, **kwargs) -> User:
+        """Create new user."""
+        user = self._make_user(*args, **kwargs)
+        user.save(using=self._db)
+
+        return user
+
+    async def acreate_user(self, *args, **kwargs) -> User:
+        """Create new user."""
+        user = self._make_user(*args, **kwargs)
+        await user.asave(using=self._db)
+
+        return user
+
+    def _make_user(
         self,
         username: str,
         email: str,
         password: str | None = None,
         **kwargs,
     ) -> User:
-        """Create new user."""
         user = self.model(
             username=username,
             email=self.normalize_email(email),
             **kwargs,
         )
         user.set_password(password)
-        user.save(using=self._db)
         return user
 
-    def create_superuser(
-        self,
-        username: str,
-        email: str,
-        password: str | None = None,
-        **kwargs,
-    ) -> User:
+    def create_superuser(self, *args, **kwargs) -> User:
         """Create new superuser."""
         return self.create_user(
-            username,
-            email,
-            password,
+            *args,
+            **kwargs,
             is_staff=True,
             is_superuser=True,
-            **kwargs,
         )
 
 
