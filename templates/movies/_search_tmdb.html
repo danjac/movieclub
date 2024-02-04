@@ -1,0 +1,22 @@
+{# vim: set filetype=htmldjango #}
+{% load heroicons %}
+{% if search_results %}
+    <ul class="border-t divide-y divide-solid">
+        {% for result in search_results %}
+            <li class="flex justify-between items-center py-2">
+                <div class="font-semibold">
+                    {{ result.title }}
+                    ({{ result.release_date }})
+                </div>
+                <div>
+                    <button class="inline-flex items-center space-x-2 btn btn-default"
+                            aria-label="Add Movie"
+                            hx-post="{% url 'movies:add_movie' result.id %}">
+                        {% heroicon_mini "plus" title="Add Movie" %}
+                        <span>Add</span>
+                    </button>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

@@ -10,7 +10,7 @@ class Person(models.Model):
         MALE = 2, "Male"
 
     tmdb_id = models.BigIntegerField(unique=True)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=120)
     gender = models.PositiveSmallIntegerField(choices=Gender)
     profile = models.URLField(blank=True)
 

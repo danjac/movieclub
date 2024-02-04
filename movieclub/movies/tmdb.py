@@ -44,12 +44,12 @@ async def get_or_create_movie(
 async def _create_movie(tmdb_id: int, tmdb_result: dict) -> Movie:
     return await Movie.objects.acreate(
         tmdb_id=tmdb_id,
-        imdb_id=tmdb_result["imdb_id"],
+        imdb_id=tmdb_result["imdb_id"] or "",
         title=tmdb_result["title"],
-        original_title=tmdb_result["original_title"],
-        tagline=tmdb_result["tagline"],
-        overview=tmdb_result["overview"],
-        language=tmdb_result["original_language"],
+        original_title=tmdb_result["original_title"] or "",
+        tagline=tmdb_result["tagline"] or "",
+        overview=tmdb_result["overview"] or "",
+        language=tmdb_result["original_language"] or "en",
         runtime=tmdb_result["runtime"],
         homepage=tmdb_result["homepage"] or "",
         release_date=arrow.get(tmdb_result["release_date"], "YYYY-MM-DD").date()

@@ -1,4 +1,5 @@
 import functools
+import inspect
 from collections.abc import Callable
 
 from django.conf import settings
@@ -6,7 +7,8 @@ from django.contrib.auth.views import redirect_to_login
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django_htmx.http import HttpResponseClientRedirect
-from radiofeed.http import HttpResponseUnauthorized
+
+from movieclub.http import HttpResponseUnauthorized
 
 require_form_methods = require_http_methods(["GET", "HEAD", "POST"])
 
@@ -16,23 +18,22 @@ require_DELETE = require_http_methods(["DELETE"])  # noqa: N816
 def require_auth(view: Callable) -> Callable:
     """Login required decorator also handling HTMX and AJAX views."""
 
+    if inspect.iscoroutinefunction(view):
+
+        @functools.wraps(view)
+        async def _async_wrapper(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+            user = await request.auser()
+            if user.is_authenticated:
+                # monkeypatch request.user to prevent sync calls later
+                request.user = user
+                return await view(request, *args, **kwargs)
+            return _handle_unauthorized(request)
+
+        return _async_wrapper
+
     @functools.wraps(view)
     def _wrapper(request: HttpRequest, *args, **kwargs) -> HttpResponse:
         if request.user.is_authenticated:
-            return view(request, *args, **kwargs)
-        return _handle_unauthorized(request)
-
-    return _wrapper
-
-
-async def arequire_auth(view: Callable) -> Callable:
-    """Login required decorator also handling HTMX and AJAX views."""
-
-    @functools.wraps(view)
-    async def _wrapper(request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        user = await request.auser()
-        if user.is_authenticated:
-            request.user = user
             return view(request, *args, **kwargs)
         return _handle_unauthorized(request)
 

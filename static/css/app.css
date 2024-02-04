@@ -123,6 +123,7 @@
 
     .btn-outline {
         background-color: inherit;
+        border: solid theme("borderWidth.DEFAULT") theme("colors.blue.800");
     }
 
     .btn-primary.btn-outline {

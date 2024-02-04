@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from django.db import models
+from django.urls import reverse
+from django.utils.text import slugify
 from django_countries.fields import CountryField
 
 
@@ -49,6 +51,17 @@ class Movie(models.Model):
     def __str__(self) -> str:
         """Returns title."""
         return self.title
+
+    def get_absolute_url(self) -> str:
+        """Returns detail url."""
+
+        return reverse(
+            "movies:movie_detail",
+            kwargs={
+                "slug": slugify(self.title),
+                "movie_id": self.pk,
+            },
+        )
 
 
 class CastMember(models.Model):

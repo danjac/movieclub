@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load heroicons %}
+{% block content %}
+    <h1 class="pb-6 mb-6 text-xl font-bold border-b lg:text-2xl xl:text-3xl">Movies</h1>
+    {% if request.user.is_authenticated %}
+        <div class="space-y-3">
+            <h2 class="text-lg font-bold lg:text-xl xl:text-2xl">Add a Movie</h2>
+            <div class="relative">
+                <input type="search"
+                       name="query"
+                       autocomplete="off"
+                       placeholder="Search TmdB"
+                       hx-get="{% url 'movies:search_tmdb' %}"
+                       hx-trigger="input changed delay:500ms, search"
+                       hx-target="#search-results"
+                       hx-indicator="this"
+                       class="py-1 px-2 w-full placeholder-opacity-100 text-gray-900 rounded md:text-base dark:text-white dark:bg-gray-900 focus:ring focus:outline-none">
+                <div class="flex absolute inset-y-0 right-0 items-center pr-2">
+                    <button type="submit"
+                            title="Search"
+                            aria-label="Search TmdB"
+                            class="text-gray-900 dark:text-gray-100 focus:outline-none focus:shadow-outline">
+                        {% heroicon_mini "magnifying-glass" title="Search" %}
+                    </button>
+                </div>
+            </div>
+            <div id="search-results"></div>
+        </div>
+    {% endif %}
+{% endblock content %}
