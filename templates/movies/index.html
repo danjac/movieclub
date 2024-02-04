@@ -1,23 +1,34 @@
 {% extends "base.html" %}
 {% load heroicons %}
 {% block content %}
-    <div x-data="{addMovie: false, search: ''}"
-         @keyup.escape.window="addMovie=false"
-         x-init="$watch('addMovie', value => { if (!value) $refs.searchResults.innerHTML=''; search=''; })"
-         class="relative">
+    <div class="relative opacity-100 bg-inherit"
+        x-data="{addMovie: false, search: ''}"
+        @keyup.escape.window="addMovie=false"
+        {# djlint: off #}
+      x-init="
+      $watch('addMovie', value => {
+        if (!value) {
+          search='';
+          $refs.searchResults.innerHTML='';
+        }
+      })"
+        {# djlint: on #}
+        >
         <header class="flex justify-between items-center pb-3 mb-6 space-y-3 border-b sm:space-y-6">
             <h1 class="text-xl font-bold lg:text-2xl xl:text-3xl">Movies</h1>
-            <nav>
-                <ul>
-                    <li class="flex justify-center items-center sm:justify-start">
-                        <button class="inline-flex space-x-2 btn btn-default"
-                                @click="addMovie=!addMovie">
-                            {% heroicon_mini "plus" %}
-                            <span>Add a Movie</span>
-                        </button>
-                    </li>
-                </ul>
-            </nav>
+            {% if request.user.is_authenticated %}
+                <nav>
+                    <ul>
+                        <li class="flex justify-center items-center sm:justify-start">
+                            <button class="inline-flex space-x-2 btn btn-default"
+                                    @click="addMovie=!addMovie">
+                                {% heroicon_mini "plus" %}
+                                <span>Add a Movie</span>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            {% endif %}
         </header>
         {% if request.user.is_authenticated %}
             <div class="absolute z-50 p-2 space-y-3 w-full bg-white dark:bg-black"
@@ -28,6 +39,7 @@
                     <input type="search"
                            name="query"
                            x-model="search"
+                           x-trap="addMovie"
                            autocomplete="off"
                            placeholder="Search TmdB"
                            hx-get="{% url 'movies:search_tmdb' %}"
