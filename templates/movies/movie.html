@@ -12,7 +12,7 @@
                  height="300"
                  alt="{{ movie.title }}">
         </div>
-        <div class="flex flex-col place-content-between h-28 lg:h-32">
+        <div class="space-y-3">
             <p class="flex-wrap">{{ movie.overview }}</p>
             <div class="flex flex-wrap items-center max-w-prose leading-loose">
                 {% for genre in movie.genres.all %}

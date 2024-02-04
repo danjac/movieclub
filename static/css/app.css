@@ -30,13 +30,15 @@
 @layer components {
     /* FORMS */
 
-    .form-control:not(.is-checkbox) input {
-        background-color: inherit;
-        color: inherit;
-        font-size: inherit;
-        padding: theme("spacing.1");
-        width: theme("width.64");
-        border-radius: 0.25rem;
+    .form-control:not(.is-checkbox) {
+        input,
+        textarea {
+            background-color: inherit;
+            color: inherit;
+            font-size: inherit;
+            padding: theme("spacing.1");
+            border-radius: 0.25rem;
+        }
     }
 
     .has-errors input {

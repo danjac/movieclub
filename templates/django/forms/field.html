@@ -20,9 +20,9 @@
                     {{ field.label }}
                     {% if not required %}(optional){% endif %}
                 </label>
-                {% with WIDGET_CLASS="w-64 sm:w-96 text-inherit bg-inherit" %}
+                {% with WIDGET_CLASS="w-full sm:w-96 text-inherit bg-inherit" %}
                     {% if widget_type == "textarea" %}
-                        {% render_field field class+=WIDGET_CLASS rows=6 cols=40 %}
+                        {% render_field field class+=WIDGET_CLASS rows=6 %}
                     {% else %}
                         {% render_field field class+=WIDGET_CLASS %}
                     {% endif %}
