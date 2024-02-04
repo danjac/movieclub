@@ -1,27 +1,39 @@
 {# vim: set filetype=htmldjango #}
+{% load widget_tweaks %}
 {% if field.is_hidden %}
     {{ field }}
 {% else %}
-    {% with widget_type=field.field.widget.input_type required=field.field.required %}
+    {% with widget_type=field|widget_type required=field.field.required WIDGET_ERROR_CLASS="border border-red-800 dark:border-red-600" %}
         <div class="space-y-3 form-control is-{{ widget_type }}{% if field.errors %} has-errors{% endif %}">
-            {% if widget_type == "checkbox" %}
-                <label class="flex items-center w-full space-x-3 font-semibold{% if field.errors %} text-red-800 dark:text-red-500{% endif %}">
-                    {{ field }}
-                    <span>
-                        {{ field.label }}
-                        {% if not required %}(optional){% endif %}
-                    </span>
+            {% if widget_type == "checkboxinput" %}
+                <label class="flex items-center space-y-3 font-semibold">
+                    {% render_field field class+="mr-3" %}
+                    {{ field.label }}
+                </label>
+            {% elif widget_type == "radioselect" %}
+                <label class="space-y-3 font-semibold">
+                    <div>{{ field.label }}</div>
+                    <div>{% render_field field %}</div>
                 </label>
             {% else %}
-                <label class="block font-semibold{% if field.errors %} text-red-800 dark:text-red-500{% endif %}"
-                       for="{{ field.id_for_label }}">
+                <label class="block font-semibold" for="{{ field.id_for_label }}">
                     {{ field.label }}
                     {% if not required %}(optional){% endif %}
                 </label>
-                {{ field }}
+                {% with WIDGET_CLASS="w-64 sm:w-96 text-inherit bg-inherit" %}
+                    {% if widget_type == "textarea" %}
+                        {% render_field field class+=WIDGET_CLASS rows=6 cols=40 %}
+                    {% else %}
+                        {% render_field field class+=WIDGET_CLASS %}
+                    {% endif %}
+                {% endwith %}
             {% endif %}
             {{ field.errors }}
-            {% if field.help_text %}<div class="text-gray-600 dark:text-gray-300">{{ field.help_text }}</div>{% endif %}
+            {% if field.help_text %}
+                <p class="{% if field.errors %}text-red-800 dark:text-red-600{% else %}text-gray-600 dark:text-gray-300{% endif %}">
+                    {{ field.help_text }}
+                </p>
+            {% endif %}
         </div>
     {% endwith %}
 {% endif %}

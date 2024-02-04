@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% load heroicons %}
+{% load heroicons partials %}
 {% block content %}
     <h1 class="pb-6 mb-6 text-xl font-bold border-b lg:text-2xl xl:text-3xl">
         {{ movie.title }}
         {% if movie.release_date %}({{ movie.release_date|date:"Y" }}){% endif %}
     </h1>
-    <div class="space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
+    <div class="mb-6 space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
         <div class="w-96">
             <img src="{{ movie.poster }}"
                  width="200"
@@ -27,4 +27,27 @@
             </div>
         </div>
     </div>
+    <h2 class="pb-6 mb-6 text-lg font-bold border-b lg:text-xl xl:text-2xl">Reviews</h2>
+    <ul id="reviews" class="pb-3 mb-3 border-b divide-y divide">
+        {% for review in reviews %}
+            {% include "reviews/_review.html" %}
+        {% endfor %}
+    </ul>
+    {% if request.user.is_authenticated %}
+        <h3 class="mb-6 font-semibold">Submit a Review</h3>
+        {% partialdef review_form inline=True %}
+        <form hx-post="{% url 'movies:add_review' movie.pk %}"
+              hx-target="this"
+              hx-swap="outerHTML"
+              {% if new_review %}hx-swap-oob="true"{% endif %}
+              class="space-y-3"
+              id="review-form">
+            {{ review_form }}
+            <button class="inline-flex items-center btn btn-primary">
+                {% heroicon_mini "plus" class="mr-2" %}
+                <span>Submit</span>
+            </button>
+        </form>
+    {% endpartialdef %}
+{% endif %}
 {% endblock content %}
