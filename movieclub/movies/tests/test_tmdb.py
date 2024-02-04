@@ -1,13 +1,9 @@
-import json
-import pathlib
-
 import pytest
 
 from movieclub.client import get_client
 from movieclub.movies import tmdb
 from movieclub.movies.tests.factories import acreate_movie
-
-MOCKS_DIR = pathlib.Path(__file__).parent / "mocks"
+from movieclub.movies.tests.mocks import credits_json, movie_json
 
 
 class TestGetOrCreateMovie:
@@ -24,12 +20,12 @@ class TestGetOrCreateMovie:
     async def test_new_movie(self, httpx_mock):
         httpx_mock.add_response(
             url="https://api.themoviedb.org/3/movie/245891",
-            json=json.load((MOCKS_DIR / "movie.json").open("r")),
+            json=movie_json(),
         )
 
         httpx_mock.add_response(
             url="https://api.themoviedb.org/3/movie/245891/credits",
-            json=json.load((MOCKS_DIR / "credits.json").open("r")),
+            json=credits_json(),
         )
 
         movie, created = await tmdb.get_or_create_movie(get_client(), 245891)
