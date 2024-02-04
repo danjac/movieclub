@@ -16,7 +16,7 @@
             <p class="flex-wrap">{{ movie.overview }}</p>
             <div class="flex flex-wrap items-center max-w-prose leading-loose">
                 {% for genre in movie.genres.all %}
-                    <a class="inline-flex items-center btn btn-outline {{ forloop.first|yesno:"ml-0 my-2 mr-2,m-2" }}"
+                    <a class="inline-flex items-center m-2 btn btn-outline first-of-type:ml-0"
                        aria-label="{{ genre.name }} Movies"
                        title="{{ genre.name }} Movies"
                        href="">

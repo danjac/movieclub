@@ -36,7 +36,13 @@ async def search_tmdb(request: HttpRequest) -> HttpResponse:
     if query := request.GET.get("query", None):
         results = await tmdb.search_movies(get_client(), query)
 
-    return render(request, "movies/_search_tmdb.html", {"search_results": results})
+    return render(
+        request,
+        "movies/_search_tmdb.html",
+        {
+            "search_results": results[:12],
+        },
+    )
 
 
 @require_POST
