@@ -22,10 +22,9 @@ def require_auth(view: Callable) -> Callable:
 
         @functools.wraps(view)
         async def _async_wrapper(request: HttpRequest, *args, **kwargs) -> HttpResponse:
-            user = await request.auser()
-            if user.is_authenticated:
-                # monkeypatch request.user to prevent sync calls later
-                request.user = user
+            # monkeypatch request.user to prevent sync calls later
+            request.user = await request.auser()
+            if request.user.is_authenticated:
                 return await view(request, *args, **kwargs)
             return _handle_unauthorized(request)
 
