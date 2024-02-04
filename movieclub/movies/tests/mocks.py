@@ -13,4 +13,4 @@ def credits_json() -> dict:
 
 
 def search_results_json() -> dict:
-    return json.load((MOCKS_DIR / "search_results_json").open("r"))
+    return json.load((MOCKS_DIR / "search_results.json").open("r"))
