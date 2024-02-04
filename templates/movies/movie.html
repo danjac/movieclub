@@ -28,13 +28,13 @@
         </div>
     </div>
     <h2 class="pb-6 mb-6 text-lg font-bold border-b lg:text-xl xl:text-2xl">Reviews</h2>
-    <ul id="reviews" class="pb-3 mb-3 border-b divide-y divide">
+    <ul id="reviews" class="divide-y divide">
         {% for review in reviews %}
             {% include "reviews/_review.html" %}
         {% endfor %}
     </ul>
     {% if request.user.is_authenticated %}
-        <h3 class="mb-6 font-semibold">Submit a Review</h3>
+        <h3 class="my-6 font-semibold">Submit a Review</h3>
         {% partialdef review_form inline=True %}
         <form hx-post="{% url 'movies:add_review' movie.pk %}"
               hx-target="this"

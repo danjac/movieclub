@@ -20,7 +20,3 @@ class AbstractBaseReview(models.Model):
 
     class Meta:
         abstract = True
-
-    def __str__(self) -> str:
-        """Return review ID"""
-        return f"Review: {self.pk}"

@@ -1,15 +1,10 @@
 {# vim: set filetype=htmldjango #}
 <li class="py-3">
     <div class="space-y-3">
-        <div class="flex flex-wrap">
-            {% if review.url %}
-                <a href="{{ review.url }}" target="_blank" rel="noopener" class="link">Link</a>
-            {% else %}
-                {{ review.comment }}
-            {% endif %}
-        </div>
+        <div class="flex flex-wrap">{{ review.comment|linebreaksbr }}</div>
         <div class="flex items-center space-x-3">
             <a href="" class="link">{{ review.user.username }}</a> <span class="font-semibold">Posted {{ review.created|date }}</span>
+            {% if review.url %}<a href="{{ review.url }}" target="_blank" rel="noopener" class="link">Link</a>{% endif %}
         </div>
     </div>
 </li>

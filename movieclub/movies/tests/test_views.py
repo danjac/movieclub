@@ -41,6 +41,27 @@ class TestDetail:
         assert response.status_code == http.HTTPStatus.OK
 
 
+class TestAddReview:
+    @pytest.mark.django_db()
+    def test_post(self, client, auth_user):
+        movie = create_movie()
+        response = client.post(
+            reverse("movies:add_review", args=[movie.pk]),
+            {"comment": "test!"},
+        )
+
+        assert response.status_code == http.HTTPStatus.OK
+        assert movie.reviews.filter(user=auth_user).count() == 1
+
+    @pytest.mark.django_db()
+    def test_post_invalid(self, client, auth_user):
+        movie = create_movie()
+        response = client.post(reverse("movies:add_review", args=[movie.pk]), {})
+
+        assert response.status_code == http.HTTPStatus.OK
+        assert movie.reviews.filter(user=auth_user).count() == 0
+
+
 class TestSearchTmdb:
     url = reverse_lazy("movies:search_tmdb")
 
