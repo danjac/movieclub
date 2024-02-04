@@ -13,7 +13,9 @@ from movieclub.movies.models import Movie
 @require_safe
 def index(request: HttpRequest) -> HttpResponse:
     """Returns list of movies."""
-    return render(request, "movies/index.html", {})
+    # will paginate later
+    movies = Movie.objects.order_by("-pk")[:20]
+    return render(request, "movies/index.html", {"movies": movies})
 
 
 @require_safe
