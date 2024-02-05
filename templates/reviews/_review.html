@@ -1,10 +1,23 @@
 {# vim: set filetype=htmldjango #}
+{% load heroicons %}
 <div class="py-3 space-y-3" id="{{ review.pk }}">
     <div class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ review.comment|linebreaksbr }}</div>
     <div class="flex items-center space-x-3">
         <a href="" class="link">{{ review.user.username }}</a> <span class="font-semibold">Posted {{ review.created|date }}</span>
         {% if review.url %}<a href="{{ review.url }}" target="_blank" rel="noopener" class="link">Link</a>{% endif %}
     </div>
+    {% if user == review.user %}
+        <div class="flex items-center space-x-3">
+            <button class="inline-flex items-center space-x-2 btn btn-default">
+                {% heroicon_mini "pencil" %}
+                <span>Edit</span>
+            </button>
+            <button class="inline-flex items-center space-x-2 btn btn-danger">
+                {% heroicon_mini "trash" %}
+                <span>Delete</span>
+            </button>
+        </div>
+    {% endif %}
 </div>
 {% if new_review %}
     {% include "reviews/_review_form.html" with hx_oob=True %}
