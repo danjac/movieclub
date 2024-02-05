@@ -2,15 +2,15 @@ from django.contrib import messages
 from django.db import transaction
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import render_to_string
+from django.urls import reverse
 from django.views.decorators.http import require_POST, require_safe
-from django_htmx.http import reswap, retarget
 
 from movieclub.client import get_client
 from movieclub.decorators import require_auth
 from movieclub.movies import tmdb
 from movieclub.movies.forms import ReviewForm
 from movieclub.movies.models import Movie
+from movieclub.reviews.views import render_review_form
 
 
 @require_safe
@@ -32,6 +32,10 @@ def movie_detail(request: HttpRequest, movie_id: int, slug: str) -> HttpResponse
             "movie": movie,
             "reviews": movie.reviews.select_related("user").order_by("created"),
             "review_form": ReviewForm(),
+            "review_submit_url": reverse(
+                "movies:add_review",
+                kwargs={"movie_id": movie.pk},
+            ),
         },
     )
 
@@ -42,47 +46,19 @@ def add_review(request: HttpRequest, movie_id: int) -> HttpResponse:
     """Create a new review for the movie."""
     movie = get_object_or_404(Movie, pk=movie_id)
     form = ReviewForm(request.POST)
+    review = None
 
-    if not form.is_valid():
-        return render(
-            request,
-            "movies/movie.html#review_form",
-            {
-                "movie": movie,
-                "review_form": form,
-            },
-        )
+    if form.is_valid():
+        review = form.save(commit=False)
+        review.user = request.user
+        review.movie = movie
+        review.save()
 
-    review = form.save(commit=False)
-    review.user = request.user
-    review.movie = movie
-    review.save()
+        form = ReviewForm()
 
-    messages.success(request, "Your review has been posted!")
+        messages.success(request, "Your review has been posted!")
 
-    response = retarget(
-        reswap(
-            render(
-                request,
-                "reviews/_review.html",
-                {"review": review},
-            ),
-            "beforeend",
-        ),
-        "#reviews",
-    )
-    response.write(
-        render_to_string(
-            "movies/movie.html#review_form",
-            {
-                "movie": movie,
-                "review_form": ReviewForm(),
-                "new_review": True,
-            },
-            request,
-        )
-    )
-    return response
+    return render_review_form(request, form, review)
 
 
 @require_safe

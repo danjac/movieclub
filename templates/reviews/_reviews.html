@@ -1,0 +1,9 @@
+{# vim: set filetype=htmldjango #}
+<div id="reviews" class="divide-y divide">
+    {% for review in reviews %}
+        {% include "reviews/_review.html" %}
+    {% endfor %}
+    {% if user.is_authenticated %}
+        <div id="review-form-container">{% include "reviews/_review_form.html" %}</div>
+    {% endif %}
+</div>
