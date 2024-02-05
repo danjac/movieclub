@@ -1,5 +1,5 @@
 {# vim: set filetype=htmldjango #}
-<div class="py-3 space-y-3">
+<div class="py-3 space-y-3" id="{{ review.pk }}">
     <div class="flex flex-wrap">{{ review.comment|linebreaksbr }}</div>
     <div class="flex items-center space-x-3">
         <a href="" class="link">{{ review.user.username }}</a> <span class="font-semibold">Posted {{ review.created|date }}</span>
