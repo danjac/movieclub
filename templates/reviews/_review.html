@@ -1,6 +1,6 @@
 {# vim: set filetype=htmldjango #}
 <div class="py-3 space-y-3" id="{{ review.pk }}">
-    <div class="flex flex-wrap">{{ review.comment|linebreaksbr }}</div>
+    <div class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ review.comment|linebreaksbr }}</div>
     <div class="flex items-center space-x-3">
         <a href="" class="link">{{ review.user.username }}</a> <span class="font-semibold">Posted {{ review.created|date }}</span>
         {% if review.url %}<a href="{{ review.url }}" target="_blank" rel="noopener" class="link">Link</a>{% endif %}
