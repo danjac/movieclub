@@ -1,3 +1,5 @@
+import asyncio
+
 import arrow
 import httpx
 
@@ -35,8 +37,10 @@ async def get_or_create_movie(
     result = await _get_movie_from_tmdb(client, tmdb_id)
     movie = await _create_movie(tmdb_id, result)
 
-    await _add_genres(client, movie, result)
-    await _add_credits(client, movie)
+    await asyncio.gather(
+        _add_genres(movie, result),
+        _add_credits(client, movie),
+    )
 
     return movie, True
 
@@ -67,9 +71,7 @@ async def _create_movie(tmdb_id: int, tmdb_result: dict) -> Movie:
     )
 
 
-async def _add_genres(
-    client: httpx.AsyncClient, movie: Movie, tmdb_result: dict
-) -> None:
+async def _add_genres(movie: Movie, tmdb_result: dict) -> None:
     genre_dcts = tmdb_result.get("genres", [])
 
     # TBD: django command to prefetch all movie genres
