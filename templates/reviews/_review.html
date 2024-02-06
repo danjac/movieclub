@@ -1,23 +1,24 @@
 {# vim: set filetype=htmldjango #}
 {% load heroicons %}
-<div class="py-3 space-y-3" id="{{ review.pk }}">
-    <div class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ review.comment|linebreaksbr }}</div>
-    <div class="flex items-center space-x-3">
-        <a href="" class="link">{{ review.user.username }}</a> <span class="font-semibold">Posted {{ review.created|date }}</span>
-        {% if review.url %}<a href="{{ review.url }}" target="_blank" rel="noopener" class="link">Link</a>{% endif %}
-    </div>
-    {% if user == review.user %}
+<div class="relative py-3 space-y-3" id="{{ review.pk }}">
+    <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
         <div class="flex items-center space-x-3">
-            <button class="inline-flex items-center space-x-2 btn btn-sm btn-default">
-                {% heroicon_mini "pencil" %}
-                <span>Edit</span>
-            </button>
-            <button class="inline-flex items-center space-x-2 btn btn-sm btn-danger">
-                {% heroicon_mini "trash" %}
-                <span>Delete</span>
-            </button>
+            <a href="" class="link">{{ review.user.username }}@movieclub.social</a>
         </div>
-    {% endif %}
+        <div class="font-semibold">Posted {{ review.created|date }}</div>
+    </div>
+    <div class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ review.comment|linebreaksbr }}</div>
+    <div class="flex justify-between items-center text-xs lg:text-sm">
+        <div class="flex items-center space-x-3">
+            {% if user == review.user %}
+                <button class="link">Edit</button>
+                <button class="link">Delete</button>
+            {% else %}
+                <button class="link">Like</button>
+            {% endif %}
+        </div>
+        <div class="font-semibold">3 Likes</div>
+    </div>
 </div>
 {% if new_review %}
     {% include "reviews/_review_form.html" with hx_oob=True %}

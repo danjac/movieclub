@@ -30,7 +30,7 @@ def movie_detail(request: HttpRequest, movie_id: int, slug: str) -> HttpResponse
         "movies/movie.html",
         {
             "movie": movie,
-            "reviews": movie.reviews.select_related("user").order_by("created"),
+            "reviews": movie.reviews.select_related("user").order_by("-created"),
             "review_form": ReviewForm(),
             "review_submit_url": reverse(
                 "movies:add_review",

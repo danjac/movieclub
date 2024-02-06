@@ -25,9 +25,9 @@ def render_review_form(
                         "new_review": True,
                     },
                 ),
-                "beforebegin",
+                "afterbegin",
             ),
-            "#review-form-container",
+            "#reviews",
         )
 
     return render(
