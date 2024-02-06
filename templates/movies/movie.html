@@ -16,7 +16,7 @@
             <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ movie.overview }}</p>
             <div class="flex flex-wrap items-center max-w-prose leading-loose">
                 {% for genre in movie.genres.all %}
-                    <a class="inline-flex items-center m-2 first-of-type:ml-0"
+                    <a class="inline-flex items-center m-2 link first-of-type:ml-0"
                        aria-label="{{ genre.name }} Movies"
                        title="{{ genre.name }} Movies"
                        href="">
