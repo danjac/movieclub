@@ -33,22 +33,6 @@ class TestIndex:
         assert response.status_code == http.HTTPStatus.OK
 
 
-class TestDeleteReview:
-    @pytest.mark.django_db()
-    def test_delete_is_owner(self, client, auth_user):
-        review = create_review(user=auth_user)
-        response = client.delete(review.get_delete_url())
-        assert response.status_code == http.HTTPStatus.OK
-        assert Review.objects.exists() is False
-
-    @pytest.mark.django_db()
-    def test_delete_is_not_owner(self, client, auth_user):
-        review = create_review()
-        response = client.delete(review.get_delete_url())
-        assert response.status_code == http.HTTPStatus.OK
-        assert Review.objects.exists() is True
-
-
 class TestDetail:
     @pytest.mark.django_db()
     def test_get(self, client):
@@ -77,6 +61,58 @@ class TestAddReview:
 
         assert response.status_code == http.HTTPStatus.OK
         assert movie.reviews.filter(user=auth_user).count() == 0
+
+
+class TestEditReview:
+    @pytest.mark.django_db()
+    def test_get_is_owner(self, client, auth_user):
+        review = create_review(user=auth_user)
+        response = client.get(review.get_edit_url())
+        assert response.status_code == http.HTTPStatus.OK
+
+    @pytest.mark.django_db()
+    def test_get_cancel(self, client, auth_user):
+        review = create_review(user=auth_user)
+        response = client.get(review.get_edit_url(), {"action": "cancel"})
+        assert response.status_code == http.HTTPStatus.OK
+
+    @pytest.mark.django_db()
+    def test_get_is_not_owner(self, client, auth_user):
+        review = create_review()
+        response = client.get(review.get_edit_url())
+        assert response.status_code == http.HTTPStatus.NOT_FOUND
+
+    @pytest.mark.django_db()
+    def test_post(self, client, auth_user):
+        review = create_review(user=auth_user)
+        response = client.post(
+            review.get_edit_url(),
+            {
+                "comment": "updated comment!",
+                "url": "https://example.com",
+            },
+        )
+        assert response.status_code == http.HTTPStatus.OK
+
+        review.refresh_from_db()
+        assert review.comment == "updated comment!"
+        assert review.url == "https://example.com"
+
+
+class TestDeleteReview:
+    @pytest.mark.django_db()
+    def test_delete_is_owner(self, client, auth_user):
+        review = create_review(user=auth_user)
+        response = client.delete(review.get_delete_url())
+        assert response.status_code == http.HTTPStatus.OK
+        assert Review.objects.exists() is False
+
+    @pytest.mark.django_db()
+    def test_delete_is_not_owner(self, client, auth_user):
+        review = create_review()
+        response = client.delete(review.get_delete_url())
+        assert response.status_code == http.HTTPStatus.OK
+        assert Review.objects.exists() is True
 
 
 class TestSearchTmdb:

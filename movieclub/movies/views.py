@@ -6,11 +6,11 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST, require_safe
 
 from movieclub.client import get_client
-from movieclub.decorators import require_auth, require_DELETE
+from movieclub.decorators import require_auth, require_DELETE, require_form_methods
 from movieclub.movies import tmdb
 from movieclub.movies.forms import ReviewForm
 from movieclub.movies.models import Movie, Review
-from movieclub.reviews.views import render_review_form
+from movieclub.reviews.views import render_review_create_form, render_review_edit_form
 
 
 @require_safe
@@ -58,7 +58,32 @@ def add_review(request: HttpRequest, movie_id: int) -> HttpResponse:
 
         messages.success(request, "Your review has been posted!")
 
-    return render_review_form(request, form, review)
+    return render_review_create_form(request, form, review)
+
+
+@require_form_methods
+@require_auth
+def edit_review(request: HttpRequest, review_id: int) -> HttpResponse:
+    """Edit review."""
+    review = get_object_or_404(Review, user=request.user, pk=review_id)
+
+    is_success: bool = False
+
+    if request.method == "POST":
+        form = ReviewForm(request.POST, instance=review)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your review has been updated")
+            is_success = True
+    else:
+        form = ReviewForm(instance=review)
+
+    return render_review_edit_form(
+        request,
+        review,
+        form,
+        is_success=is_success,
+    )
 
 
 @require_DELETE

@@ -6,7 +6,41 @@ from movieclub.reviews.forms import BaseReviewForm
 from movieclub.reviews.models import AbstractBaseReview
 
 
-def render_review_form(
+def render_review_edit_form(
+    request: HttpRequest,
+    review: AbstractBaseReview,
+    form: BaseReviewForm,
+    *,
+    is_success: bool = False,
+) -> HttpResponse:
+    """Render edit form or updated review."""
+    context = {
+        "review": review,
+        "review_submit_url": request.path,
+    }
+    if is_success:
+        return retarget(
+            reswap(
+                render(request, "reviews/_review.html", context),
+                "innerHTML",
+            ),
+            f"#{review.get_target_id()}",
+        )
+
+    if request.GET.get("action") == "cancel":
+        return render(request, "reviews/_review.html", context)
+
+    return render(
+        request,
+        "reviews/_review_form.html",
+        {
+            **context,
+            "review_form": form,
+        },
+    )
+
+
+def render_review_create_form(
     request: HttpRequest,
     form: BaseReviewForm,
     review: AbstractBaseReview | None = None,

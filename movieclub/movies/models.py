@@ -120,6 +120,10 @@ class Review(AbstractBaseReview):
         """Return target in DOM"""
         return f"review-movie-{self.pk}"
 
+    def get_edit_url(self) -> str:
+        """URL to edit endpoint."""
+        return reverse("movies:edit_review", kwargs={"review_id": self.pk})
+
     def get_delete_url(self) -> str:
         """URL to delete endpoint."""
         return reverse("movies:delete_review", kwargs={"review_id": self.pk})
