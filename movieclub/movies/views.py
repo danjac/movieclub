@@ -6,10 +6,10 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST, require_safe
 
 from movieclub.client import get_client
-from movieclub.decorators import require_auth
+from movieclub.decorators import require_auth, require_DELETE
 from movieclub.movies import tmdb
 from movieclub.movies.forms import ReviewForm
-from movieclub.movies.models import Movie
+from movieclub.movies.models import Movie, Review
 from movieclub.reviews.views import render_review_form
 
 
@@ -59,6 +59,15 @@ def add_review(request: HttpRequest, movie_id: int) -> HttpResponse:
         messages.success(request, "Your review has been posted!")
 
     return render_review_form(request, form, review)
+
+
+@require_DELETE
+@require_auth
+def delete_review(request: HttpRequest, review_id: int) -> HttpResponse:
+    """Delete a review"""
+    Review.objects.filter(user=request.user, pk=review_id).delete()
+    messages.info(request, "Your review has been deleted")
+    return HttpResponse()
 
 
 @require_safe

@@ -1,8 +1,10 @@
 from django.conf import settings
 from django.db import models
+from model_utils.managers import InheritanceManager
+from model_utils.models import TimeStampedModel
 
 
-class AbstractBaseReview(models.Model):
+class AbstractBaseReview(TimeStampedModel):
     """Abstract model class."""
 
     user = models.ForeignKey(
@@ -16,7 +18,15 @@ class AbstractBaseReview(models.Model):
 
     comment = models.TextField()
 
-    created = models.DateTimeField(auto_now_add=True)
+    objects = InheritanceManager()
 
     class Meta:
         abstract = True
+
+    def get_target_id(self) -> str:
+        """Return HTMX target in DOM."""
+        raise NotImplementedError  # pragma: no cover
+
+    def get_delete_url(self) -> str:
+        """URL to delete endpoint."""
+        raise NotImplementedError  # pragma: no cover

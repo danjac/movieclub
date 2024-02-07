@@ -115,3 +115,11 @@ class Review(AbstractBaseReview):
         on_delete=models.CASCADE,
         related_name="reviews",
     )
+
+    def get_target_id(self) -> str:
+        """Return target in DOM"""
+        return f"review-movie-{self.pk}"
+
+    def get_delete_url(self) -> str:
+        """URL to delete endpoint."""
+        return reverse("movies:delete_review", kwargs={"review_id": self.pk})

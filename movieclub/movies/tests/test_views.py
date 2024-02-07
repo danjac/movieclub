@@ -5,8 +5,8 @@ import pytest
 from django.urls import reverse, reverse_lazy
 
 from movieclub.movies import views
-from movieclub.movies.models import Movie
-from movieclub.movies.tests.factories import acreate_movie, create_movie
+from movieclub.movies.models import Movie, Review
+from movieclub.movies.tests.factories import acreate_movie, create_movie, create_review
 from movieclub.movies.tests.mocks import credits_json, movie_json, search_results_json
 from movieclub.tests.factories import create_batch
 from movieclub.users.models import User
@@ -33,10 +33,27 @@ class TestIndex:
         assert response.status_code == http.HTTPStatus.OK
 
 
+class TestDeleteReview:
+    @pytest.mark.django_db()
+    def test_delete_is_owner(self, client, auth_user):
+        review = create_review(user=auth_user)
+        response = client.delete(review.get_delete_url())
+        assert response.status_code == http.HTTPStatus.OK
+        assert Review.objects.exists() is False
+
+    @pytest.mark.django_db()
+    def test_delete_is_not_owner(self, client, auth_user):
+        review = create_review()
+        response = client.delete(review.get_delete_url())
+        assert response.status_code == http.HTTPStatus.OK
+        assert Review.objects.exists() is True
+
+
 class TestDetail:
     @pytest.mark.django_db()
     def test_get(self, client):
         movie = create_movie()
+        create_batch(create_review, 3, movie=movie)
         response = client.get(movie.get_absolute_url())
         assert response.status_code == http.HTTPStatus.OK
 
