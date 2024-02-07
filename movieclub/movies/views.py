@@ -76,7 +76,7 @@ def add_review(request: HttpRequest, movie_id: int) -> HttpResponse:
             "#reviews",
         )
 
-    return render_review_form(request, review, form)
+    return render_review_form(request, form)
 
 
 @require_form_methods
