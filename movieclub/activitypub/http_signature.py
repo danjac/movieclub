@@ -21,9 +21,10 @@ def create_key_pair() -> tuple[str, str]:
 
 def make_signature(
     destination_url: str,
+    *,
     private_key: str,
     object_id: str,
-    method: str,
+    method: str = "POST",
     date: datetime.datetime | None = None,
 ) -> str:
     """Creates a signature from private key."""
