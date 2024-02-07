@@ -44,6 +44,7 @@ def render_updated_review(
         review,
         hx_retarget=hx_retarget or f"#{review.get_target_id()}",
         hx_reswap=hx_reswap,
+        **kwargs,
     )
 
 
