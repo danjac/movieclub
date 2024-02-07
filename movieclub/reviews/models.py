@@ -4,7 +4,7 @@ from model_utils.managers import InheritanceManager
 from model_utils.models import TimeStampedModel
 
 
-class AbstractBaseReview(TimeStampedModel):
+class BaseReview(TimeStampedModel):
     """Abstract model class."""
 
     user = models.ForeignKey(

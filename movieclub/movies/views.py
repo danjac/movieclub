@@ -4,18 +4,14 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST, require_safe
+from django_htmx.http import reswap, retarget
 
 from movieclub.client import get_client
 from movieclub.decorators import require_auth, require_DELETE, require_form_methods
 from movieclub.movies import tmdb
 from movieclub.movies.forms import ReviewForm
 from movieclub.movies.models import Movie, Review
-from movieclub.reviews.views import (
-    render_new_review,
-    render_review,
-    render_review_form,
-    render_updated_review,
-)
+from movieclub.reviews.views import render_review, render_review_form
 
 
 @require_safe
@@ -36,6 +32,9 @@ def movie_detail(request: HttpRequest, movie_id: int, slug: str) -> HttpResponse
         {
             "movie": movie,
             "reviews": movie.reviews.select_related("user").order_by("-created"),
+            "cast_members": movie.cast_members.select_related("person").order_by(
+                "order"
+            )[:6],
             "review_form": ReviewForm(),
             "review_submit_url": reverse(
                 "movies:add_review",
@@ -50,6 +49,7 @@ def movie_detail(request: HttpRequest, movie_id: int, slug: str) -> HttpResponse
 def add_review(request: HttpRequest, movie_id: int) -> HttpResponse:
     """Create a new review for the movie."""
     movie = get_object_or_404(Movie, pk=movie_id)
+
     form = ReviewForm(request.POST)
 
     if form.is_valid():
@@ -59,16 +59,35 @@ def add_review(request: HttpRequest, movie_id: int) -> HttpResponse:
         review.save()
 
         messages.success(request, "Your review has been posted!")
-        return render_new_review(request, review, ReviewForm())
 
-    return render_review_form(request, form)
+        return retarget(
+            reswap(
+                render_review(
+                    request,
+                    review,
+                    {
+                        "new_review": True,
+                        "review_submit_url": request.path,
+                        "review_form": ReviewForm(),
+                    },
+                ),
+                "afterbegin",
+            ),
+            "#reviews",
+        )
+
+    return render_review_form(request, review, form)
 
 
 @require_form_methods
 @require_auth
 def edit_review(request: HttpRequest, review_id: int) -> HttpResponse:
     """Edit review."""
-    review = get_object_or_404(Review, user=request.user, pk=review_id)
+    review = get_object_or_404(
+        Review.objects.select_related("user"),
+        user=request.user,
+        pk=review_id,
+    )
 
     if request.GET.get("action") == "cancel":
         return render_review(request, review)
@@ -78,7 +97,13 @@ def edit_review(request: HttpRequest, review_id: int) -> HttpResponse:
         if form.is_valid():
             form.save()
             messages.success(request, "Your review has been updated")
-            return render_updated_review(request, review)
+            return retarget(
+                reswap(
+                    render_review(request, review),
+                    "innerHTML",
+                ),
+                f"#{review.get_target_id()}",
+            )
     else:
         form = ReviewForm(instance=review)
 

@@ -6,7 +6,7 @@
         {% if movie.release_date %}({{ movie.release_date|date:"Y" }}){% endif %}
     </h1>
     <div class="mb-6 space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
-        <div class="w-96">
+        <div>
             <img src="{{ movie.poster }}"
                  width="200"
                  height="300"
@@ -27,6 +27,22 @@
             </div>
         </div>
     </div>
-    <h2 class="pb-6 mb-6 text-lg font-bold border-b lg:text-xl xl:text-2xl">Reviews</h2>
-    {% include "reviews/_reviews.html" %}
+    <div class="mb-6">
+        <h2 class="pb-6 mb-6 text-lg font-bold border-b lg:text-xl xl:text-2xl">Cast</h2>
+        <div class="grid grid-cols-3 gap-1 sm:grid-cols-6">
+            {% for cast_member in cast_members %}
+                <a href="" title="{{ cast_member.person.name }}">
+                    <img src="{{ cast_member.person.profile }}"
+                         width="200"
+                         height="300"
+                         class="object-contain"
+                         alt="{{ cast_member.person.name }}">
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+    <div>
+        <h2 class="pb-6 mb-6 text-lg font-bold border-b lg:text-xl xl:text-2xl">Reviews</h2>
+        {% include "reviews/_reviews.html" %}
+    </div>
 {% endblock content %}

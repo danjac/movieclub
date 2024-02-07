@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django_countries.fields import CountryField
 
-from movieclub.reviews.models import AbstractBaseReview
+from movieclub.reviews.models import BaseReview
 
 
 class Genre(models.Model):
@@ -107,7 +107,7 @@ class CrewMember(models.Model):
         return self.job
 
 
-class Review(AbstractBaseReview):
+class Review(BaseReview):
     """Move review."""
 
     movie = models.ForeignKey(
