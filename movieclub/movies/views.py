@@ -96,7 +96,8 @@ def delete_review(request: HttpRequest, review_id: int) -> HttpResponse:
 
 @require_safe
 @transaction.non_atomic_requests
-async def search_tmdb(request: HttpRequest) -> HttpResponse:
+# TBD: should be auth only
+async def search_tmdb(request: HttpRequest, limit: int = 12) -> HttpResponse:
     """Search TMDB and get result.
     This should be cached!
     """
@@ -109,14 +110,14 @@ async def search_tmdb(request: HttpRequest) -> HttpResponse:
         request,
         "movies/_search_tmdb.html",
         {
-            "search_results": results[:12],
+            "search_results": results[:limit],
         },
     )
 
 
 @require_POST
-@transaction.non_atomic_requests
 @require_auth
+@transaction.non_atomic_requests
 async def add_movie(request: HttpRequest, tmdb_id: int) -> HttpResponse:
     """Given a TMDB ID, add new user and redirect there."""
 

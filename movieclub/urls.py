@@ -9,6 +9,7 @@ admin.site.site_header = settings.ADMIN_SITE_HEADER
 
 urlpatterns = [
     path("", views.landing_page, name="landing_page"),
+    path("", include("movieclub.activitypub.urls")),
     path("movies/", include("movieclub.movies.urls")),
     path("account/", include("allauth.urls")),
     path("ht/", include("health_check.urls")),
