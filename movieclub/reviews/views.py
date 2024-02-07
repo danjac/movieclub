@@ -6,69 +6,88 @@ from movieclub.reviews.forms import BaseReviewForm
 from movieclub.reviews.models import AbstractBaseReview
 
 
-def render_review_edit_form(
+def render_new_review(
     request: HttpRequest,
     review: AbstractBaseReview,
     form: BaseReviewForm,
     *,
-    is_success: bool = False,
+    hx_retarget: str | None = "#reviews",
+    hx_reswap="afterbegin",
+    extra_context: dict | None = None,
 ) -> HttpResponse:
-    """Render edit form or updated review."""
-    context = {
-        "review": review,
-        "review_submit_url": request.path,
-    }
-    if is_success:
-        return retarget(
-            reswap(
-                render(request, "reviews/_review.html", context),
-                "innerHTML",
-            ),
-            f"#{review.get_target_id()}",
-        )
-
-    if request.GET.get("action") == "cancel":
-        return render(request, "reviews/_review.html", context)
-
-    return render(
+    """Render new review after successful submit."""
+    return render_review(
         request,
-        "reviews/_review_form.html",
-        {
-            **context,
+        review,
+        hx_retarget=hx_retarget,
+        hx_reswap=hx_reswap,
+        extra_context={
             "review_form": form,
+            "review_submit_url": request.path,
+            "new_review": True,
+            **(extra_context or {}),
         },
     )
 
 
-def render_review_create_form(
+def render_updated_review(
+    request: HttpRequest,
+    review: AbstractBaseReview,
+    *,
+    hx_retarget: str | None = None,
+    hx_reswap="innerHTML",
+    **kwargs,
+):
+    """Render review after successful update."""
+    return render_review(
+        request,
+        review,
+        hx_retarget=hx_retarget or f"#{review.get_target_id()}",
+        hx_reswap=hx_reswap,
+    )
+
+
+def render_review_form(
     request: HttpRequest,
     form: BaseReviewForm,
     review: AbstractBaseReview | None = None,
+    extra_context: dict | None = None,
 ) -> HttpResponse:
-    """Renders new review and form as needed."""
-    if review is not None:
-        return retarget(
-            reswap(
-                render(
-                    request,
-                    "reviews/_review.html",
-                    {
-                        "review": review,
-                        "review_form": form,
-                        "review_submit_url": request.path,
-                        "new_review": True,
-                    },
-                ),
-                "afterbegin",
-            ),
-            "#reviews",
-        )
-
+    """Renders review form."""
     return render(
         request,
         "reviews/_review_form.html",
         {
+            **(extra_context or {}),
+            "review": review,
             "review_form": form,
             "review_submit_url": request.path,
         },
     )
+
+
+def render_review(
+    request: HttpRequest,
+    review: AbstractBaseReview,
+    *,
+    hx_reswap=None,
+    hx_retarget: str | None = None,
+    extra_context: dict | None = None,
+) -> HttpResponse:
+    """Renders review snippet."""
+
+    response = render(
+        request,
+        "reviews/_review.html",
+        {
+            "review": review,
+            **(extra_context or {}),
+        },
+    )
+
+    if hx_reswap:
+        response = reswap(response, hx_reswap)
+    if hx_retarget:
+        response = retarget(response, hx_retarget)
+
+    return response

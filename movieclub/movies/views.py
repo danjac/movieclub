@@ -10,7 +10,12 @@ from movieclub.decorators import require_auth, require_DELETE, require_form_meth
 from movieclub.movies import tmdb
 from movieclub.movies.forms import ReviewForm
 from movieclub.movies.models import Movie, Review
-from movieclub.reviews.views import render_review_create_form, render_review_edit_form
+from movieclub.reviews.views import (
+    render_new_review,
+    render_review,
+    render_review_form,
+    render_updated_review,
+)
 
 
 @require_safe
@@ -46,7 +51,6 @@ def add_review(request: HttpRequest, movie_id: int) -> HttpResponse:
     """Create a new review for the movie."""
     movie = get_object_or_404(Movie, pk=movie_id)
     form = ReviewForm(request.POST)
-    review = None
 
     if form.is_valid():
         review = form.save(commit=False)
@@ -54,11 +58,10 @@ def add_review(request: HttpRequest, movie_id: int) -> HttpResponse:
         review.movie = movie
         review.save()
 
-        form = ReviewForm()
-
         messages.success(request, "Your review has been posted!")
+        return render_new_review(request, review, ReviewForm())
 
-    return render_review_create_form(request, form, review)
+    return render_review_form(request, form)
 
 
 @require_form_methods
@@ -67,23 +70,19 @@ def edit_review(request: HttpRequest, review_id: int) -> HttpResponse:
     """Edit review."""
     review = get_object_or_404(Review, user=request.user, pk=review_id)
 
-    is_success: bool = False
+    if request.GET.get("action") == "cancel":
+        return render_review(request, review)
 
     if request.method == "POST":
         form = ReviewForm(request.POST, instance=review)
         if form.is_valid():
             form.save()
             messages.success(request, "Your review has been updated")
-            is_success = True
+            return render_updated_review(request, review)
     else:
         form = ReviewForm(instance=review)
 
-    return render_review_edit_form(
-        request,
-        review,
-        form,
-        is_success=is_success,
-    )
+    return render_review_form(request, form, review)
 
 
 @require_DELETE

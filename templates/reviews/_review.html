@@ -37,5 +37,5 @@
     </div>
 {% endwith %}
 {% if new_review %}
-    {% include "reviews/_review_form.html" with hx_oob=True %}
+    {% include "reviews/_review_form.html" with hx_oob=True review=None %}
 {% endif %}
