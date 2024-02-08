@@ -1,28 +1,33 @@
 from django.http import Http404, HttpRequest, JsonResponse
-from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 
-from movieclub.users.models import User
+from movieclub.activitypub.models import Actor
 
 
 @require_GET
 def webfinger(request: HttpRequest) -> JsonResponse:
     """Webfinger implementation for user."""
-    if (resource := request.GET.get("resource")) and resource.startswith("acct:"):
-        user = get_object_or_404(
-            User,
-            is_active=True,
-            username__iexact=resource[5:],
-        )
+
+    if resource := request.GET.get("resource"):
+        try:
+            actor = (
+                Actor.objects.local()
+                .select_related("instance")
+                .get_for_resource(resource)
+            )
+        except Actor.DoesNotExist as e:
+            raise Http404 from e
+
+        resource = actor.get_resource()
 
         return JsonResponse(
             {
-                "subject": f"acct:{user.username}",
+                "subject": f"acct:{resource}",
                 "links": [
                     {
                         "rel": "self",
                         "type": "application/activity+json",
-                        "href": f"https://{request.site.domain}@{user.username}",
+                        "href": f"https://{resource}",
                     },
                 ],
             }
@@ -42,7 +47,7 @@ def nodeinfo(request: HttpRequest) -> JsonResponse:
             "protocols": ["activitypub"],
             "usage": {
                 "users": {
-                    "total": User.objects.filter(is_active=True).count(),
+                    "total": Actor.objects.local().count(),
                 },
                 "localPosts": 0,
             },

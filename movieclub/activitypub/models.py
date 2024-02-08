@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import ClassVar
 
 from django.conf import settings
@@ -17,6 +19,33 @@ class Instance(TimeStampedModel):
         return self.domain
 
 
+class ActorQuerySet(models.QuerySet):
+    """QuerySet for Actor."""
+
+    def local(self) -> ActorQuerySet:
+        """Returns local actors."""
+        return self.filter(instance__local=True)
+
+    def get_for_resource(self, resource: str) -> Actor:
+        """Returns Actor matching resource [acct:]name@domain.
+
+        Raises DoesNotExist if not found.
+        """
+
+        if resource.startswith("acct:"):
+            resource = resource[5:]
+
+        try:
+            handle, domain = resource.split("@")
+        except ValueError as e:
+            raise self.model.DoesNotExist from e
+
+        return self.get(
+            instance__domain__iexact=domain,
+            handle__iexact=handle,
+        )
+
+
 class Actor(TimeStampedModel):
     """ActivityPub Actor."""
 
@@ -33,7 +62,7 @@ class Actor(TimeStampedModel):
     )
     # for a Remote instance
 
-    handle = models.CharField(max_length=120, blank=True)
+    handle = models.CharField(max_length=120)
     name = models.CharField(max_length=120, blank=True)
     summary = models.TextField(blank=True)
 
@@ -48,8 +77,6 @@ class Actor(TimeStampedModel):
         on_delete=models.SET_NULL,
     )
 
-    # TBD: when we have Groups, those will also be Actors.
-
     # blocked for all users: each user will have own block list
     blocked = models.BooleanField(default=False)
 
@@ -61,6 +88,8 @@ class Actor(TimeStampedModel):
     # for Local instances
     private_key = models.TextField(blank=True)
     public_key = models.TextField(blank=True)
+
+    objects = ActorQuerySet.as_manager()
 
     class Meta:
         constraints: ClassVar = [
@@ -75,6 +104,14 @@ class Actor(TimeStampedModel):
                 condition=models.Q(user__isnull=False),
             ),
         ]
+
+    def __str__(self) -> str:
+        """Return handle"""
+        return self.handle
+
+    def get_resource(self) -> str:
+        """Returns name@domain"""
+        return f"{self.handle}@{self.instance.domain}"
 
 
 class Following(TimeStampedModel):
@@ -99,10 +136,5 @@ class Following(TimeStampedModel):
             models.UniqueConstraint(
                 fields=["follower", "followed"],
                 name="%(app_label)s_%(class)s_unique_following",
-                condition=~models.Q(handle=""),
             ),
         ]
-
-    def __str__(self) -> str:
-        """Returns status"""
-        return self.status
