@@ -1,10 +1,21 @@
 from __future__ import annotations
 
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 from django.conf import settings
 from django.db import models
 from model_utils.models import TimeStampedModel
+
+if TYPE_CHECKING:  # pragma: no cover
+    from movieclub.users.models import User
+
+
+class InstanceQuerySet(models.QuerySet):
+    """QuerySet for Instance."""
+
+    def local(self) -> InstanceQuerySet:
+        """Return local instances"""
+        return self.filter(local=True)
 
 
 class Instance(TimeStampedModel):
@@ -13,6 +24,8 @@ class Instance(TimeStampedModel):
     domain = models.CharField(max_length=120, unique=True)
     local = models.BooleanField(default=True)
     blocked = models.BooleanField(default=False)
+
+    objects = InstanceQuerySet.as_manager()
 
     def __str__(self) -> str:
         """Return the domain."""
@@ -25,6 +38,15 @@ class ActorQuerySet(models.QuerySet):
     def local(self) -> ActorQuerySet:
         """Returns local actors."""
         return self.filter(instance__local=True)
+
+    def create_for_user(self, user: User, instance: Instance, **kwargs) -> Actor:
+        """Creates actor for local instance."""
+
+        return self.create(
+            user=user,
+            handle=user.username,
+            instance=instance,
+        )
 
     def get_for_resource(self, resource: str) -> Actor:
         """Returns Actor matching resource [acct:]name@domain.
