@@ -9,6 +9,11 @@ def site_instance(site):
 
 
 @pytest.fixture()
+def instance(site):
+    return create_instance()
+
+
+@pytest.fixture()
 def actor():
     return create_actor()
 

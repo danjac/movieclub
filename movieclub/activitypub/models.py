@@ -6,6 +6,8 @@ from django.conf import settings
 from django.db import models
 from model_utils.models import TimeStampedModel
 
+from movieclub.activitypub.http_signature import create_key_pair
+
 if TYPE_CHECKING:  # pragma: no cover
     from django.contrib.sites.models import Site
 
@@ -48,10 +50,14 @@ class ActorQuerySet(models.QuerySet):
     def create_for_user(self, user: User, instance: Instance, **kwargs) -> Actor:
         """Creates actor for local instance."""
 
+        priv_key, pub_key = create_key_pair()
+
         return self.create(
             user=user,
             handle=user.username,
             instance=instance,
+            private_key=priv_key,
+            public_key=pub_key,
         )
 
     def get_for_resource(self, resource: str) -> Actor:
@@ -94,7 +100,11 @@ class Actor(TimeStampedModel):
     name = models.CharField(max_length=120, blank=True)
     summary = models.TextField(blank=True)
 
-    actor_type = models.CharField(max_length=15, default=ActorType.PERSON)
+    actor_type = models.CharField(
+        max_length=15,
+        default=ActorType.PERSON,
+        choices=ActorType,
+    )
 
     # for a Local instance user
     user = models.OneToOneField(

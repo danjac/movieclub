@@ -49,3 +49,11 @@ class TestActor:
             handle="tester",
         )
         assert actor.get_resource() == "tester@example.com"
+
+    @pytest.mark.django_db()
+    def test_create_for_user(self, user, instance):
+        actor = Actor.objects.create_for_user(user, instance)
+        assert actor.user == user
+        assert actor.instance == instance
+        assert actor.public_key
+        assert actor.private_key
