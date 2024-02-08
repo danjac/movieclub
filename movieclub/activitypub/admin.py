@@ -9,7 +9,7 @@ from movieclub.activitypub.models import Actor, Instance
 class InstanceAdmin(admin.ModelAdmin):
     """Admin for Instance."""
 
-    list_display: ClassVar = ["domain", "local", "block"]
+    list_display: ClassVar = ["domain", "local"]
 
 
 @admin.register(Actor)

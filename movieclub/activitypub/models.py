@@ -7,6 +7,8 @@ from django.db import models
 from model_utils.models import TimeStampedModel
 
 if TYPE_CHECKING:  # pragma: no cover
+    from django.contrib.sites.models import Site
+
     from movieclub.users.models import User
 
 
@@ -16,6 +18,10 @@ class InstanceQuerySet(models.QuerySet):
     def local(self) -> InstanceQuerySet:
         """Return local instances"""
         return self.filter(local=True)
+
+    def get_for_site(self, site: Site) -> Instance:
+        """Return local site matching site domain."""
+        return self.get(domain__iexact=site.domain)
 
 
 class Instance(TimeStampedModel):
