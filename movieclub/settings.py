@@ -73,6 +73,7 @@ INSTALLED_APPS: list[str] = [
     "heroicons",
     "template_partials",
     "widget_tweaks",
+    "movieclub.activitypub",
     "movieclub.movies",
     "movieclub.people",
     "movieclub.reviews",
