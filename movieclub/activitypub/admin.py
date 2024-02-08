@@ -16,6 +16,6 @@ class InstanceAdmin(admin.ModelAdmin):
 class ActorAdmin(admin.ModelAdmin):
     """Admin for Instance."""
 
-    list_display: ClassVar = ["handle", "instance", "user"]
+    list_display: ClassVar = ["handle", "instance"]
     list_select_related: ClassVar = True
     raw_id_fields: ClassVar = ["instance", "user"]
