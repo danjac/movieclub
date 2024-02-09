@@ -123,7 +123,7 @@ class Follow(TimeStampedModel):
         blank=True,
     )
 
-    activity_object_id = models.UUIDField(unique=True, default=uuid.uuid4)
+    activitypub_object_id = models.CharField(max_length=200, default=uuid.uuid4)
 
     status = models.CharField(max_length=15, default=Status.REQUESTED)
 

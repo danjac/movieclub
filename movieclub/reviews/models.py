@@ -1,4 +1,5 @@
 import uuid
+from typing import ClassVar
 
 from django.conf import settings
 from django.db import models
@@ -8,6 +9,10 @@ from model_utils.models import TimeStampedModel
 
 class BaseReview(TimeStampedModel):
     """Abstract model class."""
+
+    class ActivitypubStatus(models.TextChoices):
+        PENDING = "pending", "Pending"
+        DISPATCHED = "dispatched", "Dispatched"
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -23,7 +28,14 @@ class BaseReview(TimeStampedModel):
         on_delete=models.SET_NULL,
     )
 
-    activity_object_id = models.UUIDField(unique=True, default=uuid.uuid4)
+    # should be unique for actor+instance or local site
+    activitypub_object_id = models.CharField(max_length=200, default=uuid.uuid4)
+
+    activitypub_status = models.CharField(
+        max_length=12,
+        default=ActivitypubStatus.PENDING,
+        choices=ActivitypubStatus,
+    )
 
     url = models.URLField(blank=True)
 
@@ -32,7 +44,27 @@ class BaseReview(TimeStampedModel):
     objects = InheritanceManager()
 
     class Meta:
-        abstract = True
+        abstract: ClassVar = True
+
+        constraints: ClassVar = [
+            models.CheckConstraint(
+                check=models.Q(
+                    models.Q(user__isnull=False, actor__isnull=True)
+                    | models.Q(actor__isnull=False, user__isnull=True),
+                ),
+                name="%(app_label)s_%(class)s_actor_or_user",
+            ),
+            models.UniqueConstraint(
+                fields=["activitypub_object_id", "user"],
+                name="%(app_label)s_%(class)s_unique_local_object_id",
+                condition=models.Q(user__isnull=False),
+            ),
+            models.UniqueConstraint(
+                fields=["activitypub_object_id", "actor"],
+                name="%(app_label)s_%(class)s_unique_remote_object_id",
+                condition=models.Q(actor__isnull=False),
+            ),
+        ]
 
     def get_target_id(self) -> str:
         """Return HTMX target in DOM."""
