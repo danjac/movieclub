@@ -18,6 +18,7 @@ env = environ.Env(
     DATABASE_URL=(str, "postgresql://postgres:password@127.0.0.1:5432/postgres"),
     DEBUG=(bool, False),
     EMAIL_URL=(str, "smtp://127.0.0.1:1025"),
+    INVITATIONS_INVITATION_ONLY=(bool, True),
     MAILGUN_API_KEY=(str, ""),
     # For European domains: https://api.eu.mailgun.net/v3
     MAILGUN_API_URL=(str, "https://api.mailgun.net/v3"),
@@ -224,6 +225,8 @@ AUTH_USER_MODEL = "users.User"
 # https://django-invitations.readthedocs.io/en/latest/usage.html
 
 ACCOUNT_ADAPTER = "invitations.models.InvitationsAdapter"
+
+INVITATIONS_INVITATION_ONLY = env("INVITATIONS_INVITATION_ONLY")
 
 
 AUTHENTICATION_BACKENDS = [
