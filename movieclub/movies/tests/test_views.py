@@ -41,6 +41,13 @@ class TestDetail:
         response = client.get(movie.get_absolute_url())
         assert response.status_code == http.HTTPStatus.OK
 
+    @pytest.mark.django_db()
+    def test_get_for_user(self, client, auth_user_actor):
+        movie = create_movie()
+        create_batch(create_review, 3, movie=movie)
+        response = client.get(movie.get_absolute_url())
+        assert response.status_code == http.HTTPStatus.OK
+
 
 class TestAddReview:
     @pytest.mark.django_db()

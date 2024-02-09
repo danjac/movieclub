@@ -26,22 +26,24 @@ def index(request: HttpRequest) -> HttpResponse:
 def movie_detail(request: HttpRequest, movie_id: int, slug: str) -> HttpResponse:
     """Returns details of movie."""
     movie = get_object_or_404(Movie, pk=movie_id)
-    return render(
-        request,
-        "movies/movie.html",
-        {
-            "movie": movie,
-            "reviews": movie.reviews.select_related("user").order_by("-created"),
-            "cast_members": movie.cast_members.select_related("person").order_by(
-                "order"
-            )[:6],
+    context = {
+        "movie": movie,
+        "reviews": movie.reviews.select_related("user").order_by("-created"),
+        "cast_members": movie.cast_members.select_related("person").order_by("order")[
+            :6
+        ],
+    }
+    if request.user.is_authenticated and request.user.actor:
+        context = {
+            **context,
             "review_form": ReviewForm(),
             "review_submit_url": reverse(
                 "movies:add_review",
                 kwargs={"movie_id": movie.pk},
             ),
-        },
-    )
+        }
+
+    return render(request, "movies/movie.html", context)
 
 
 @require_POST
