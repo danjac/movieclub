@@ -71,6 +71,7 @@ INSTALLED_APPS: list[str] = [
     "health_check.contrib.psutil",
     "health_check.contrib.redis",
     "heroicons",
+    "invitations",
     "template_partials",
     "widget_tweaks",
     "movieclub.activitypub",
@@ -218,6 +219,12 @@ SUPPORT_EMAIL = env.str("SUPPORT_EMAIL", default=f"support@{EMAIL_HOST}")
 # https://docs.djangoproject.com/en/dev/ref/settings/#authentication-backends
 
 AUTH_USER_MODEL = "users.User"
+
+# Invitations
+# https://django-invitations.readthedocs.io/en/latest/usage.html
+
+ACCOUNT_ADAPTER = "invitations.models.InvitationsAdapter"
+
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",

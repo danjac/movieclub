@@ -12,6 +12,7 @@ urlpatterns = [
     path("", include("movieclub.activitypub.urls")),
     path("movies/", include("movieclub.movies.urls")),
     path("account/", include("allauth.urls")),
+    path("invitations/", include("invitations.urls")),
     path("ht/", include("health_check.urls")),
     path(settings.ADMIN_URL, admin.site.urls),
 ]

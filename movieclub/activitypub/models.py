@@ -91,15 +91,17 @@ class Follow(TimeStampedModel):
         ACCEPTED = "accepted", "Accepted"
         REJECTED = "rejected", "Rejected"
 
-    follower = models.ForeignKey(
+    follower_local = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name="followed",
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
 
-    followed_remote = models.ForeignKey(
+    follower_remote = models.ForeignKey(
         Actor,
-        related_name="remote_followers",
+        related_name="followed",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -108,6 +110,14 @@ class Follow(TimeStampedModel):
     followed_local = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name="local_followers",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+
+    followed_remote = models.ForeignKey(
+        Actor,
+        related_name="remote_followers",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -134,13 +144,27 @@ class Follow(TimeStampedModel):
                 name="%(app_label)s_%(class)s_must_be_either_local_or_remote",
             ),
             models.UniqueConstraint(
-                fields=["follower", "followed_local"],
-                name="%(app_label)s_%(class)s_unique_follow_local",
-                condition=models.Q(followed_local__isnull=False),
+                fields=["follower_local", "followed_local"],
+                name="%(app_label)s_%(class)s_unique_follow_local_to_local",
+                condition=models.Q(
+                    followed_local__isnull=False,
+                    follower_local__isnull=False,
+                ),
             ),
             models.UniqueConstraint(
-                fields=["follower", "followed_remote"],
-                name="%(app_label)s_%(class)s_unique_follow_remote",
-                condition=models.Q(followed_remote__isnull=False),
+                fields=["follower_local", "followed_remote"],
+                name="%(app_label)s_%(class)s_unique_follow_local_to_remote",
+                condition=models.Q(
+                    followed_remote__isnull=False,
+                    follower_local__isnull=False,
+                ),
+            ),
+            models.UniqueConstraint(
+                fields=["follower_remote", "followed_local"],
+                name="%(app_label)s_%(class)s_unique_follow_remote_to_local",
+                condition=models.Q(
+                    followed_local__isnull=False,
+                    follower_remote__isnull=False,
+                ),
             ),
         ]
