@@ -6,14 +6,14 @@ from movieclub.activitypub.signals import populate_actor
 
 class TestPopulateActor:
     @pytest.mark.django_db()
-    def test_populate_actor(self, rf, site, site_instance, user):
+    def test_populate_actor(self, rf, site, instance, user):
         request = rf.get("/")
         request.site = site
 
         populate_actor(request, user)
 
         actor = Actor.objects.get()
-        assert actor.instance == site_instance
+        assert actor.instance == instance
         assert actor.handle == user.username
 
     @pytest.mark.django_db()

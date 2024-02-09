@@ -10,15 +10,23 @@ class TestInstance:
         instance = Instance(domain="example.com")
         assert str(instance) == "example.com"
 
+    @pytest.mark.django_db()
+    def test_for_site_if_remote(self, site, remote_instance):
+        assert Instance.objects.for_site(site).exists() is False
+
+    @pytest.mark.django_db()
+    def test_for_site_if_for_site(self, site, instance):
+        assert Instance.objects.for_site(site).exists() is True
+
 
 class TestActor:
     @pytest.mark.django_db()
-    def test_local_if_remote(self, remote_actor):
-        assert Actor.objects.local().exists() is False
+    def test_for_site_if_remote(self, site, remote_actor):
+        assert Actor.objects.for_site(site).exists() is False
 
     @pytest.mark.django_db()
-    def test_local_if_local(self, actor):
-        assert Actor.objects.local().exists() is True
+    def test_for_site_if_for_site(self, site, actor):
+        assert Actor.objects.for_site(site).exists() is True
 
     @pytest.mark.django_db()
     def test_get_for_resource(self, actor):

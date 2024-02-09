@@ -10,9 +10,5 @@ from movieclub.users.models import User
 def populate_actor(request: HttpRequest, user: User, **kwargs) -> None:
     """Actor added to a new user."""
 
-    try:
-        instance = Instance.objects.local().get_for_site(request.site)
-    except Instance.DoesNotExist:
-        return
-
-    Actor.objects.create_for_user(user, instance)
+    if instance := Instance.objects.for_site(request.site).first():
+        Actor.objects.create_for_user(user, instance)

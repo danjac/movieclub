@@ -17,20 +17,15 @@ if TYPE_CHECKING:  # pragma: no cover
 class InstanceQuerySet(models.QuerySet):
     """QuerySet for Instance."""
 
-    def local(self) -> InstanceQuerySet:
-        """Return local instances"""
-        return self.filter(local=True)
-
-    def get_for_site(self, site: Site) -> Instance:
-        """Return local site matching site domain."""
-        return self.get(domain__iexact=site.domain)
+    def for_site(self, site: Site) -> InstanceQuerySet:
+        """Return local instances."""
+        return self.filter(domain__iexact=site.domain)
 
 
 class Instance(TimeStampedModel):
     """A Federated instance."""
 
     domain = models.CharField(max_length=120, unique=True)
-    local = models.BooleanField(default=True)
     blocked = models.BooleanField(default=False)
 
     objects = InstanceQuerySet.as_manager()
@@ -43,9 +38,9 @@ class Instance(TimeStampedModel):
 class ActorQuerySet(models.QuerySet):
     """QuerySet for Actor."""
 
-    def local(self) -> ActorQuerySet:
+    def for_site(self, site: Site) -> ActorQuerySet:
         """Returns local actors."""
-        return self.filter(instance__local=True)
+        return self.filter(instance__domain__iexact=site.domain)
 
     def create_for_user(self, user: User, instance: Instance, **kwargs) -> Actor:
         """Creates actor for local instance."""

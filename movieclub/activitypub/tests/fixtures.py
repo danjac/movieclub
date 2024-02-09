@@ -4,20 +4,20 @@ from movieclub.activitypub.tests.factories import create_actor, create_instance
 
 
 @pytest.fixture()
-def site_instance(site):
-    return create_instance(domain=site.domain, local=True)
+def instance(site):
+    return create_instance(domain=site.domain)
 
 
 @pytest.fixture()
-def instance(site):
+def remote_instance(site):
     return create_instance()
 
 
 @pytest.fixture()
-def actor():
-    return create_actor()
+def actor(instance):
+    return create_actor(instance=instance)
 
 
 @pytest.fixture()
-def remote_actor():
-    return create_actor(instance=create_instance(local=False))
+def remote_actor(remote_instance):
+    return create_actor(instance=remote_instance)

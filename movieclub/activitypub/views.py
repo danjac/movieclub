@@ -11,7 +11,7 @@ def webfinger(request: HttpRequest) -> JsonResponse:
     if resource := request.GET.get("resource"):
         try:
             actor = (
-                Actor.objects.local()
+                Actor.objects.for_site(request.site)
                 .select_related("instance")
                 .get_for_resource(resource)
             )
@@ -47,7 +47,7 @@ def nodeinfo(request: HttpRequest) -> JsonResponse:
             "protocols": ["activitypub"],
             "usage": {
                 "users": {
-                    "total": Actor.objects.local().count(),
+                    "total": Actor.objects.for_site(request.site).count(),
                 },
                 "localPosts": 0,
             },
