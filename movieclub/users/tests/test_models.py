@@ -19,6 +19,8 @@ class TestUserManager:
             username="tester1", email=self.email, password=password
         )
         assert user.check_password(password)
+        assert user.private_key
+        assert user.public_key
 
     @pytest.mark.django_db()
     def test_create_superuser(self):

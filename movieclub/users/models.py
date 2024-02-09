@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.db import models
 
-if TYPE_CHECKING:  # pragma: no cover
-    from django.db import models
+from movieclub.activitypub.http_signature import create_key_pair
 
 
 class UserManager(BaseUserManager):
@@ -54,3 +52,13 @@ class User(AbstractUser):
     """Custom User model."""
 
     objects: models.Manager[User] = UserManager()
+
+    # ActivityPub keys
+    private_key = models.TextField(blank=True)
+    public_key = models.TextField(blank=True)
+
+    def save(self, **kwargs) -> None:
+        """Overrides save() method of user to auto-generate keypair."""
+        if not self.private_key or not self.public_key:
+            self.private_key, self.public_key = create_key_pair()
+        super().save(**kwargs)

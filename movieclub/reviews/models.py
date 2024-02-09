@@ -14,6 +14,13 @@ class BaseReview(TimeStampedModel):
         on_delete=models.SET_NULL,
     )
 
+    actor = models.ForeignKey(
+        "activitypub.Actor",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+
     url = models.URLField(blank=True)
 
     comment = models.TextField()

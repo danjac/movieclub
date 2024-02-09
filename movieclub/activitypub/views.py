@@ -6,7 +6,11 @@ from movieclub.activitypub.models import Actor
 
 @require_GET
 def webfinger(request: HttpRequest) -> JsonResponse:
-    """Webfinger implementation for user."""
+    """Webfinger implementation for user.
+
+    TBD: there is no local Actor/instance: just find local User and look up that
+    (or group as case may be)
+    """
 
     if resource := request.GET.get("resource"):
         try:

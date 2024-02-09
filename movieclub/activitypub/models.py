@@ -15,7 +15,10 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 class InstanceQuerySet(models.QuerySet):
-    """QuerySet for Instance."""
+    """QuerySet for Instance.
+
+    TBD: there is no "local" instance.
+    """
 
     def for_site(self, site: Site) -> InstanceQuerySet:
         """Return local instances."""
@@ -148,7 +151,11 @@ class Actor(TimeStampedModel):
 
 
 class Following(TimeStampedModel):
-    """Tracks following actors."""
+    """Tracks following actors.
+
+    TBD: we should have RemoteFollow and LocalFollow models.
+    RemoteFollow should have FK to Actor, and LocalFollow to User.
+    """
 
     class Status(models.TextChoices):
         REQUESTED = "requested", "Requested"
