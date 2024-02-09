@@ -1,28 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar
+from typing import ClassVar
 
-from django.conf import settings
 from django.db import models
 from model_utils.models import TimeStampedModel
-
-from movieclub.activitypub.http_signature import create_key_pair
-
-if TYPE_CHECKING:  # pragma: no cover
-    from django.contrib.sites.models import Site
-
-    from movieclub.users.models import User
-
-
-class InstanceQuerySet(models.QuerySet):
-    """QuerySet for Instance.
-
-    TBD: there is no "local" instance.
-    """
-
-    def for_site(self, site: Site) -> InstanceQuerySet:
-        """Return local instances."""
-        return self.filter(domain__iexact=site.domain)
 
 
 class Instance(TimeStampedModel):
@@ -31,51 +12,9 @@ class Instance(TimeStampedModel):
     domain = models.CharField(max_length=120, unique=True)
     blocked = models.BooleanField(default=False)
 
-    objects = InstanceQuerySet.as_manager()
-
     def __str__(self) -> str:
         """Return the domain."""
         return self.domain
-
-
-class ActorQuerySet(models.QuerySet):
-    """QuerySet for Actor."""
-
-    def for_site(self, site: Site) -> ActorQuerySet:
-        """Returns local actors."""
-        return self.filter(instance__domain__iexact=site.domain)
-
-    def create_for_user(self, user: User, instance: Instance, **kwargs) -> Actor:
-        """Creates actor for local instance."""
-
-        priv_key, pub_key = create_key_pair()
-
-        return self.create(
-            user=user,
-            handle=user.username,
-            instance=instance,
-            private_key=priv_key,
-            public_key=pub_key,
-        )
-
-    def get_for_resource(self, resource: str) -> Actor:
-        """Returns Actor matching resource [acct:]name@domain.
-
-        Raises DoesNotExist if not found.
-        """
-
-        if resource.startswith("acct:"):
-            resource = resource[5:]
-
-        try:
-            handle, domain = resource.split("@")
-        except ValueError as e:
-            raise self.model.DoesNotExist from e
-
-        return self.get(
-            instance__domain__iexact=domain,
-            handle__iexact=handle,
-        )
 
 
 class Actor(TimeStampedModel):
@@ -104,28 +43,13 @@ class Actor(TimeStampedModel):
         choices=ActorType,
     )
 
-    # for a Local instance user
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        null=True,
-        blank=True,
-        related_name="actor",
-        on_delete=models.SET_NULL,
-    )
-
     # blocked for all users: each user will have own block list
     blocked = models.BooleanField(default=False)
 
     # for Remote instances
-    profile_url = models.URLField(blank=True)
-    outbox_url = models.URLField(blank=True)
-    inbox_url = models.URLField(blank=True)
-
-    # for Local instances
-    private_key = models.TextField(blank=True)
-    public_key = models.TextField(blank=True)
-
-    objects = ActorQuerySet.as_manager()
+    profile_url = models.URLField()
+    outbox_url = models.URLField()
+    inbox_url = models.URLField()
 
     class Meta:
         constraints: ClassVar = [
@@ -133,11 +57,6 @@ class Actor(TimeStampedModel):
                 fields=["instance", "handle"],
                 name="%(app_label)s_%(class)s_unique_handle",
                 condition=~models.Q(handle=""),
-            ),
-            models.UniqueConstraint(
-                fields=["instance", "user"],
-                name="%(app_label)s_%(class)s_unique_local_user",
-                condition=models.Q(user__isnull=False),
             ),
         ]
 

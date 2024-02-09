@@ -18,4 +18,4 @@ class ActorAdmin(admin.ModelAdmin):
 
     list_display: ClassVar = ["handle", "instance"]
     list_select_related: ClassVar = True
-    raw_id_fields: ClassVar = ["instance", "user"]
+    raw_id_fields: ClassVar = ["instance"]

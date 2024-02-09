@@ -1,43 +1,40 @@
 from django.http import Http404, HttpRequest, JsonResponse
 from django.views.decorators.http import require_GET
 
-from movieclub.activitypub.models import Actor
+from movieclub.users.models import User
 
 
 @require_GET
 def webfinger(request: HttpRequest) -> JsonResponse:
-    """Webfinger implementation for user.
+    """Webfinger implementation for user."""
 
-    TBD: there is no local Actor/instance: just find local User and look up that
-    (or group as case may be)
-    """
+    try:
+        resource = request.GET["resource"]
+        if resource.startswith("acct:"):
+            resource = resource[5:]
 
-    if resource := request.GET.get("resource"):
-        try:
-            actor = (
-                Actor.objects.for_site(request.site)
-                .select_related("instance")
-                .get_for_resource(resource)
-            )
-        except Actor.DoesNotExist as e:
-            raise Http404 from e
+        username, domain = resource.split("@")
+        if domain != request.site.domain:
+            raise ValueError(f"invalid domain: {domain}")
 
-        resource = actor.get_resource()
+        user = User.objects.get(is_active=True, username__iexact=username)
+        handle = f"{user.username}@{request.site.domain}"
 
-        return JsonResponse(
-            {
-                "subject": f"acct:{resource}",
-                "links": [
-                    {
-                        "rel": "self",
-                        "type": "application/activity+json",
-                        "href": f"https://{resource}",
-                    },
-                ],
-            }
-        )
+    except (KeyError, ValueError, User.DoesNotExist) as e:
+        raise Http404 from e
 
-    raise Http404
+    return JsonResponse(
+        {
+            "subject": f"acct:{handle}",
+            "links": [
+                {
+                    "rel": "self",
+                    "type": "application/activity+json",
+                    "href": f"https://{handle}",
+                },
+            ],
+        }
+    )
 
 
 @require_GET
@@ -51,7 +48,7 @@ def nodeinfo(request: HttpRequest) -> JsonResponse:
             "protocols": ["activitypub"],
             "usage": {
                 "users": {
-                    "total": Actor.objects.for_site(request.site).count(),
+                    "total": User.objects.filter(is_active=True).count(),
                 },
                 "localPosts": 0,
             },

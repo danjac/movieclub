@@ -14,10 +14,28 @@ def create_instance(*, domain: str = NotSet, **kwargs) -> Instance:
 
 
 def create_actor(
-    *, instance: Instance = NotSet, handle: str = NotSet, **kwargs
+    *,
+    instance: Instance = NotSet,
+    handle: str = NotSet,
+    profile_url: str = NotSet,
+    inbox_url: str = NotSet,
+    outbox_url: str = NotSet,
+    **kwargs,
 ) -> Actor:
+    instance = resolve(instance, create_instance)
+    handle = resolve(handle, _faker.unique.user_name)
+
     return Actor.objects.create(
-        instance=resolve(instance, create_instance),
-        handle=resolve(handle, _faker.unique.user_name),
+        instance=instance,
+        handle=handle,
+        profile_url=resolve(
+            profile_url, lambda: f"https://{instance.domain}/profile/{handle}"
+        ),
+        inbox_url=resolve(
+            profile_url, lambda: f"https://{instance.domain}/inbox/{handle}"
+        ),
+        outbox_url=resolve(
+            profile_url, lambda: f"https://{instance.domain}/outbox/{handle}"
+        ),
         **kwargs,
     )

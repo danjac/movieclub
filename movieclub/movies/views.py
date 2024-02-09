@@ -33,7 +33,7 @@ def movie_detail(request: HttpRequest, movie_id: int, slug: str) -> HttpResponse
             :6
         ],
     }
-    if request.user.is_authenticated and request.user.actor:
+    if request.user.is_authenticated:
         context = {
             **context,
             "review_form": ReviewForm(),

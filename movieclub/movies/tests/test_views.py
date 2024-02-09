@@ -42,7 +42,7 @@ class TestDetail:
         assert response.status_code == http.HTTPStatus.OK
 
     @pytest.mark.django_db()
-    def test_get_for_user(self, client, auth_user_actor):
+    def test_get_for_user(self, client, auth_user):
         movie = create_movie()
         create_batch(create_review, 3, movie=movie)
         response = client.get(movie.get_absolute_url())

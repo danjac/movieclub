@@ -8,14 +8,16 @@ class TestWebfinger:
     url = reverse_lazy("activitypub:webfinger")
 
     @pytest.mark.django_db()
-    def test_get_ok(self, client, actor):
-        response = client.get(self.url, {"resource": f"acct:{actor.get_resource()}"})
+    def test_get_ok(self, client, site, user):
+        response = client.get(
+            self.url, {"resource": f"acct:{user.username}@{site.domain}"}
+        )
         assert response.status_code == http.HTTPStatus.OK
 
     @pytest.mark.django_db()
-    def test_not_local(self, client, remote_actor):
+    def test_not_local(self, client, user):
         response = client.get(
-            self.url, {"resource": f"acct:{remote_actor.get_resource()}"}
+            self.url, {"resource": f"acct:{user.username}@randomsite.com"}
         )
         assert response.status_code == http.HTTPStatus.NOT_FOUND
 
@@ -34,7 +36,7 @@ class TestNodeInfo:
     url = reverse_lazy("activitypub:nodeinfo")
 
     @pytest.mark.django_db()
-    def test_get(self, client, actor):
+    def test_get(self, client, user):
         response = client.get(self.url)
         assert response.json()["usage"]["users"]["total"] == 1
         assert response.status_code == http.HTTPStatus.OK
