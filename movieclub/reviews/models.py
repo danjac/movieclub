@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.db import models
 from model_utils.managers import InheritanceManager
@@ -20,6 +22,8 @@ class BaseReview(TimeStampedModel):
         blank=True,
         on_delete=models.SET_NULL,
     )
+
+    activity_object_id = models.UUIDField(unique=True, default=uuid.uuid4)
 
     url = models.URLField(blank=True)
 

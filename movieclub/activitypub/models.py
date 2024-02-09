@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from typing import ClassVar
 
 from django.conf import settings
@@ -111,6 +112,8 @@ class Follow(TimeStampedModel):
         null=True,
         blank=True,
     )
+
+    activity_object_id = models.UUIDField(unique=True, default=uuid.uuid4)
 
     status = models.CharField(max_length=15, default=Status.REQUESTED)
 
