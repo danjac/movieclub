@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import ClassVar
 
+from django.conf import settings
 from django.db import models
 from model_utils.models import TimeStampedModel
 
@@ -69,11 +70,19 @@ class Actor(TimeStampedModel):
         return f"{self.handle}@{self.instance.domain}"
 
 
-class Following(TimeStampedModel):
-    """Tracks following actors.
+class Follow(TimeStampedModel):
+    """Tracks following remote or local actors.
 
-    TBD: we should have RemoteFollow and LocalFollow models.
-    RemoteFollow should have FK to Actor, and LocalFollow to User.
+    When creating a local follow, we can skip ActivityPub and just
+    handle the transaction in local database.
+
+    For a remote follow, we need to run a task to create an AP object
+    and send that object to the remote Actor's inbox.
+
+    We then need to handle (through local user Inbox) the Accepted or Rejected
+    action.
+
+    In either case, the status is Requested until Accepted or Rejected.
     """
 
     class Status(models.TextChoices):
@@ -82,18 +91,53 @@ class Following(TimeStampedModel):
         REJECTED = "rejected", "Rejected"
 
     follower = models.ForeignKey(
-        Actor, related_name="following", on_delete=models.CASCADE
+        settings.AUTH_USER_MODEL,
+        related_name="followed",
+        on_delete=models.CASCADE,
     )
-    followed = models.ForeignKey(
-        Actor, related_name="followers", on_delete=models.CASCADE
+
+    followed_remote = models.ForeignKey(
+        Actor,
+        related_name="remote_followers",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+
+    followed_local = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="local_followers",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
 
     status = models.CharField(max_length=15, default=Status.REQUESTED)
 
     class Meta:
         constraints: ClassVar = [
+            # must be either local or remote, not both
+            models.CheckConstraint(
+                check=models.Q(
+                    models.Q(
+                        followed_local__isnull=False,
+                        followed_remote__isnull=True,
+                    )
+                    | models.Q(
+                        followed_local__isnull=True,
+                        followed_remote__isnull=False,
+                    )
+                ),
+                name="%(app_label)s_%(class)s_must_be_either_local_or_remote",
+            ),
             models.UniqueConstraint(
-                fields=["follower", "followed"],
-                name="%(app_label)s_%(class)s_unique_following",
+                fields=["follower", "followed_local"],
+                name="%(app_label)s_%(class)s_unique_follow_local",
+                condition=models.Q(followed_local__isnull=False),
+            ),
+            models.UniqueConstraint(
+                fields=["follower", "followed_remote"],
+                name="%(app_label)s_%(class)s_unique_follow_remote",
+                condition=models.Q(followed_remote__isnull=False),
             ),
         ]
