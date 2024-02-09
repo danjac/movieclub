@@ -123,7 +123,9 @@ class Follow(TimeStampedModel):
         blank=True,
     )
 
-    activitypub_object_id = models.CharField(max_length=200, default=uuid.uuid4)
+    # also need domain field
+    object_id = models.CharField(max_length=200, default=uuid.uuid4)
+    domain = models.CharField(max_length=120, blank=True)
 
     status = models.CharField(max_length=15, default=Status.REQUESTED)
 
@@ -142,6 +144,13 @@ class Follow(TimeStampedModel):
                     )
                 ),
                 name="%(app_label)s_%(class)s_must_be_either_local_or_remote",
+            ),
+            models.UniqueConstraint(
+                fields=["object_id", "domain"],
+                name="%(app_label)s_%(class)s_unique_object_id_domain",
+                condition=~models.Q(
+                    models.Q(object_id="") | models.Q(domain=""),
+                ),
             ),
             models.UniqueConstraint(
                 fields=["follower_local", "followed_local"],

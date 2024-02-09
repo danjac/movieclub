@@ -10,10 +10,6 @@ from model_utils.models import TimeStampedModel
 class BaseReview(TimeStampedModel):
     """Abstract model class."""
 
-    class ActivitypubStatus(models.TextChoices):
-        PENDING = "pending", "Pending"
-        DISPATCHED = "dispatched", "Dispatched"
-
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
@@ -28,14 +24,8 @@ class BaseReview(TimeStampedModel):
         on_delete=models.SET_NULL,
     )
 
-    # should be unique for actor+instance or local site
-    activitypub_object_id = models.CharField(max_length=200, default=uuid.uuid4)
-
-    activitypub_status = models.CharField(
-        max_length=12,
-        default=ActivitypubStatus.PENDING,
-        choices=ActivitypubStatus,
-    )
+    object_id = models.CharField(max_length=200, default=uuid.uuid4)
+    domain = models.CharField(max_length=120, blank=True)
 
     url = models.URLField(blank=True)
 
@@ -44,7 +34,7 @@ class BaseReview(TimeStampedModel):
     objects = InheritanceManager()
 
     class Meta:
-        abstract: ClassVar = True
+        abstract = True
 
         constraints: ClassVar = [
             models.CheckConstraint(
@@ -55,12 +45,19 @@ class BaseReview(TimeStampedModel):
                 name="%(app_label)s_%(class)s_actor_or_user",
             ),
             models.UniqueConstraint(
-                fields=["activitypub_object_id", "user"],
+                fields=["object_id", "domain"],
+                name="%(app_label)s_%(class)s_unique_object_id_domain",
+                condition=~models.Q(
+                    models.Q(object_id="") | models.Q(domain=""),
+                ),
+            ),
+            models.UniqueConstraint(
+                fields=["object_id", "user"],
                 name="%(app_label)s_%(class)s_unique_local_object_id",
                 condition=models.Q(user__isnull=False),
             ),
             models.UniqueConstraint(
-                fields=["activitypub_object_id", "actor"],
+                fields=["object_id", "actor"],
                 name="%(app_label)s_%(class)s_unique_remote_object_id",
                 condition=models.Q(actor__isnull=False),
             ),
