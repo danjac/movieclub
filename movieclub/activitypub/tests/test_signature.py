@@ -1,6 +1,6 @@
 import uuid
 
-from movieclub.activitypub.http_signature import create_key_pair, make_signature
+from movieclub.activitypub.signature import create_key_pair, make_digest, make_signature
 
 
 def test_create_key_pair():
@@ -15,4 +15,14 @@ def test_make_signature():
         "https://example.com",
         private_key=priv_key,
         object_id=uuid.uuid4().hex,
+    )
+
+
+def test_make_signature_with_digest():
+    priv_key, _ = create_key_pair()
+    assert make_signature(
+        "https://example.com",
+        private_key=priv_key,
+        object_id=uuid.uuid4().hex,
+        digest=make_digest({}),
     )

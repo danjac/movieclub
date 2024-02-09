@@ -1,4 +1,6 @@
 import datetime
+import hashlib
+import json
 from base64 import b64encode
 from urllib.parse import urlparse
 
@@ -19,11 +21,21 @@ def create_key_pair() -> tuple[str, str]:
     )
 
 
+def make_digest(data: dict) -> str:
+    """Creates digest string."""
+    encoded = b64encode(
+        hashlib.sha256(json.dumps(data).encode("utf-8")).digest()
+    ).decode("utf-8")
+
+    return f"SHA-256={encoded}"
+
+
 def make_signature(
     destination_url: str,
     *,
     private_key: str,
     object_id: str,
+    digest: str = "",
     method: str = "POST",
     date: datetime.datetime | None = None,
 ) -> str:
@@ -37,6 +49,9 @@ def make_signature(
         "host": f"{url.netloc}",
         "date": http_date(date.timestamp()),
     }
+
+    if digest:
+        signature_headers["digest"] = digest
 
     message = "\n".join([f"{k}: {v}" for k, v in signature_headers.items()])
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
-from movieclub.activitypub.http_signature import create_key_pair
+from movieclub.activitypub.signature import create_key_pair
 
 
 class UserManager(BaseUserManager):
