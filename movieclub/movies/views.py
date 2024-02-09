@@ -1,14 +1,13 @@
 from django.contrib import messages
-from django.db import transaction
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST, require_safe
 from django_htmx.http import reswap, retarget
 
+from movieclub import tmdb
 from movieclub.client import get_client
 from movieclub.decorators import require_auth, require_DELETE, require_form_methods
-from movieclub.movies import tmdb
 from movieclub.movies.forms import ReviewForm
 from movieclub.movies.models import Movie, Review
 from movieclub.reviews.views import render_review, render_review_form
@@ -122,16 +121,15 @@ def delete_review(request: HttpRequest, review_id: int) -> HttpResponse:
 
 
 @require_safe
-@transaction.non_atomic_requests
-# TBD: should be auth only
-async def search_tmdb(request: HttpRequest, limit: int = 12) -> HttpResponse:
+@require_auth
+def search_tmdb(request: HttpRequest, limit: int = 12) -> HttpResponse:
     """Search TMDB and get result.
     This should be cached!
     """
-    results: list[dict] = []
+    results: list[tmdb.Movie] = []
 
     if query := request.GET.get("query", None):
-        results = await tmdb.search_movies(get_client(), query)
+        results = tmdb.search_movies(get_client(), query)
 
     return render(
         request,
@@ -144,13 +142,24 @@ async def search_tmdb(request: HttpRequest, limit: int = 12) -> HttpResponse:
 
 @require_POST
 @require_auth
-@transaction.non_atomic_requests
-async def add_movie(request: HttpRequest, tmdb_id: int) -> HttpResponse:
+def add_movie(request: HttpRequest, tmdb_id: int) -> HttpResponse:
     """Given a TMDB ID, add new user and redirect there."""
 
-    # TBD: handle 404 etc
-    movie, created = await tmdb.get_or_create_movie(get_client(), tmdb_id)
+    try:
+        movie = Movie.objects.get(tmdb_id=tmdb_id)
+        return redirect(movie)
+    except Movie.DoesNotExist:
+        pass
 
-    if created:
-        messages.success(request, "Movie has been added")
+    # TBD: fetch movie details in task
+
+    movie = Movie.objects.create(
+        tmdb_id=tmdb_id,
+        title=request.POST["title"],
+        backdrop=request.POST["backdrop_url"],
+        overview=request.POST["overview"],
+        poster=request.POST["poster_url"],
+    )
+
+    messages.success(request, "Movie has been added")
     return redirect(movie)

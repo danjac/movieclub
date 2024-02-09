@@ -8,9 +8,9 @@ def get_client(
     follow_redirects=True,
     timeout=5,
     **kwargs,
-) -> httpx.AsyncClient:
+) -> httpx.Client:
     """Returns HTTP client with default settings."""
-    return httpx.AsyncClient(
+    return httpx.Client(
         timeout=timeout,
         follow_redirects=follow_redirects,
         headers={
