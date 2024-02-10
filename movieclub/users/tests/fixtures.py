@@ -12,6 +12,11 @@ def user() -> User:
 
 
 @pytest.fixture()
+def user_with_keypair() -> User:
+    return create_user(with_keypair=True)
+
+
+@pytest.fixture()
 def anonymous_user() -> AnonymousUser:
     return AnonymousUser()
 
@@ -20,6 +25,12 @@ def anonymous_user() -> AnonymousUser:
 def auth_user(client: Client, user: User) -> User:
     client.force_login(user)
     return user
+
+
+@pytest.fixture()
+def auth_user_with_keypair(client: Client, user_with_keypair: User) -> User:
+    client.force_login(user_with_keypair)
+    return user_with_keypair
 
 
 @pytest.fixture()

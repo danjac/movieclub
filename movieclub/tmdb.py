@@ -7,7 +7,7 @@ import arrow
 import attrs
 from django.conf import settings
 
-if TYPE_CHECKING:  # pragma: ignore
+if TYPE_CHECKING:  # pragma: no cover
     import datetime
 
     import httpx
