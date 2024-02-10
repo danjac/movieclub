@@ -112,7 +112,7 @@ CONN_MAX_AGE = env("CONN_MAX_AGE")
 DATABASES = {
     "default": env.db()
     | {
-        "ATOMIC_REQUESTS": False,
+        "ATOMIC_REQUESTS": True,
         "CONN_MAX_AGE": CONN_MAX_AGE,
         "CONN_HEALTH_CHECKS": CONN_MAX_AGE > 0,
         "OPTIONS": {

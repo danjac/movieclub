@@ -33,6 +33,7 @@ def populate_movie(movie_id: int) -> None:
                 fields.original_language,
                 fields.poster_path,
                 fields.production_countries,
+                fields.id,
             ),
         ),
     )
