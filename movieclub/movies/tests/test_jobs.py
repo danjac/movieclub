@@ -1,5 +1,3 @@
-import datetime
-
 import pytest
 
 from movieclub import tmdb
@@ -25,7 +23,7 @@ class TestPopulateMovie:
                 backdrop_path="https://example.com/poster.jpg",
                 poster_path="https://example.com/backdrop.jpg",
                 runtime=101,
-                release_date=datetime.date(2014, 10, 22),
+                release_date="2014-10-22",
                 overview="Ex-hitman John Wick comes out of retirement to track down the gangsters that took everything from him.",
                 tagline="Don't set him off.",
                 production_countries=[

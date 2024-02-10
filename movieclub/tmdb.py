@@ -1,15 +1,13 @@
 from __future__ import annotations
 
+import datetime
 from typing import TYPE_CHECKING, Final
 from urllib.parse import urljoin
 
-import arrow
 import attrs
 from django.conf import settings
 
 if TYPE_CHECKING:  # pragma: no cover
-    import datetime
-
     import httpx
 
 
@@ -23,7 +21,7 @@ def _image_url(path: str) -> str:
 
 
 def _release_date(value: str) -> datetime.date | None:
-    return arrow.get(value).date() if value else None
+    return datetime.datetime.strptime(value, "%Y-%m-%d").date() if value else None
 
 
 @attrs.define(kw_only=True)

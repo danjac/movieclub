@@ -1,4 +1,3 @@
-import datetime
 import http
 
 import pytest
@@ -120,7 +119,7 @@ class TestSearchTmdb:
                 tmdb.Movie(
                     id=1000,
                     title="John Wick",
-                    release_date=datetime.date(2023, 1, 1),
+                    release_date="2014-01-01",
                 )
             ],
         )
