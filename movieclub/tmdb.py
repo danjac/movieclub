@@ -88,7 +88,9 @@ class Movie:
 class MovieDetail(Movie):
     """Tmdb Movie."""
 
-    imdb_id: str = ""
+    imdb_id: str = attrs.field(
+        converter=attrs.converters.default_if_none(""), default=""
+    )
 
     tagline: str = ""
     homepage: str = ""
