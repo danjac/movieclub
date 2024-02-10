@@ -10,12 +10,12 @@ from movieclub.users.tests.factories import create_user
 _faker = faker.Faker()
 
 
-def acreate_movie(**kwargs) -> Movie:
-    return Movie.objects.acreate(**_movie_kwargs(**kwargs))
-
-
-def create_movie(**kwargs) -> Movie:
-    return Movie.objects.create(**_movie_kwargs(**kwargs))
+def create_movie(tmdb_id: int = NotSet, title: str = NotSet, **kwargs) -> Movie:
+    return Movie.objects.create(
+        tmdb_id=resolve(tmdb_id, _faker.unique.numerify),
+        title=resolve(title, _faker.sentence),
+        **kwargs,
+    )
 
 
 def create_review(
@@ -62,11 +62,3 @@ def create_crew_member(
         job=job,
         **kwargs,
     )
-
-
-def _movie_kwargs(*, tmdb_id: int = NotSet, title: str = NotSet, **kwargs):
-    return {
-        "tmdb_id": resolve(tmdb_id, _faker.unique.numerify),
-        "title": resolve(title, _faker.sentence),
-        **kwargs,
-    }

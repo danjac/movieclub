@@ -62,7 +62,6 @@ bandit = {extras = ["toml"], version = "^1.7.7"}
 coverage = {extras = ["toml"], version = "^7.4.1"}
 django-fastdev = "^1.8.0"
 pytest-cov = "^4.1.0"
-pytest-asyncio = "^0.23.4"
 pytest-httpx = "^0.29.0"
 
 [build-system]

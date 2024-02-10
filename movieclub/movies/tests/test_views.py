@@ -1,26 +1,13 @@
-import functools
+import datetime
 import http
 
 import pytest
 from django.urls import reverse, reverse_lazy
 
-from movieclub.movies import views
+from movieclub import tmdb
 from movieclub.movies.models import Movie, Review
-from movieclub.movies.tests.factories import acreate_movie, create_movie, create_review
-from movieclub.movies.tests.mocks import credits_json, movie_json, search_results_json
+from movieclub.movies.tests.factories import create_movie, create_review
 from movieclub.tests.factories import create_batch
-from movieclub.users.models import User
-from movieclub.users.tests.factories import acreate_user
-
-
-async def _auser_to_request(request):
-    user = await acreate_user()
-
-    async def _auser(request):
-        return await User.objects.aget(pk=user.pk)
-
-    request.auser = functools.partial(_auser, request)
-    return request
 
 
 class TestIndex:
@@ -125,54 +112,54 @@ class TestDeleteReview:
 class TestSearchTmdb:
     url = reverse_lazy("movies:search_tmdb")
 
-    @pytest.mark.asyncio()
-    @pytest.mark.django_db(transaction=True)
-    async def test_get(self, rf, httpx_mock):
-        httpx_mock.add_response(
-            url="https://api.themoviedb.org/3/search/movie?query=Wick",
-            json=search_results_json(),
+    @pytest.mark.django_db()
+    def test_get(self, client, mocker, auth_user):
+        mocker.patch(
+            "movieclub.tmdb.search_movies",
+            return_value=[
+                tmdb.Movie(
+                    id=1000,
+                    title="John Wick",
+                    release_date=datetime.date(2023, 1, 1),
+                )
+            ],
         )
-        request = rf.get(self.url, {"query": "Wick"})
-        response = await views.search_tmdb(request)
+
+        response = client.get(self.url, {"query": "Wick"})
         assert response.status_code == http.HTTPStatus.OK
 
 
 class TestAddMovie:
     tmdb_id = 245891
+    url = reverse_lazy("movies:add_movie", args=[tmdb_id])
+    params = {
+        "title": "John Wick 4",
+        "overview": "test",
+        "poster": "https://example.com/poster.jpg",
+    }
 
-    @pytest.mark.asyncio()
+    @pytest.fixture()
+    def mock_populate_movie(self, mocker):
+        return mocker.patch("movieclub.movies.jobs.populate_movie.delay")
+
     @pytest.mark.django_db(transaction=True)
-    async def test_post(self, rf, httpx_mock, mocker):
-        httpx_mock.add_response(
-            url=f"https://api.themoviedb.org/3/movie/{self.tmdb_id}",
-            json=movie_json(),
-        )
-
-        httpx_mock.add_response(
-            url=f"https://api.themoviedb.org/3/movie/{self.tmdb_id}/credits",
-            json=credits_json(),
-        )
-
-        request = rf.post(reverse("movies:add_movie", args=[self.tmdb_id]))
-        request._messages = mocker.Mock()
-
-        await _auser_to_request(request)
-
-        response = await views.add_movie(request, self.tmdb_id)
-
-        movie = await Movie.objects.aget()
-        assert movie.tmdb_id == self.tmdb_id
+    def test_post_new(self, client, auth_user, mock_populate_movie):
+        response = client.post(self.url, self.params)
+        movie = Movie.objects.get(tmdb_id=self.tmdb_id)
+        assert movie.title == "John Wick 4"
         assert response.url == movie.get_absolute_url()
+        mock_populate_movie.assert_called()
 
-    @pytest.mark.asyncio()
     @pytest.mark.django_db(transaction=True)
-    async def test_post_exists(self, rf):
-        movie = await acreate_movie(tmdb_id=self.tmdb_id)
-        request = rf.post(reverse("movies:add_movie", args=[self.tmdb_id]))
+    def test_post_new_missing_params(self, client, auth_user, mock_populate_movie):
+        response = client.post(self.url)
+        assert response.status_code == http.HTTPStatus.BAD_REQUEST
+        assert Movie.objects.exists() is False
+        mock_populate_movie.assert_not_called()
 
-        await _auser_to_request(request)
-
-        response = await views.add_movie(request, self.tmdb_id)
-
-        assert movie.tmdb_id == self.tmdb_id
+    @pytest.mark.django_db(transaction=True)
+    def test_post_exists(self, client, auth_user, mock_populate_movie):
+        movie = create_movie(tmdb_id=self.tmdb_id)
+        response = client.post(self.url, self.params)
         assert response.url == movie.get_absolute_url()
+        mock_populate_movie.assert_not_called()

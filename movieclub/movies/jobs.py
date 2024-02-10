@@ -40,7 +40,7 @@ def populate_movie(movie_id: int) -> None:
 
     movie.genres.set(Genre.objects.filter(tmdb_id__in=[g.id for g in details.genres]))
 
-    fields = attrs.fields(tmdb.CastMember)
+    cast_member_fields = attrs.fields(tmdb.CastMember)
 
     persons = [
         Person(
@@ -49,17 +49,17 @@ def populate_movie(movie_id: int) -> None:
             **attrs.asdict(
                 member,
                 filter=attrs.filters.exclude(
-                    fields.order,
-                    fields.character,
-                    fields.profile_path,
-                    fields.id,
+                    cast_member_fields.order,
+                    cast_member_fields.character,
+                    cast_member_fields.profile_path,
+                    cast_member_fields.id,
                 ),
             ),
         )
         for member in details.cast_members
     ]
 
-    fields = attrs.fields(tmdb.CrewMember)
+    crew_member_fields = attrs.fields(tmdb.CrewMember)
 
     persons += [
         Person(
@@ -68,9 +68,9 @@ def populate_movie(movie_id: int) -> None:
             **attrs.asdict(
                 member,
                 filter=attrs.filters.exclude(
-                    fields.job,
-                    fields.profile_path,
-                    fields.id,
+                    crew_member_fields.job,
+                    crew_member_fields.profile_path,
+                    crew_member_fields.id,
                 ),
             ),
         )
