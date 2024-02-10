@@ -45,7 +45,7 @@ def populate_movie(movie_id: int) -> None:
     persons = [
         Person(
             tmdb_id=member.id,
-            profile=member.profile_path,
+            profile_url=member.profile_path,
             **attrs.asdict(
                 member,
                 filter=attrs.filters.exclude(
@@ -64,7 +64,7 @@ def populate_movie(movie_id: int) -> None:
     persons += [
         Person(
             tmdb_id=member.id,
-            profile=member.profile_path,
+            profile_url=member.profile_path,
             **attrs.asdict(
                 member,
                 filter=attrs.filters.exclude(

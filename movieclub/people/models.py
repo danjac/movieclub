@@ -12,7 +12,7 @@ class Person(models.Model):
     tmdb_id = models.BigIntegerField(unique=True)
     name = models.CharField(max_length=120)
     gender = models.PositiveSmallIntegerField(choices=Gender)
-    profile = models.URLField(blank=True)
+    profile_url = models.URLField(blank=True)
 
     def __str__(self) -> str:
         """Return person's name."""
