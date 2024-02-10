@@ -130,16 +130,33 @@ def get_movie_detail(client: httpx.Client, tmdb_id: int) -> MovieDetail:
     return _populate_obj(
         MovieDetail,
         movie_data,
-        genres=[_populate_obj(Genre, item) for item in movie_data.get("genres", [])],
-        production_countries=[
-            _populate_obj(Country, item)
-            for item in movie_data.get("production_countries", [])
-        ],
         cast_members=[
-            _populate_obj(CastMember, item) for item in credits_data.get("cast", [])
+            _populate_obj(CastMember, item)
+            for item in credits_data.get(
+                "cast",
+                [],
+            )
         ],
         crew_members=[
-            _populate_obj(CrewMember, item) for item in credits_data.get("crew", [])
+            _populate_obj(CrewMember, item)
+            for item in credits_data.get(
+                "crew",
+                [],
+            )
+        ],
+        genres=[
+            _populate_obj(Genre, item)
+            for item in movie_data.get(
+                "genres",
+                [],
+            )
+        ],
+        production_countries=[
+            _populate_obj(Country, item)
+            for item in movie_data.get(
+                "production_countries",
+                [],
+            )
         ],
     )
 
@@ -164,6 +181,6 @@ def _fetch_json(
     return response.json()
 
 
-def _populate_obj(cls: type, data: dict, *ignore: str, **kwargs):
-    fields = [f.name for f in attrs.fields(cls) if f.name not in ignore]
+def _populate_obj(cls: type, data: dict, **kwargs):
+    fields = [f.name for f in attrs.fields(cls)]
     return cls(**{k: v for k, v in (data | kwargs).items() if k in fields})

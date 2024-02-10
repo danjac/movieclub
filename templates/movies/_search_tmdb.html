@@ -6,12 +6,20 @@
             <li class="flex justify-between items-center py-2">
                 <div class="font-semibold">
                     {{ result.title }}
-                    ({{ result.release_date }})
+                    ({{ result.release_date|date:"Y" }})
                 </div>
                 <div>
                     <button class="inline-flex items-center space-x-2 btn btn-default"
-                            aria-label="Add Movie"
-                            hx-post="{% url 'movies:add_movie' result.id %}">
+                        aria-label="Add Movie"
+                        hx-post="{% url 'movies:add_movie' result.id %}"
+                        {# djlint: off #}
+                            hx-vals='{
+                              "title": "{{ result.title|escapejs }}",
+                              "overview": "{{ result.overview|escapejs }}",
+                              "backdrop": "{{ result.backdrop_path|escapejs }}",
+                              "poster": "{{ result.poster_path|escapejs }}"
+                            }'
+                        {# djlint: on #}>
                         {% heroicon_mini "plus" title="Add Movie" %}
                         <span>Add</span>
                     </button>

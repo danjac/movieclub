@@ -14,6 +14,7 @@ urlpatterns = [
     path("account/", include("allauth.urls")),
     path("invitations/", include("invitations.urls")),
     path("ht/", include("health_check.urls")),
+    path("rq/", include("django_rq.urls")),
     path(settings.ADMIN_URL, admin.site.urls),
 ]
 

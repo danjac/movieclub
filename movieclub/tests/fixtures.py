@@ -22,6 +22,10 @@ def _settings_overrides(settings: Settings) -> None:
     settings.LOGGING = None
     settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 
+    # Make all RQ queues synchronous
+    for queue in settings.RQ_QUEUES.values():
+        queue["ASYNC"] = False
+
 
 @pytest.fixture()
 def _locmem_cache(settings: Settings) -> Generator:

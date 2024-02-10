@@ -1,5 +1,6 @@
 from django.contrib import messages
-from django.http import HttpRequest, HttpResponse
+from django.db import transaction
+from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST, require_safe
@@ -9,6 +10,7 @@ from movieclub import tmdb
 from movieclub.client import get_client
 from movieclub.decorators import require_auth, require_DELETE, require_form_methods
 from movieclub.movies.forms import ReviewForm
+from movieclub.movies.jobs import populate_movie
 from movieclub.movies.models import Movie, Review
 from movieclub.reviews.views import render_review, render_review_form
 
@@ -146,20 +148,17 @@ def add_movie(request: HttpRequest, tmdb_id: int) -> HttpResponse:
     """Given a TMDB ID, add new user and redirect there."""
 
     try:
-        movie = Movie.objects.get(tmdb_id=tmdb_id)
-        return redirect(movie)
-    except Movie.DoesNotExist:
-        pass
-
-    # TBD: fetch movie details in task
-
-    movie = Movie.objects.create(
-        tmdb_id=tmdb_id,
-        title=request.POST["title"],
-        backdrop=request.POST["backdrop_url"],
-        overview=request.POST["overview"],
-        poster=request.POST["poster_url"],
-    )
-
-    messages.success(request, "Movie has been added")
+        movie, created = Movie.objects.get_or_create(
+            tmdb_id=tmdb_id,
+            defaults={
+                "title": request.POST["title"],
+                "overview": request.POST["overview"],
+                "poster": request.POST["poster"],
+            },
+        )
+    except KeyError:
+        return HttpResponseBadRequest()
+    if created:
+        transaction.on_commit(lambda: populate_movie.delay(movie_id=movie.pk))
+        messages.success(request, "Movie has been added")
     return redirect(movie)
