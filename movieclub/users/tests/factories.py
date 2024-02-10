@@ -8,15 +8,20 @@ _faker = Faker()
 
 
 def create_user(
+    *,
+    username: str = NotSet,
+    email: str = NotSet,
+    password: str = NotSet,
+    with_keypair: bool = False,
     **kwargs,
 ) -> User:
-    return User.objects.create_user(**_user_kwargs(**kwargs))
-
-
-async def acreate_user(
-    **kwargs,
-) -> User:
-    return await User.objects.acreate_user(**_user_kwargs(**kwargs))
+    return User.objects.create_user(
+        username=resolve(username, _faker.unique.user_name),
+        email=resolve(email, _faker.unique.email),
+        password=resolve(password, "testpass1"),
+        with_keypair=with_keypair,
+        **kwargs,
+    )
 
 
 def create_email_address(
@@ -31,19 +36,4 @@ def create_email_address(
         email=resolve(email, _faker.unique.email),
         verified=verified,
         primary=primary,
-    )
-
-
-def _user_kwargs(
-    *,
-    username: str = NotSet,
-    email: str = NotSet,
-    password: str = NotSet,
-    **kwargs,
-) -> dict:
-    return dict(
-        username=resolve(username, _faker.unique.user_name),
-        email=resolve(email, _faker.unique.email),
-        password=resolve(password, "testpass1"),
-        **kwargs,
     )

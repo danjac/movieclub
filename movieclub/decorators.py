@@ -1,5 +1,4 @@
 import functools
-import inspect
 from collections.abc import Callable
 
 from django.conf import settings
@@ -18,36 +17,21 @@ require_DELETE = require_http_methods(["DELETE"])  # noqa: N816
 def require_auth(view: Callable) -> Callable:
     """Login required decorator also handling HTMX and AJAX views."""
 
-    if inspect.iscoroutinefunction(view):
-
-        @functools.wraps(view)
-        async def _async_wrapper(request: HttpRequest, *args, **kwargs) -> HttpResponse:
-            # monkeypatch request.user to prevent sync calls later
-            request.user = await request.auser()
-            if request.user.is_authenticated:
-                return await view(request, *args, **kwargs)
-            return _handle_unauthorized(request)
-
-        return _async_wrapper
-
     @functools.wraps(view)
     def _wrapper(request: HttpRequest, *args, **kwargs) -> HttpResponse:
         if request.user.is_authenticated:
             return view(request, *args, **kwargs)
-        return _handle_unauthorized(request)
+
+        """Returns correct response if user not authenticated."""
+        if request.htmx:
+            return HttpResponseClientRedirect(
+                redirect_to_login(settings.LOGIN_REDIRECT_URL).url
+            )
+
+        # plain non-HTMX AJAX: return a 401
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return HttpResponseUnauthorized()
+
+        return redirect_to_login(request.get_full_path())
 
     return _wrapper
-
-
-def _handle_unauthorized(request: HttpRequest) -> HttpResponse:
-    """Returns correct response if user not authenticated."""
-    if request.htmx:
-        return HttpResponseClientRedirect(
-            redirect_to_login(settings.LOGIN_REDIRECT_URL).url
-        )
-
-    # plain non-HTMX AJAX: return a 401
-    if request.headers.get("x-requested-with") == "XMLHttpRequest":
-        return HttpResponseUnauthorized()
-
-    return redirect_to_login(request.get_full_path())
