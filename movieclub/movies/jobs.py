@@ -20,8 +20,8 @@ def populate_movie(movie_id: int) -> None:
 
     Movie.objects.filter(pk=movie.pk).update(
         countries=",".join([c.iso_3166_1 for c in details.production_countries]),
-        backdrop=details.backdrop_path,
-        poster=details.poster_path,
+        backdrop_url=details.backdrop_path,
+        poster_url=details.poster_path,
         language=details.original_language,
         **attrs.asdict(
             details,

@@ -153,7 +153,7 @@ def add_movie(request: HttpRequest, tmdb_id: int) -> HttpResponse:
             defaults={
                 "title": request.POST["title"],
                 "overview": request.POST["overview"],
-                "poster": request.POST["poster"],
+                "poster_url": request.POST["poster_url"],
             },
         )
     except KeyError:

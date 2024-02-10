@@ -134,7 +134,7 @@ class TestAddMovie:
     params = {
         "title": "John Wick 4",
         "overview": "test",
-        "poster": "https://example.com/poster.jpg",
+        "poster_url": "https://example.com/poster.jpg",
     }
 
     @pytest.fixture()

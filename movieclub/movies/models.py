@@ -35,8 +35,8 @@ class Movie(models.Model):
 
     homepage = models.URLField(blank=True)
 
-    backdrop = models.URLField(blank=True)
-    poster = models.URLField(blank=True)
+    backdrop_url = models.URLField(blank=True)
+    poster_url = models.URLField(blank=True)
 
     language = models.CharField(max_length=2, default="en")
 
