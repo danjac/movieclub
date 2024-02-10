@@ -1,6 +1,6 @@
 import faker
 
-from movieclub.movies.models import CastMember, CrewMember, Movie, Review
+from movieclub.movies.models import CastMember, CrewMember, Genre, Movie, Review
 from movieclub.people.models import Person
 from movieclub.people.tests.factories import create_person
 from movieclub.tests.factories import NotSet, resolve
@@ -14,6 +14,14 @@ def create_movie(tmdb_id: int = NotSet, title: str = NotSet, **kwargs) -> Movie:
     return Movie.objects.create(
         tmdb_id=resolve(tmdb_id, _faker.unique.numerify),
         title=resolve(title, _faker.sentence),
+        **kwargs,
+    )
+
+
+def create_genre(tmdb_id: int = NotSet, name: str = NotSet, **kwargs) -> Genre:
+    return Genre.objects.create(
+        tmdb_id=resolve(tmdb_id, _faker.unique.numerify),
+        name=resolve(name, _faker.unique.word()),
         **kwargs,
     )
 
