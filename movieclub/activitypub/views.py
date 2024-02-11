@@ -1,4 +1,5 @@
 from django.http import Http404, HttpRequest, JsonResponse
+from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 
 from movieclub.users.models import User
@@ -54,4 +55,33 @@ def nodeinfo(request: HttpRequest) -> JsonResponse:
             },
             "openRegistrations": False,
         }
+    )
+
+
+@require_GET
+def local_user(request: HttpRequest, username: str) -> JsonResponse:
+    """Returns profile endpoint of a local User.
+    We will probably need a local Group endpoint as well.
+    """
+    user = get_object_or_404(User, is_active=True, username__iexact=username)
+    document_id = request.build_absolute_uri()
+
+    return JsonResponse(
+        {
+            "@context": [
+                "https://www.w3.org/ns/activitystreams",
+                "https://w3id.org/security/v1",
+            ],
+            "id": document_id,
+            "type": "Person",
+            "preferredUsername": user.username,
+            # TBD
+            "inbox": "https://my-example.com/inbox",
+            "publicKey": {
+                "id": f"{document_id}#main-key",
+                "owner": document_id,
+                "publicKeyPem": user.public_key,
+            },
+        },
+        content_type="application/ld+json",
     )

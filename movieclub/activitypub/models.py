@@ -87,6 +87,7 @@ class Follow(TimeStampedModel):
     """
 
     class Status(models.TextChoices):
+        CREATED = "created", "Created"
         REQUESTED = "requested", "Requested"
         ACCEPTED = "accepted", "Accepted"
         REJECTED = "rejected", "Rejected"
@@ -127,7 +128,8 @@ class Follow(TimeStampedModel):
     object_id = models.CharField(max_length=200, default=uuid.uuid4)
     domain = models.CharField(max_length=120, blank=True)
 
-    status = models.CharField(max_length=15, default=Status.REQUESTED)
+    status = models.CharField(max_length=15, default=Status.CREATED)
+    status_changed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         constraints: ClassVar = [
