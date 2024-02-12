@@ -22,18 +22,6 @@ class InvalidSignatureError(ValueError):
     """Error raised if signature invalid."""
 
 
-def hash_function(algorithm: str) -> Callable:
-    """Return hash function for algorithm."""
-
-    match algorithm:
-        case "SHA-256":
-            return hashlib.sha256
-        case "SHA-512":
-            return hashlib.sha512
-        case _:
-            raise ValueError(f"Invalid algorithm: {algorithm}")
-
-
 def create_key_pair() -> tuple[str, str]:
     """Create random private and public key pair."""
     key = RSA.generate(2048, Random.new().read)
@@ -47,7 +35,7 @@ def make_digest(data: dict, algorithm: str = "SHA-256") -> str:
     """Creates digest string."""
 
     encoded = b64encode(
-        hash_function(algorithm)(json.dumps(data).encode("utf-8")).digest()
+        _hash_function(algorithm)(json.dumps(data).encode("utf-8")).digest()
     ).decode("utf-8")
 
     return f"{algorithm}={encoded}"
@@ -112,20 +100,7 @@ def verify_signature(request: HttpRequest, client: httpx.Client) -> None:
         headers = sig_header["headers"]
         signature = b64decode(sig_header["signature"])
 
-        comparisons: list[tuple[str, str]] = []
-
-        for name in headers.split():
-            value = request.headers[name]
-            match name:
-                case "(request-target)":
-                    value = f"post {request.path}"
-                case "digest":
-                    verify_digest(request)
-                case "date":
-                    verify_date(value)
-            comparisons.append((name, value))
-
-        comparison_string = "\n".join([f"{k}: {v}" for k, v in comparisons])
+        comparison_string = _build_comparison_string(request, headers)
 
         response = client.get(key_id)
         response.raise_for_status()
@@ -154,5 +129,34 @@ def verify_date(date: str):
 def verify_digest(request: HttpRequest) -> None:
     """Checks digest is valid"""
     algorithm, digest = request.headers["digest"].split("=", 1)
-    if b64decode(digest) != hash_function(algorithm)(request.body).digest():
+    if b64decode(digest) != _hash_function(algorithm)(request.body).digest():
         raise ValueError("Invalid HTTP Digest header")
+
+
+def _build_comparison_string(request: HttpRequest, headers: str) -> str:
+    comparisons: list[tuple[str, str]] = []
+
+    for name in headers.split():
+        value = request.headers[name]
+        match name:
+            case "(request-target)":
+                value = f"post {request.path}"
+            case "digest":
+                verify_digest(request)
+            case "date":
+                verify_date(value)
+        comparisons.append((name, value))
+
+    return "\n".join([f"{k}: {v}" for k, v in comparisons])
+
+
+def _hash_function(algorithm: str) -> Callable:
+    """Return hash function for algorithm."""
+
+    match algorithm:
+        case "SHA-256":
+            return hashlib.sha256
+        case "SHA-512":
+            return hashlib.sha512
+        case _:
+            raise ValueError(f"Invalid algorithm: {algorithm}")
