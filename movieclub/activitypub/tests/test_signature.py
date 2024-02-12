@@ -1,7 +1,9 @@
 import http
+from datetime import timedelta
 
 import httpx
 import pytest
+from django.utils import timezone
 
 from movieclub.activitypub.signature import (
     InvalidSignatureError,
@@ -40,6 +42,16 @@ class TestSignature:
         assert "RSA PRIVATE KEY" in private_key
         assert "PUBLIC KEY" in public_key
 
+    def test_make_digest_sha256(self):
+        assert make_digest(self.payload)
+
+    def test_make_digest_sha512(self):
+        assert make_digest(self.payload, algorithm="SHA-512")
+
+    def test_make_digest_invalid(self):
+        with pytest.raises(ValueError, match="Invalid algorithm: SHA-511"):
+            make_digest(self.payload, algorithm="SHA-511")
+
     def test_verify_signature(self, rf, private_key, public_key):
         headers = make_signature(
             self.inbox_url,
@@ -64,6 +76,22 @@ class TestSignature:
 
         verify_signature(req, client)
 
+    def test_verify_signature_invalid_date(self, rf, private_key, public_key):
+        headers = make_signature(
+            self.inbox_url,
+            private_key=private_key,
+            actor_url=self.actor_url,
+            date=timezone.now() - timedelta(hours=1),
+        )
+        req = rf.post(
+            self.inbox_url,
+            self.payload,
+            **{f"HTTP_{k.upper()}": v for k, v in headers.items()},
+        )
+
+        with pytest.raises(InvalidSignatureError):
+            verify_signature(req, httpx.Client())
+
     def test_verify_signature_missing_header(self, rf):
         req = rf.post(
             self.inbox_url,
@@ -72,16 +100,6 @@ class TestSignature:
 
         with pytest.raises(InvalidSignatureError):
             verify_signature(req, httpx.Client())
-
-    def test_make_digest_sha256(self):
-        assert make_digest(self.payload)
-
-    def test_make_digest_sha512(self):
-        assert make_digest(self.payload, algorithm="SHA-512")
-
-    def test_make_digest_invalid(self):
-        with pytest.raises(ValueError, match="Invalid algorithm: SHA-511"):
-            make_digest(self.payload, algorithm="SHA-511")
 
     def test_verify_signature_with_digest(self, rf, private_key, public_key):
         digest = make_digest(self.payload)

@@ -115,15 +115,15 @@ def verify_signature(request: HttpRequest, client: httpx.Client) -> None:
         comparisons: list[tuple[str, str]] = []
 
         for name in headers.split():
+            value = request.headers[name]
             match name:
                 case "(request-target)":
-                    comparisons.append(("(request-target)", f"post {request.path}"))
+                    value = f"post {request.path}"
                 case "digest":
                     verify_digest(request)
-                    comparisons.append((name, request.headers[name]))
-                # TBD: check date
-                case _:
-                    comparisons.append((name, request.headers[name]))
+                case "date":
+                    verify_date(value)
+            comparisons.append((name, value))
 
         comparison_string = "\n".join([f"{k}: {v}" for k, v in comparisons])
 
@@ -140,6 +140,15 @@ def verify_signature(request: HttpRequest, client: httpx.Client) -> None:
 
     except (KeyError, ValueError, httpx.HTTPError) as e:
         raise InvalidSignatureError from e
+
+
+def verify_date(date: str):
+    """Check date within limit."""
+    """age of a signature in seconds"""
+    parsed = datetime.datetime.strptime(date, "%a, %d %b %Y %H:%M:%S GMT")
+    delta = datetime.datetime.utcnow() - parsed
+    if delta.total_seconds() > MAX_SIGNATURE_AGE:
+        raise ValueError("Date timeout")
 
 
 def verify_digest(request: HttpRequest) -> None:
