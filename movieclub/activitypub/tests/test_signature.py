@@ -42,6 +42,46 @@ def test_verify_signature(rf):
     verify_signature(req, client)
 
 
+def test_verify_signature_with_digest(rf):
+    priv_key, pub_key = create_key_pair()
+    url = "https://example.com/inbox"
+
+    content = {
+        "@context": "https://www.w3.org/ns/activitystreams",
+        "id": "https://activitypub.academy/16606771-befe-483b-9e2c-0b8b85062373",
+        "type": "Follow",
+        "actor": "https://activitypub.academy/users/alice",
+        "object": "https://techhub.social/users/berta",
+    }
+
+    digest = make_digest(content)
+
+    headers = make_signature(
+        url,
+        private_key=priv_key,
+        actor_url="https://domain.com/tester/",
+        digest=digest,
+    )
+
+    req = rf.post(
+        "/inbox",
+        content,
+        content_type="application/json",
+        **{f"HTTP_{k.upper()}": v for k, v in headers.items()},
+    )
+
+    def _handle(request):
+        json = {
+            "@context": "https://www.w3.org/ns/activitystreams",
+            "publicKey": {"pubkeyPrem": pub_key},
+        }
+
+        return httpx.Response(http.HTTPStatus.OK, json=json)
+
+    client = httpx.Client(transport=httpx.MockTransport(_handle))
+    verify_signature(req, client)
+
+
 def test_make_signature():
     priv_key, _ = create_key_pair()
     assert make_signature(

@@ -50,7 +50,6 @@ def make_signature(
     private_key: str,
     actor_url: str,
     digest: str = "",
-    method: str = "post",
     date: datetime.datetime | None = None,
 ) -> dict[str, str]:
     """Creates a signature from private key."""
@@ -59,7 +58,7 @@ def make_signature(
     date = date or timezone.now()
 
     http_headers = {
-        "(request-target)": f"{method} {url.path}",
+        "(request-target)": f"post {url.path}",
         "host": url.netloc,
         "date": http_date(date.timestamp()),
     }
@@ -109,9 +108,7 @@ def verify_signature(request: HttpRequest, client: httpx.Client) -> None:
         for name in headers.split():
             match name:
                 case "(request-target)":
-                    comparisons.append(
-                        ("(request-target)", f"{request.method.lower()} {request.path}")
-                    )
+                    comparisons.append(("(request-target)", f"post {request.path}"))
                 case "digest":
                     verify_digest(request)
                     comparisons.append((name, request.headers[name]))
