@@ -33,7 +33,6 @@ class Actor(TimeStampedModel):
     instance = models.ForeignKey(
         Instance, on_delete=models.PROTECT, related_name="actors"
     )
-    # for a Remote instance
 
     handle = models.CharField(max_length=120)
     name = models.CharField(max_length=120, blank=True)
@@ -48,7 +47,6 @@ class Actor(TimeStampedModel):
     # blocked for all users: each user will have own block list
     blocked = models.BooleanField(default=False)
 
-    # for Remote instances
     profile_url = models.URLField()
     outbox_url = models.URLField()
     inbox_url = models.URLField()
