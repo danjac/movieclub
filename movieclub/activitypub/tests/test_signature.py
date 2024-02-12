@@ -4,6 +4,7 @@ import httpx
 import pytest
 
 from movieclub.activitypub.signature import (
+    InvalidSignatureError,
     create_key_pair,
     make_digest,
     make_signature,
@@ -63,6 +64,25 @@ class TestSignature:
 
         verify_signature(req, client)
 
+    def test_verify_signature_missing_header(self, rf):
+        req = rf.post(
+            self.inbox_url,
+            self.payload,
+        )
+
+        with pytest.raises(InvalidSignatureError):
+            verify_signature(req, httpx.Client())
+
+    def test_make_digest_sha256(self):
+        assert make_digest(self.payload)
+
+    def test_make_digest_sha512(self):
+        assert make_digest(self.payload, algorithm="SHA-512")
+
+    def test_make_digest_invalid(self):
+        with pytest.raises(ValueError, match="Invalid algorithm: SHA-511"):
+            make_digest(self.payload, algorithm="SHA-511")
+
     def test_verify_signature_with_digest(self, rf, private_key, public_key):
         digest = make_digest(self.payload)
 
@@ -91,16 +111,36 @@ class TestSignature:
         client = httpx.Client(transport=httpx.MockTransport(_handle))
         verify_signature(req, client)
 
+    def test_verify_signature_with_invalid_digest(self, rf, private_key, public_key):
+        digest = make_digest(self.payload)
+
+        headers = make_signature(
+            self.inbox_url,
+            private_key=private_key,
+            actor_url="https://domain.com/tester/",
+            digest=digest,
+        )
+
+        req = rf.post(
+            self.inbox_url,
+            {**self.payload, "test": "ok"},
+            content_type="application/json",
+            **{f"HTTP_{k.upper()}": v for k, v in headers.items()},
+        )
+
+        with pytest.raises(InvalidSignatureError):
+            verify_signature(req, httpx.Client())
+
     def test_make_signature(self, private_key):
         assert make_signature(
-            "https://example.com",
+            self.inbox_url,
             private_key=private_key,
             actor_url=self.actor_url,
         )
 
     def test_make_signature_with_digest(self, private_key):
         assert make_signature(
-            "https://example.com",
+            self.inbox_url,
             private_key=private_key,
             actor_url=self.actor_url,
             digest=make_digest(self.payload),

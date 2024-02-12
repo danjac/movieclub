@@ -1,9 +1,6 @@
-from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
-from django.views.decorators.http import require_POST, require_safe
+from django.http import Http404, HttpRequest, JsonResponse
+from django.views.decorators.http import require_safe
 
-from movieclub.activitypub.signature import InvalidSignatureError, verify_signature
-from movieclub.client import get_client
-from movieclub.http import HttpResponseUnauthorized
 from movieclub.users.models import User
 
 
@@ -58,25 +55,3 @@ def nodeinfo(request: HttpRequest) -> JsonResponse:
             "openRegistrations": False,
         }
     )
-
-
-@require_POST
-def inbox(request: HttpRequest, username: str) -> JsonResponse:
-    """
-    1. Check for "Signature" header.
-    2. Fetch JSON from the keyId value.
-    3. In JSON publicKey.pubkeyPrem get public key.
-    4. Build and compare the strings.
-    5. Verify the signature, digest etc. Return 401 if bad sig.
-
-    Parse message:
-        - Follow Activity: generatate a remote->local Follow object
-        and notify user.
-    """
-
-    try:
-        verify_signature(request, get_client())
-    except InvalidSignatureError as e:
-        raise HttpResponseUnauthorized from e
-
-    return HttpResponse()

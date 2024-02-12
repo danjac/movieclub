@@ -2,6 +2,7 @@ import datetime
 import hashlib
 import json
 from base64 import b64decode, b64encode
+from collections.abc import Callable
 from typing import Final
 from urllib.parse import urlparse
 
@@ -16,14 +17,21 @@ from django.utils.http import http_date
 
 MAX_SIGNATURE_AGE: Final = 300
 
-HASH_FUNCTIONS: Final = {
-    "SHA-256": hashlib.sha256,
-    "SHA-512": hashlib.sha512,
-}
-
 
 class InvalidSignatureError(ValueError):
     """Error raised if signature invalid."""
+
+
+def hash_function(algorithm: str) -> Callable:
+    """Return hash function for algorithm."""
+
+    match algorithm:
+        case "SHA-256":
+            return hashlib.sha256
+        case "SHA-512":
+            return hashlib.sha512
+        case _:
+            raise ValueError(f"Invalid algorithm: {algorithm}")
 
 
 def create_key_pair() -> tuple[str, str]:
@@ -35,13 +43,14 @@ def create_key_pair() -> tuple[str, str]:
     )
 
 
-def make_digest(data: dict) -> str:
+def make_digest(data: dict, algorithm: str = "SHA-256") -> str:
     """Creates digest string."""
+
     encoded = b64encode(
-        hashlib.sha256(json.dumps(data).encode("utf-8")).digest()
+        hash_function(algorithm)(json.dumps(data).encode("utf-8")).digest()
     ).decode("utf-8")
 
-    return f"SHA-256={encoded}"
+    return f"{algorithm}={encoded}"
 
 
 def make_signature(
@@ -136,13 +145,5 @@ def verify_signature(request: HttpRequest, client: httpx.Client) -> None:
 def verify_digest(request: HttpRequest) -> None:
     """Checks digest is valid"""
     algorithm, digest = request.headers["digest"].split("=", 1)
-    match algorithm:
-        case "SHA-256":
-            hash_function = hashlib.sha256
-        case "SHA-512":
-            hash_function = hashlib.sha512
-        case _:
-            raise ValueError(f"Invalid algorithm: {algorithm}")
-
-    if b64decode(digest) != hash_function(request.body).digest():
+    if b64decode(digest) != hash_function(algorithm)(request.body).digest():
         raise ValueError("Invalid HTTP Digest header")
