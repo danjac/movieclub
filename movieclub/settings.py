@@ -65,7 +65,6 @@ INSTALLED_APPS: list[str] = [
     "allauth.socialaccount.providers.google",
     "django_extensions",
     "django_htmx",
-    "django_rq",
     "health_check",
     "health_check.db",
     "health_check.cache",
@@ -401,17 +400,6 @@ HEALTH_CHECK = {
     "DISK_USAGE_MAX": 90,  # percent
     "MEMORY_MIN": 100,  # in MB
 }
-
-# Django-RQ
-# https://github.com/rq/django-rq
-
-RQ_QUEUES = {
-    "default": {
-        "URL": env("REDIS_URL"),
-    }
-}
-
-RQ_SHOW_ADMIN_LINK = True
 
 # Sentry
 # https://docs.sentry.io/platforms/python/guides/django/
