@@ -134,15 +134,12 @@ class TestAddMovie:
 
     @pytest.mark.django_db(transaction=True)
     def test_post_new(self, client, auth_user, mocker):
-        _movie = None
-
-        def _create_movie():
-            _movie = create_movie(tmdb_id=self.tmdb_id)
+        def _create_movie(client, tmdb_id):
+            return create_movie(tmdb_id=tmdb_id)
 
         mocker.patch(
             "movieclub.movies.tmdb.populate_movie",
             side_effect=_create_movie,
-            return_value=_movie,
         )
         response = client.post(self.url)
         movie = Movie.objects.get(tmdb_id=self.tmdb_id)
