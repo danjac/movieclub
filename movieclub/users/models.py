@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from django.contrib.auth.models import AbstractUser, BaseUserManager
-from django.db import models
+from typing import TYPE_CHECKING
 
-from movieclub.activitypub.signature import create_key_pair
+from django.contrib.auth.models import AbstractUser, BaseUserManager
+
+if TYPE_CHECKING:  # pragma: no cover
+    from django.db import models
 
 
 class UserManager(BaseUserManager):
@@ -15,7 +17,6 @@ class UserManager(BaseUserManager):
         username: str,
         email: str,
         password: str | None = None,
-        with_keypair: bool = True,
         **kwargs,
     ) -> User:
         """Create new user."""
@@ -27,9 +28,6 @@ class UserManager(BaseUserManager):
 
         user.set_password(password)
 
-        if with_keypair:
-            user.private_key, user.public_key = create_key_pair()
-
         user.save(using=self._db)
 
         return user
@@ -38,9 +36,9 @@ class UserManager(BaseUserManager):
         """Create new superuser."""
         return self.create_user(
             *args,
-            **kwargs,
             is_staff=True,
             is_superuser=True,
+            **kwargs,
         )
 
 
@@ -48,7 +46,3 @@ class User(AbstractUser):
     """Custom User model."""
 
     objects: models.Manager[User] = UserManager()
-
-    # ActivityPub keys
-    private_key = models.TextField(blank=True)
-    public_key = models.TextField(blank=True)

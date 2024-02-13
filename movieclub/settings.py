@@ -76,7 +76,6 @@ INSTALLED_APPS: list[str] = [
     "invitations",
     "template_partials",
     "widget_tweaks",
-    "movieclub.activitypub",
     "movieclub.movies",
     "movieclub.people",
     "movieclub.reviews",
