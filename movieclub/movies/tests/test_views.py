@@ -132,20 +132,24 @@ class TestAddMovie:
     tmdb_id = 245891
     url = reverse_lazy("movies:add_movie", args=[tmdb_id])
 
-    @pytest.mark.django_db(transaction=True)
+    @pytest.mark.django_db()
     def test_post_new(self, client, auth_user, mocker):
-        def _create_movie(client, tmdb_id):
-            return create_movie(tmdb_id=tmdb_id)
+        movie = create_movie(tmdb_id=self.tmdb_id)
 
         mocker.patch(
-            "movieclub.movies.tmdb.populate_movie",
-            side_effect=_create_movie,
+            "movieclub.movies.models.Movie.objects.get",
+            side_effect=Movie.DoesNotExist,
         )
+
+        mocker.patch(
+            "movieclub.movies.views.populate_movie",
+            return_value=movie,
+        )
+
         response = client.post(self.url)
-        movie = Movie.objects.get(tmdb_id=self.tmdb_id)
         assert response.url == movie.get_absolute_url()
 
-    @pytest.mark.django_db(transaction=True)
+    @pytest.mark.django_db()
     def test_post_exists(self, client, auth_user):
         movie = create_movie(tmdb_id=self.tmdb_id)
         response = client.post(self.url)
