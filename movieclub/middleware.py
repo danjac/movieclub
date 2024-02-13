@@ -3,6 +3,7 @@ from collections.abc import Callable
 from django.contrib.messages import get_messages
 from django.http import HttpRequest, HttpResponse
 from django.template.loader import render_to_string
+from django.utils.functional import cached_property
 from django_htmx.http import HttpResponseLocation
 
 
@@ -70,3 +71,40 @@ class HtmxRedirectMiddleware(BaseMiddleware):
         if request.htmx and "Location" in response:
             return HttpResponseLocation(response["Location"])
         return response
+
+
+class PaginationMiddleware(BaseMiddleware):
+    """Adds `Pagination` instance as `request.pagination`."""
+
+    def __call__(self, request: HttpRequest) -> HttpResponse:
+        """Middleware implementation."""
+        request.pagination = Pagination(request)
+        return self.get_response(request)
+
+
+class Pagination:
+    """Handles pagination parameters in request."""
+
+    param: str = "page"
+
+    def __init__(self, request: HttpRequest):
+        self.request = request
+
+    def __str__(self) -> str:
+        """Returns current page."""
+        return self.current
+
+    @cached_property
+    def current(self) -> str:
+        """Returns current page number from query string."""
+        return self.request.GET.get(self.param, "")
+
+    def url(self, page_number: int) -> str:
+        """Inserts the page query string parameter with the provided page number into
+        the current query string.
+
+        Preserves the original request path and any other query string parameters.
+        """
+        qs = self.request.GET.copy()
+        qs[self.param] = page_number
+        return f"{self.request.path}?{qs.urlencode()}"

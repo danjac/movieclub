@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load heroicons %}
+{% load heroicons partials %}
 {% block content %}
     <div class="relative opacity-100 bg-inherit"
         x-data="{addMovie: false, search: ''}"
@@ -31,7 +31,7 @@
             {% endif %}
         </header>
         {% if request.user.is_authenticated %}
-            <div class="absolute z-50 p-2 space-y-3 w-full bg-white rounded border dark:bg-black"
+            <div class="absolute z-50 p-2 space-y-3 w-full bg-white rounded-lg border shadow-lg dark:bg-black"
                  x-cloak
                  x-show="addMovie">
                 <label for="search-movie" class="text-base font-bold lg:text-lg">Add a Movie</label>
@@ -65,34 +65,40 @@
             </div>
         {% endif %}
     </div>
-    <ul class="divide-y divide-solid">
-        {% for movie in movies %}
-            <li class="py-3">
-                <article class="flex items-center space-x-3 cursor-pointer group"
-                         role="link"
-                         hx-get="{{ movie.get_absolute_url }}"
-                         hx-push-url="true">
-                    <img src="{{ movie.poster_url }}"
-                         width="100"
-                         height="120"
-                         class="w-16 h-20 group-hover:grayscale"
-                         alt="{{ movie.title }}">
-                    <div class="flex flex-col place-content-between h-16">
-                        <h2 class="font-bold tracking-tight leading-tight break-words line-clamp-2"
-                            aria-label="{{ movie.title }}"
-                            title="{{ movie.title }}">
-                            <a class="group-hover:text-blue-600 link dark:group-hover:text-blue-300"
-                               aria-label="{{ movie.title }}"
-                               href="{{ movie.get_absolute_url }}">{{ movie.title }}</a>
-                        </h2>
-                        {% if movie.release_date %}
-                            <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm dark:text-gray-300 truncate">
-                                {{ movie.release_date|date:"Y" }}
-                            </h3>
-                        {% endif %}
-                    </div>
-                </article>
-            </li>
-        {% endfor %}
+    {% partialdef pagination inline=True %}
+    <ul class="divide-y divide-solid" id="{{ pagination_target }}">
+        {% with has_other_pages=page_obj.has_other_pages %}
+            {% if has_other_pages %}
+                <li class="pb-3">{% include "_pagination_links.html" %}</li>
+            {% endif %}
+            {% for movie in page_obj %}
+                <li class="py-3">
+                    <article class="flex items-center space-x-3 cursor-pointer group"
+                             role="link"
+                             hx-get="{{ movie.get_absolute_url }}"
+                             hx-push-url="true">
+                        {% cover_image movie.poster_url 100 150 title=movie.title css_class="w-16 h-20 group-hover:grayscale" %}
+                        <div class="flex flex-col place-content-between h-16">
+                            <h2 class="font-bold tracking-tight leading-tight break-words line-clamp-2"
+                                aria-label="{{ movie.title }}"
+                                title="{{ movie.title }}">
+                                <a class="group-hover:text-blue-600 link dark:group-hover:text-blue-300"
+                                   aria-label="{{ movie.title }}"
+                                   href="{{ movie.get_absolute_url }}">{{ movie.title }}</a>
+                            </h2>
+                            {% if movie.release_date %}
+                                <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm dark:text-gray-300 truncate">
+                                    {{ movie.release_date|date:"Y" }}
+                                </h3>
+                            {% endif %}
+                        </div>
+                    </article>
+                </li>
+            {% endfor %}
+            {% if has_other_pages %}
+                <li class="pt-3">{% include "_pagination_links.html" %}</li>
+            {% endif %}
+        {% endwith %}
     </ul>
+{% endpartialdef pagination %}
 {% endblock content %}

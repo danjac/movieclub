@@ -1,6 +1,9 @@
 {# vim: set filetype=htmldjango #}
 {% if user.is_authenticated %}
     {% include "reviews/_review_form.html" %}
+{% else %}
+    <a class="block link"
+       href="{% url 'account_login' %}?next={{ request.path|urlencode }}">Log in or sign up to post your review!</a>
 {% endif %}
 <div id="reviews" class="divide-y divide">
     {% for review in reviews %}

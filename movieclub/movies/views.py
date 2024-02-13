@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.decorators.cache import cache_control, cache_page
 from django.views.decorators.http import require_POST, require_safe
 from django_htmx.http import reswap, retarget
 
@@ -11,15 +12,18 @@ from movieclub.decorators import require_auth, require_DELETE, require_form_meth
 from movieclub.movies.forms import ReviewForm
 from movieclub.movies.models import Movie, Review
 from movieclub.movies.tmdb import populate_movie
+from movieclub.pagination import render_pagination
 from movieclub.reviews.views import render_review, render_review_form
 
 
 @require_safe
 def index(request: HttpRequest) -> HttpResponse:
     """Returns list of movies."""
-    # will paginate later
-    movies = Movie.objects.order_by("-pk")[:20]
-    return render(request, "movies/index.html", {"movies": movies})
+    return render_pagination(
+        request,
+        Movie.objects.order_by("-pk"),
+        "movies/index.html",
+    )
 
 
 @require_safe
@@ -29,9 +33,9 @@ def movie_detail(request: HttpRequest, movie_id: int, slug: str) -> HttpResponse
     context = {
         "movie": movie,
         "reviews": movie.reviews.select_related("user").order_by("-created"),
-        "cast_members": movie.cast_members.select_related("person").order_by("order")[
-            :6
-        ],
+        "cast_members": movie.cast_members.exclude(person__profile_url="")
+        .select_related("person")
+        .order_by("order")[:6],
     }
     if request.user.is_authenticated:
         context = {
@@ -122,7 +126,8 @@ def delete_review(request: HttpRequest, review_id: int) -> HttpResponse:
 
 
 @require_safe
-@require_auth
+@cache_control(max_age=60 * 60 * 24, immutable=True)
+@cache_page(60 * 60)
 def search_tmdb(request: HttpRequest, limit: int = 12) -> HttpResponse:
     """Search TMDB and get result.
     This should be cached!

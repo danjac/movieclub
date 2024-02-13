@@ -101,6 +101,7 @@ MIDDLEWARE: list[str] = [
     "movieclub.middleware.CacheControlMiddleware",
     "movieclub.middleware.HtmxMessagesMiddleware",
     "movieclub.middleware.HtmxRedirectMiddleware",
+    "movieclub.middleware.PaginationMiddleware",
 ]
 
 # Databases
@@ -140,7 +141,7 @@ TEMPLATES = [
         "DIRS": [BASE_DIR / "templates"],
         "OPTIONS": {
             "builtins": [
-                # "movieclub.template",
+                "movieclub.template",
             ],
             "debug": env("TEMPLATE_DEBUG"),
             "context_processors": [

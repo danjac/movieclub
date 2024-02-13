@@ -6,7 +6,7 @@
             <li class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-900">
                 <div class="font-semibold">
                     {{ result.title }}
-                    ({{ result.release_date|date:"Y" }})
+                    {% if result.release_date %}({{ result.release_date|date:"Y" }}){% endif %}
                 </div>
                 <div>
                     <button class="inline-flex items-center space-x-2 btn btn-default"
