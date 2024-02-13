@@ -1,7 +1,7 @@
 import http
 
 import pytest
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 
 
 class TestWebfinger:
@@ -39,4 +39,13 @@ class TestNodeInfo:
     def test_get(self, client, user):
         response = client.get(self.url)
         assert response.json()["usage"]["users"]["total"] == 1
+        assert response.status_code == http.HTTPStatus.OK
+
+
+class TestActor:
+    @pytest.mark.django_db()
+    def test_get(self, client, user_with_keypair):
+        response = client.get(
+            reverse("activitypub:actor", args=[user_with_keypair.username])
+        )
         assert response.status_code == http.HTTPStatus.OK

@@ -1,4 +1,9 @@
-from django.http import Http404, HttpRequest, JsonResponse
+from django.http import (
+    Http404,
+    HttpRequest,
+    JsonResponse,
+)
+from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_safe
 
 from movieclub.users.models import User
@@ -53,5 +58,41 @@ def nodeinfo(request: HttpRequest) -> JsonResponse:
                 "localPosts": 0,
             },
             "openRegistrations": False,
+        }
+    )
+
+
+@require_safe
+def actor(request: HttpRequest, username: str) -> JsonResponse:
+    """
+    Returns local Actor details (currently just users).
+    """
+    user = get_object_or_404(User, is_active=True, username__iexact=username)
+    uri = request.build_absolute_uri()
+
+    return JsonResponse(
+        {
+            "@context": [
+                "https://www.w3.org/ns/activitystreams",
+                "https://w3id.org/security/v1",
+            ],
+            "id": uri,
+            "type": "Person",
+            "name": user.get_full_name(),
+            "preferredUsername": user.username,
+            "summary": "",  # user.bio
+            "url": uri,
+            "inbox": "",  # TBD
+            "outbox": "",  # TBD
+            "followers": "",  # TBD
+            "following": "",  # TBD
+            "endpoints": {
+                "sharedInbox": "",  # TBD
+            },
+            "publicKey": {
+                "id": f"{uri}#main-key",
+                "owner": uri,
+                "publicKeyPem": user.public_key,
+            },
         }
     )
