@@ -131,34 +131,26 @@ class TestSearchTmdb:
 class TestAddMovie:
     tmdb_id = 245891
     url = reverse_lazy("movies:add_movie", args=[tmdb_id])
-    params = {
-        "title": "John Wick 4",
-        "overview": "test",
-        "poster_url": "https://example.com/poster.jpg",
-    }
-
-    @pytest.fixture()
-    def mock_populate_movie(self, mocker):
-        return mocker.patch("movieclub.movies.jobs.populate_movie.delay")
 
     @pytest.mark.django_db(transaction=True)
-    def test_post_new(self, client, auth_user, mock_populate_movie):
-        response = client.post(self.url, self.params)
-        movie = Movie.objects.get(tmdb_id=self.tmdb_id)
-        assert movie.title == "John Wick 4"
-        assert response.url == movie.get_absolute_url()
-        mock_populate_movie.assert_called()
+    def test_post_new(self, client, auth_user, mocker):
+        _movie = None
 
-    @pytest.mark.django_db(transaction=True)
-    def test_post_new_missing_params(self, client, auth_user, mock_populate_movie):
+        def _create_movie():
+            _movie = create_movie(tmdb_id=self.tmdb_id)
+
+        mocker.patch(
+            "movieclub.movies.tmdb.populate_movie",
+            side_effect=_create_movie,
+            return_value=_movie,
+        )
         response = client.post(self.url)
-        assert response.status_code == http.HTTPStatus.BAD_REQUEST
-        assert Movie.objects.exists() is False
-        mock_populate_movie.assert_not_called()
+        movie = Movie.objects.get(tmdb_id=self.tmdb_id)
+        assert response.url == movie.get_absolute_url()
 
     @pytest.mark.django_db(transaction=True)
-    def test_post_exists(self, client, auth_user, mock_populate_movie):
+    def test_post_exists(self, client, auth_user):
         movie = create_movie(tmdb_id=self.tmdb_id)
-        response = client.post(self.url, self.params)
+        response = client.post(self.url)
         assert response.url == movie.get_absolute_url()
-        mock_populate_movie.assert_not_called()
+        assert Movie.objects.count() == 1

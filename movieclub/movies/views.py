@@ -146,7 +146,10 @@ def search_tmdb(request: HttpRequest, limit: int = 12) -> HttpResponse:
 def add_movie(request: HttpRequest, tmdb_id: int) -> HttpResponse:
     """Given a TMDB ID, add new user and redirect there."""
 
-    movie, created = populate_movie(get_client(), tmdb_id)
-    if created:
+    try:
+        movie = Movie.objects.get(tmdb_id=tmdb_id)
+    except Movie.DoesNotExist:
+        movie = populate_movie(get_client(), tmdb_id)
         messages.success(request, "Movie has been added")
+
     return redirect(movie)

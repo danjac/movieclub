@@ -1,21 +1,20 @@
+import httpx
 import pytest
 
 from movieclub import tmdb
-from movieclub.movies.jobs import populate_movie
-from movieclub.movies.tests.factories import create_genre, create_movie
+from movieclub.movies.tests.factories import create_genre
+from movieclub.movies.tmdb import populate_movie
 
 
 class TestPopulateMovie:
     @pytest.mark.django_db()
     def test_ok(self, mocker):
-        movie = create_movie()
         create_genre(tmdb_id=28, name="Action")
         create_genre(tmdb_id=53, name="Thriller")
-
         mocker.patch(
             "movieclub.tmdb.get_movie_detail",
             return_value=tmdb.MovieDetail(
-                id=movie.tmdb_id,
+                id=12345,
                 title="John Wick",
                 homepage="https://www.lionsgate.com/movies/john-wick",
                 original_language="en",
@@ -57,9 +56,7 @@ class TestPopulateMovie:
             ),
         )
 
-        populate_movie(movie.pk)
-
-        movie.refresh_from_db()
+        movie = populate_movie(httpx.Client(), 12345)
 
         assert movie.title == "John Wick"
         assert movie.runtime == 101

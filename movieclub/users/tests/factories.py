@@ -12,14 +12,12 @@ def create_user(
     username: str = NotSet,
     email: str = NotSet,
     password: str = NotSet,
-    with_keypair: bool = False,
     **kwargs,
 ) -> User:
     return User.objects.create_user(
         username=resolve(username, _faker.unique.user_name),
         email=resolve(email, _faker.unique.email),
         password=resolve(password, "testpass1"),
-        with_keypair=with_keypair,
         **kwargs,
     )
 

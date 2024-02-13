@@ -19,22 +19,6 @@ class TestUserManager:
             username="tester1", email=self.email, password=password
         )
         assert user.check_password(password)
-        assert user.private_key
-        assert user.public_key
-
-    @pytest.mark.django_db()
-    def test_create_user_without_keypair(self):
-        password = _make_random_password()
-
-        user = User.objects.create_user(
-            username="tester1",
-            email=self.email,
-            password=password,
-            with_keypair=False,
-        )
-        assert user.check_password(password)
-        assert not user.private_key
-        assert not user.public_key
 
     @pytest.mark.django_db()
     def test_create_superuser(self):

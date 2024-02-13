@@ -6,15 +6,8 @@ from movieclub.movies.models import CastMember, CrewMember, Genre, Movie
 from movieclub.people.models import Person
 
 
-def populate_movie(client: httpx.Client, tmdb_id: int) -> tuple[Movie, bool]:
-    """Generate movie from Tmdb.
-    If Movie already exists, just returns the instance and False.
-    """
-    try:
-        return Movie.objects.get(tmdb_id=tmdb_id), False
-    except Movie.DoesNotExist:
-        pass
-
+def populate_movie(client: httpx.Client, tmdb_id: int) -> Movie:
+    """Generate movie from Tmdb."""
     details = tmdb.get_movie_detail(client, tmdb_id)
 
     fields = attrs.fields(tmdb.MovieDetail)
@@ -108,4 +101,4 @@ def populate_movie(client: httpx.Client, tmdb_id: int) -> tuple[Movie, bool]:
         ]
     )
 
-    return movie, True
+    return movie
