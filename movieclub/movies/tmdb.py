@@ -1,24 +1,26 @@
 import attrs
-from django_rq import job
+import httpx
 
 from movieclub import tmdb
-from movieclub.client import get_client
 from movieclub.movies.models import CastMember, CrewMember, Genre, Movie
 from movieclub.people.models import Person
 
 
-@job
-def populate_movie(movie_id: int) -> None:
-    """Generate movie from Tmdb"""
-    movie = Movie.objects.get(pk=movie_id)
+def populate_movie(client: httpx.Client, tmdb_id: int) -> tuple[Movie, bool]:
+    """Generate movie from Tmdb.
+    If Movie already exists, just returns the instance and False.
+    """
+    try:
+        return Movie.objects.get(tmdb_id=tmdb_id), False
+    except Movie.DoesNotExist:
+        pass
 
-    client = get_client()
-
-    details = tmdb.get_movie_detail(client, movie.tmdb_id)
+    details = tmdb.get_movie_detail(client, tmdb_id)
 
     fields = attrs.fields(tmdb.MovieDetail)
 
-    Movie.objects.filter(pk=movie.pk).update(
+    movie = Movie.objects.create(
+        tmdb_id=tmdb_id,
         countries=",".join([c.iso_3166_1 for c in details.production_countries]),
         backdrop_url=details.backdrop_path,
         poster_url=details.poster_path,
@@ -105,3 +107,5 @@ def populate_movie(movie_id: int) -> None:
             for member in details.crew_members
         ]
     )
+
+    return movie, True

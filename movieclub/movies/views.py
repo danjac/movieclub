@@ -1,6 +1,5 @@
 from django.contrib import messages
-from django.db import transaction
-from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST, require_safe
@@ -10,8 +9,8 @@ from movieclub import tmdb
 from movieclub.client import get_client
 from movieclub.decorators import require_auth, require_DELETE, require_form_methods
 from movieclub.movies.forms import ReviewForm
-from movieclub.movies.jobs import populate_movie
 from movieclub.movies.models import Movie, Review
+from movieclub.movies.tmdb import populate_movie
 from movieclub.reviews.views import render_review, render_review_form
 
 
@@ -147,18 +146,7 @@ def search_tmdb(request: HttpRequest, limit: int = 12) -> HttpResponse:
 def add_movie(request: HttpRequest, tmdb_id: int) -> HttpResponse:
     """Given a TMDB ID, add new user and redirect there."""
 
-    try:
-        movie, created = Movie.objects.get_or_create(
-            tmdb_id=tmdb_id,
-            defaults={
-                "title": request.POST["title"],
-                "overview": request.POST["overview"],
-                "poster_url": request.POST["poster_url"],
-            },
-        )
-    except KeyError:
-        return HttpResponseBadRequest()
+    movie, created = populate_movie(get_client(), tmdb_id)
     if created:
-        transaction.on_commit(lambda: populate_movie.delay(movie_id=movie.pk))
         messages.success(request, "Movie has been added")
     return redirect(movie)

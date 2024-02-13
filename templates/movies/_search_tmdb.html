@@ -3,23 +3,15 @@
 {% if search_results %}
     <ul class="p-2 border-t divide-y divide-solid">
         {% for result in search_results %}
-            <li class="flex justify-between items-center py-2">
+            <li class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-900">
                 <div class="font-semibold">
                     {{ result.title }}
                     ({{ result.release_date|date:"Y" }})
                 </div>
                 <div>
                     <button class="inline-flex items-center space-x-2 btn btn-default"
-                        aria-label="Add Movie"
-                        hx-post="{% url 'movies:add_movie' result.id %}"
-                        {# djlint: off #}
-                            hx-vals='{
-                              "title": "{{ result.title|escapejs }}",
-                              "overview": "{{ result.overview|escapejs }}",
-                              "backdrop": "{{ result.backdrop_path|escapejs }}",
-                              "poster_url": "{{ result.poster_path|escapejs }}"
-                            }'
-                        {# djlint: on #}>
+                            aria-label="Add Movie"
+                            hx-post="{% url 'movies:add_movie' result.id %}">
                         {% heroicon_mini "plus" title="Add Movie" %}
                         <span>Add</span>
                     </button>
