@@ -14,12 +14,12 @@
       })"
         {# djlint: on #}
         >
-        <header class="flex justify-between items-center pb-3 mb-6 space-y-3 border-b sm:space-y-6">
-            <h1 class="flex items-center text-xl font-bold lg:text-2xl xl:text-3xl">Movies</h1>
-            {% if request.user.is_authenticated %}
-                <nav>
-                    <ul class="flex items-center space-x-3">
-                        <li>{% search_form placeholder="Search Movies" %}</li>
+        <header class="justify-between items-center pb-3 mb-6 space-y-3 border-b sm:flex sm:space-y-0">
+            <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">Movies</h1>
+            <nav>
+                <ul class="items-center space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
+                    <li class="flex justify-center items-center sm:justify-start">{% search_form placeholder="Search Movies" %}</li>
+                    {% if request.user.is_authenticated %}
                         <li class="flex justify-center items-center sm:justify-start">
                             <button class="inline-flex space-x-2 btn btn-primary"
                                     @click="addMovie=!addMovie">
@@ -27,9 +27,9 @@
                                 <span>Add a Movie</span>
                             </button>
                         </li>
-                    </ul>
-                </nav>
-            {% endif %}
+                    {% endif %}
+                </ul>
+            </nav>
         </header>
         {% if request.user.is_authenticated %}
             <div class="absolute z-50 p-2 space-y-3 w-full bg-white rounded-lg border shadow-lg dark:bg-black"
