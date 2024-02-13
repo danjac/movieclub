@@ -102,6 +102,7 @@ MIDDLEWARE: list[str] = [
     "movieclub.middleware.HtmxMessagesMiddleware",
     "movieclub.middleware.HtmxRedirectMiddleware",
     "movieclub.middleware.PaginationMiddleware",
+    "movieclub.middleware.SearchMiddleware",
 ]
 
 # Databases

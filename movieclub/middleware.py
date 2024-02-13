@@ -1,8 +1,10 @@
 from collections.abc import Callable
+from urllib.parse import urlencode
 
 from django.contrib.messages import get_messages
 from django.http import HttpRequest, HttpResponse
 from django.template.loader import render_to_string
+from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 from django_htmx.http import HttpResponseLocation
 
@@ -82,6 +84,15 @@ class PaginationMiddleware(BaseMiddleware):
         return self.get_response(request)
 
 
+class SearchMiddleware(BaseMiddleware):
+    """Adds `Search` instance as `request.search`."""
+
+    def __call__(self, request: HttpRequest) -> HttpResponse:
+        """Middleware implementation."""
+        request.search = Search(request)
+        return self.get_response(request)
+
+
 class Pagination:
     """Handles pagination parameters in request."""
 
@@ -108,3 +119,30 @@ class Pagination:
         qs = self.request.GET.copy()
         qs[self.param] = page_number
         return f"{self.request.path}?{qs.urlencode()}"
+
+
+class Search:
+    """Handles search parameters in request."""
+
+    param: str = "query"
+
+    def __init__(self, request: HttpRequest):
+        self.request = request
+
+    def __str__(self) -> str:
+        """Returns search query value."""
+        return self.value
+
+    def __bool__(self) -> bool:
+        """Returns `True` if search in query and has a non-empty value."""
+        return bool(self.value)
+
+    @cached_property
+    def value(self) -> str:
+        """Returns the search query value, if any."""
+        return force_str(self.request.GET.get(self.param, "")).strip()
+
+    @cached_property
+    def qs(self) -> str:
+        """Returns encoded query string value, if any."""
+        return urlencode({self.param: self.value}) if self.value else ""

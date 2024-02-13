@@ -85,3 +85,19 @@ def cover_image(
 def pagination_url(context: RequestContext, page_number: int) -> str:
     """Returns URL for next/previous page."""
     return context.request.pagination.url(page_number)
+
+
+@register.inclusion_tag("_search_form.html", takes_context=True)
+def search_form(
+    context: RequestContext,
+    placeholder: str,
+    search_url: str = "",
+    clear_search_url: str = "",
+) -> dict:
+    """Renders search form component."""
+    return {
+        "placeholder": placeholder,
+        "search_url": search_url or context.request.path,
+        "clear_search_url": clear_search_url or context.request.path,
+        "request": context.request,
+    }

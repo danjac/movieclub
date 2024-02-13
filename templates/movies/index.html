@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load heroicons partials %}
+{% load heroicons partials cache %}
 {% block content %}
     <div class="relative opacity-100 bg-inherit"
         x-data="{addMovie: false, search: ''}"
@@ -15,10 +15,11 @@
         {# djlint: on #}
         >
         <header class="flex justify-between items-center pb-3 mb-6 space-y-3 border-b sm:space-y-6">
-            <h1 class="text-xl font-bold lg:text-2xl xl:text-3xl">Movies</h1>
+            <h1 class="flex items-center text-xl font-bold lg:text-2xl xl:text-3xl">Movies</h1>
             {% if request.user.is_authenticated %}
                 <nav>
-                    <ul>
+                    <ul class="flex items-center space-x-3">
+                        <li>{% search_form placeholder="Search Movies" %}</li>
                         <li class="flex justify-center items-center sm:justify-start">
                             <button class="inline-flex space-x-2 btn btn-primary"
                                     @click="addMovie=!addMovie">
@@ -66,6 +67,7 @@
         {% endif %}
     </div>
     {% partialdef pagination inline=True %}
+    {% cache 600 movies-list request.get_full_path %}
     <ul class="divide-y divide-solid" id="{{ pagination_target }}">
         {% with has_other_pages=page_obj.has_other_pages %}
             {% if has_other_pages %}
@@ -100,5 +102,6 @@
             {% endif %}
         {% endwith %}
     </ul>
+{% endcache %}
 {% endpartialdef pagination %}
 {% endblock content %}

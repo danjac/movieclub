@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.db.models import Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -19,11 +20,14 @@ from movieclub.reviews.views import render_review, render_review_form
 @require_safe
 def index(request: HttpRequest) -> HttpResponse:
     """Returns list of movies."""
-    return render_pagination(
-        request,
-        Movie.objects.order_by("-pk"),
-        "movies/index.html",
-    )
+    movies = Movie.objects.order_by("-pk")
+    if request.search:
+        movies = movies.filter(
+            Q(title__icontains=request.search.value)
+            | Q(cast_members__person__name__icontains=request.search.value)
+            | Q(crew_members__person__name__icontains=request.search.value)
+        ).distinct()
+    return render_pagination(request, movies, "movies/index.html")
 
 
 @require_safe
