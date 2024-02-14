@@ -8,6 +8,10 @@ from movieclub.middleware import (
     CacheControlMiddleware,
     HtmxMessagesMiddleware,
     HtmxRedirectMiddleware,
+    Pagination,
+    PaginationMiddleware,
+    Search,
+    SearchMiddleware,
 )
 
 
@@ -79,6 +83,23 @@ class TestCacheControlMiddleware:
         assert "Cache-Control" not in resp.headers
 
 
+class TestSearchMiddleware:
+    @pytest.fixture()
+    def mw(self, get_response):
+        return SearchMiddleware(get_response)
+
+    def test_search(self, rf, mw):
+        req = rf.get("/", {"query": "testing"})
+        mw(req)
+        assert req.search
+        assert str(req.search) == "testing"
+
+    def test_no_search(self, req, mw):
+        mw(req)
+        assert not req.search
+        assert not str(req.search)
+
+
 class TestHtmxMiddleware:
     @pytest.fixture()
     def mw(self, get_response):
@@ -115,3 +136,54 @@ class TestHtmxMiddleware:
         req._messages = messages
         resp = mw(req)
         assert b"OK" not in resp.content
+
+
+class TestPaginationMiddleware:
+    @pytest.fixture()
+    def mw(self, get_response):
+        return PaginationMiddleware(get_response)
+
+    def test_page(self, req, mw):
+        mw(req)
+        assert req.pagination.url(1) == "/?page=1"
+
+
+class TestPagination:
+    def test_append_page_number_to_querystring(self, rf):
+        req = rf.get("/search/", {"query": "test"})
+        page = Pagination(req)
+
+        url = page.url(5)
+        assert url.startswith("/search/?")
+        assert "query=test" in url
+        assert "page=5" in url
+
+    def test_current_page(self, rf):
+        req = rf.get("/", {"page": "100"})
+        page = Pagination(req)
+
+        assert page.current == "100"
+        assert str(page) == "100"
+
+    def test_current_page_empty(self, rf):
+        req = rf.get("/")
+        page = Pagination(req)
+
+        assert page.current == ""
+        assert not str(page)
+
+
+class TestSearch:
+    def test_search(self, rf):
+        req = rf.get("/", {"query": "testing"})
+        search = Search(req)
+        assert search
+        assert str(search) == "testing"
+        assert search.qs == "query=testing"
+
+    def test_no_search(self, rf):
+        req = rf.get("/")
+        search = Search(req)
+        assert not search
+        assert not str(search)
+        assert search.qs == ""
