@@ -1,6 +1,17 @@
 import pytest
+from django.template.context import RequestContext
 
-from movieclub.template import cover_image
+from movieclub.middleware import Pagination
+from movieclub.template import cover_image, pagination_url
+
+
+class TestPaginationUrl:
+    def test_url(self, rf):
+        request = rf.get("/")
+        request.pagination = Pagination(request)
+        assert (
+            pagination_url(RequestContext(request=request), page_number=3) == "/?page=3"
+        )
 
 
 class TestCoverImage:

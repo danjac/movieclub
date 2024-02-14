@@ -18,6 +18,13 @@ class TestIndex:
         response = client.get(self.url)
         assert response.status_code == http.HTTPStatus.OK
 
+    @pytest.mark.django_db()
+    def test_get_search(self, client):
+        movie = create_movie(title="Jaws")
+        response = client.get(self.url, {"query": "jaws"})
+        assert response.status_code == http.HTTPStatus.OK
+        assert movie in response.context["page_obj"].object_list
+
 
 class TestDetail:
     @pytest.mark.django_db()
