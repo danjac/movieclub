@@ -7,7 +7,7 @@ from django.http import FileResponse, Http404, HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 from django.views.decorators.cache import cache_control, cache_page
-from django.views.decorators.http import require_safe
+from django.views.decorators.http import require_POST, require_safe
 from PIL import Image
 
 from movieclub.client import get_client
@@ -20,7 +20,7 @@ def landing_page(request: HttpRequest) -> HttpResponse:
     return render(request, "index.html")
 
 
-# @require_POST
+@require_POST
 def accept_cookies(_) -> HttpResponse:
     """Handles "accept" action on GDPR cookie banner."""
     response = HttpResponse()

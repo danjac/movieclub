@@ -9,6 +9,7 @@ admin.site.site_header = settings.ADMIN_SITE_HEADER
 
 urlpatterns = [
     path("", views.landing_page, name="landing_page"),
+    path("accept-cookies/", views.accept_cookies, name="accept_cookies"),
     path(
         "cover/<int:width>/<int:height>/",
         views.cover_image,
