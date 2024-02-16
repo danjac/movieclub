@@ -63,6 +63,7 @@ def movie_detail(request: HttpRequest, movie_id: int, slug: str) -> HttpResponse
         "movie": movie,
         "reviews": movie.reviews.select_related("user").order_by("-created"),
         "cast_members": movie.cast_members.select_related("person").order_by("order"),
+        "crew_members": movie.crew_members.select_related("person"),
     }
     if request.user.is_authenticated:
         context = {
