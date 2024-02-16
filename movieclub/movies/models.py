@@ -18,6 +18,16 @@ class Genre(models.Model):
         """Genre name."""
         return self.name
 
+    def get_absolute_url(self) -> str:
+        """Return genre detail URL."""
+        return reverse(
+            "movies:genre_detail",
+            kwargs={
+                "genre_id": self.pk,
+                "slug": slugify(self.name),
+            },
+        )
+
 
 class Movie(models.Model):
     """Movie details."""
@@ -31,7 +41,7 @@ class Movie(models.Model):
     tmdb_id = models.BigIntegerField(unique=True)
     imdb_id = models.CharField(max_length=12, blank=True)
 
-    genres = models.ManyToManyField(Genre, blank=True)
+    genres = models.ManyToManyField(Genre, blank=True, related_name="movies")
 
     homepage = models.URLField(blank=True)
 

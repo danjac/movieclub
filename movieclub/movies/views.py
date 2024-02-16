@@ -10,7 +10,7 @@ from movieclub import tmdb
 from movieclub.client import get_client
 from movieclub.decorators import require_auth, require_DELETE, require_form_methods
 from movieclub.movies.forms import ReviewForm
-from movieclub.movies.models import Movie, Review
+from movieclub.movies.models import Genre, Movie, Review
 from movieclub.movies.tmdb import populate_movie
 from movieclub.pagination import render_pagination
 from movieclub.reviews.views import render_review, render_review_form
@@ -36,6 +36,30 @@ def index(request: HttpRequest) -> HttpResponse:
         "movies/index.html",
         {
             "search_tmdb_url": search_tmdb_url,
+        },
+    )
+
+
+@require_safe
+def genre_detail(request: HttpRequest, genre_id: int, slug: str) -> HttpResponse:
+    """Returns list of movies for a genre."""
+
+    genre = get_object_or_404(Genre, pk=genre_id)
+    movies = genre.movies.order_by("-pk")
+
+    if request.search:
+        movies = movies.filter(
+            Q(title__icontains=request.search.value)
+            | Q(cast_members__person__name__icontains=request.search.value)
+            | Q(crew_members__person__name__icontains=request.search.value)
+        ).distinct()
+
+    return render_pagination(
+        request,
+        movies,
+        "movies/genre.html",
+        {
+            "genre": genre,
         },
     )
 

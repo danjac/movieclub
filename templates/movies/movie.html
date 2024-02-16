@@ -14,7 +14,7 @@
                     <a class="inline-flex items-center m-2 link first-of-type:ml-0"
                        aria-label="{{ genre.name }} Movies"
                        title="{{ genre.name }} Movies"
-                       href="">
+                       href="{{ genre.get_absolute_url }}">
                         {% heroicon_mini "tag" class="mr-2" %}
                         {{ genre.name }}
                     </a>

@@ -5,7 +5,7 @@ from django.urls import reverse, reverse_lazy
 
 from movieclub import tmdb
 from movieclub.movies.models import Movie, Review
-from movieclub.movies.tests.factories import create_movie, create_review
+from movieclub.movies.tests.factories import create_genre, create_movie, create_review
 from movieclub.tests.factories import create_batch
 
 
@@ -22,6 +22,27 @@ class TestIndex:
     def test_get_search(self, client):
         movie = create_movie(title="Jaws")
         response = client.get(self.url, {"query": "jaws"})
+        assert response.status_code == http.HTTPStatus.OK
+        assert movie in response.context["page_obj"].object_list
+
+
+class TestGenreDetail:
+    @pytest.fixture()
+    def genre(self):
+        return create_genre()
+
+    @pytest.mark.django_db()
+    def test_get(self, client, genre):
+        for movie in create_batch(create_movie, 10):
+            genre.movies.add(movie)
+        response = client.get(genre.get_absolute_url())
+        assert response.status_code == http.HTTPStatus.OK
+
+    @pytest.mark.django_db()
+    def test_get_search(self, client, genre):
+        movie = create_movie(title="Jaws")
+        genre.movies.add(movie)
+        response = client.get(genre.get_absolute_url(), {"query": "jaws"})
         assert response.status_code == http.HTTPStatus.OK
         assert movie in response.context["page_obj"].object_list
 
