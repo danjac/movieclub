@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
@@ -27,6 +28,20 @@ class Genre(models.Model):
                 "slug": slugify(self.name),
             },
         )
+
+
+class MovieQuerySet(models.QuerySet):
+    """QuerySet for Movie model."""
+
+    def search(self, search_term: str) -> MovieQuerySet:
+        """Does a full text search"""
+        if not search_term:
+            return self.none()
+        query = SearchQuery(search_term, search_type="websearch")
+
+        return self.annotate(
+            rank=SearchRank(models.F("search_vector"), query=query)
+        ).filter(search_vector=query)
 
 
 class Movie(models.Model):
@@ -58,7 +73,11 @@ class Movie(models.Model):
         verbose_name="Runtime (minutes)",
     )
 
+    search_vector = SearchVectorField(null=True, editable=False)
+
     countries = CountryField(multiple=True)
+
+    objects = MovieQuerySet.as_manager()
 
     def __str__(self) -> str:
         """Returns title."""

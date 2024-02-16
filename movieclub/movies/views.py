@@ -1,5 +1,4 @@
 from django.contrib import messages
-from django.db.models import Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -23,11 +22,7 @@ def index(request: HttpRequest) -> HttpResponse:
     search_tmdb_url = reverse("movies:search_tmdb")
 
     if request.search:
-        movies = movies.filter(
-            Q(title__icontains=request.search.value)
-            | Q(cast_members__person__name__icontains=request.search.value)
-            | Q(crew_members__person__name__icontains=request.search.value)
-        ).distinct()
+        movies = movies.search(request.search.value)
         search_tmdb_url += "?" + request.search.qs
 
     return render_pagination(
@@ -48,11 +43,7 @@ def genre_detail(request: HttpRequest, genre_id: int, slug: str) -> HttpResponse
     movies = genre.movies.order_by("-pk")
 
     if request.search:
-        movies = movies.filter(
-            Q(title__icontains=request.search.value)
-            | Q(cast_members__person__name__icontains=request.search.value)
-            | Q(crew_members__person__name__icontains=request.search.value)
-        ).distinct()
+        movies = movies.search(request.search.value)
 
     return render_pagination(
         request,
