@@ -8,8 +8,84 @@ from movieclub import tmdb
 class TestMovieDetail:
     def test_ok(self):
         def _handle(request):
-            if "credits" in str(request.url):
-                json = {
+            json = {
+                "adult": False,
+                "backdrop_path": "/7dzngS8pLkGJpyeskCFcjPO9qLF.jpg",
+                "belongs_to_collection": {
+                    "id": 404609,
+                    "name": "John Wick Collection",
+                    "poster_path": "/xUidyvYFsbbuExifLkslpcd8SMc.jpg",
+                    "backdrop_path": "/fSwYa5q2xRkBoOOjueLpkLf3N1m.jpg",
+                },
+                "budget": 20000000,
+                "genres": [
+                    {"id": 28, "name": "Action"},
+                    {"id": 53, "name": "Thriller"},
+                ],
+                "homepage": "https://www.lionsgate.com/movies/john-wick",
+                "id": 12345,
+                "imdb_id": "tt2911666",
+                "original_language": "en",
+                "original_title": "John Wick",
+                "overview": "Ex-hitman John Wick comes out of retirement to track down the gangsters that took everything from him.",
+                "popularity": 53.89,
+                "poster_path": "/fZPSd91yGE9fCcCe6OoQr6E3Bev.jpg",
+                "production_companies": [
+                    {
+                        "id": 23008,
+                        "logo_path": "/5SarYupipdiejsEqUkwu1SpYfru.png",
+                        "name": "87Eleven",
+                        "origin_country": "US",
+                    },
+                    {
+                        "id": 36259,
+                        "logo_path": None,
+                        "name": "DefyNite Films",
+                        "origin_country": "US",
+                    },
+                    {
+                        "id": 36433,
+                        "logo_path": None,
+                        "name": "MJW Films",
+                        "origin_country": "US",
+                    },
+                    {
+                        "id": 3528,
+                        "logo_path": "/cCzCClIzIh81Fa79hpW5nXoUsHK.png",
+                        "name": "Thunder Road",
+                        "origin_country": "US",
+                    },
+                ],
+                "production_countries": [
+                    {"iso_3166_1": "US", "name": "United States of America"}
+                ],
+                "release_date": "2014-10-22",
+                "revenue": 88761661,
+                "runtime": 101,
+                "spoken_languages": [
+                    {
+                        "english_name": "Hungarian",
+                        "iso_639_1": "hu",
+                        "name": "Magyar",
+                    },
+                    {
+                        "english_name": "English",
+                        "iso_639_1": "en",
+                        "name": "English",
+                    },
+                    {
+                        "english_name": "Russian",
+                        "iso_639_1": "ru",
+                        "name": "P\u0443\u0441\u0441\u043a\u0438\u0439",
+                    },
+                ],
+                "status": "Released",
+                "tagline": "Don't set him off.",
+                "title": "John Wick",
+                "video": False,
+                "vote_average": 7.425,
+                "vote_count": 18346,
+                "credits": {
                     "id": 12345,
                     "cast": [
                         {
@@ -42,86 +118,8 @@ class TestMovieDetail:
                             "job": "Director",
                         },
                     ],
-                }
-            else:
-                json = {
-                    "adult": False,
-                    "backdrop_path": "/7dzngS8pLkGJpyeskCFcjPO9qLF.jpg",
-                    "belongs_to_collection": {
-                        "id": 404609,
-                        "name": "John Wick Collection",
-                        "poster_path": "/xUidyvYFsbbuExifLkslpcd8SMc.jpg",
-                        "backdrop_path": "/fSwYa5q2xRkBoOOjueLpkLf3N1m.jpg",
-                    },
-                    "budget": 20000000,
-                    "genres": [
-                        {"id": 28, "name": "Action"},
-                        {"id": 53, "name": "Thriller"},
-                    ],
-                    "homepage": "https://www.lionsgate.com/movies/john-wick",
-                    "id": 12345,
-                    "imdb_id": "tt2911666",
-                    "original_language": "en",
-                    "original_title": "John Wick",
-                    "overview": "Ex-hitman John Wick comes out of retirement to track down the gangsters that took everything from him.",
-                    "popularity": 53.89,
-                    "poster_path": "/fZPSd91yGE9fCcCe6OoQr6E3Bev.jpg",
-                    "production_companies": [
-                        {
-                            "id": 23008,
-                            "logo_path": "/5SarYupipdiejsEqUkwu1SpYfru.png",
-                            "name": "87Eleven",
-                            "origin_country": "US",
-                        },
-                        {
-                            "id": 36259,
-                            "logo_path": None,
-                            "name": "DefyNite Films",
-                            "origin_country": "US",
-                        },
-                        {
-                            "id": 36433,
-                            "logo_path": None,
-                            "name": "MJW Films",
-                            "origin_country": "US",
-                        },
-                        {
-                            "id": 3528,
-                            "logo_path": "/cCzCClIzIh81Fa79hpW5nXoUsHK.png",
-                            "name": "Thunder Road",
-                            "origin_country": "US",
-                        },
-                    ],
-                    "production_countries": [
-                        {"iso_3166_1": "US", "name": "United States of America"}
-                    ],
-                    "release_date": "2014-10-22",
-                    "revenue": 88761661,
-                    "runtime": 101,
-                    "spoken_languages": [
-                        {
-                            "english_name": "Hungarian",
-                            "iso_639_1": "hu",
-                            "name": "Magyar",
-                        },
-                        {
-                            "english_name": "English",
-                            "iso_639_1": "en",
-                            "name": "English",
-                        },
-                        {
-                            "english_name": "Russian",
-                            "iso_639_1": "ru",
-                            "name": "P\u0443\u0441\u0441\u043a\u0438\u0439",
-                        },
-                    ],
-                    "status": "Released",
-                    "tagline": "Don't set him off.",
-                    "title": "John Wick",
-                    "video": False,
-                    "vote_average": 7.425,
-                    "vote_count": 18346,
-                }
+                },
+            }
             return httpx.Response(http.HTTPStatus.OK, json=json)
 
         client = httpx.Client(transport=httpx.MockTransport(_handle))

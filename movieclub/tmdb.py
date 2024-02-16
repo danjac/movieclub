@@ -125,8 +125,8 @@ def search_movies(client: httpx.Client, query: str) -> list[Movie]:
 def get_movie_detail(client: httpx.Client, tmdb_id: int) -> MovieDetail:
     """Fetch details from TMDB"""
 
-    movie_data = _fetch_json(client, f"movie/{tmdb_id}")
-    credits_data = _fetch_json(client, f"movie/{tmdb_id}/credits")
+    movie_data = _fetch_json(client, f"movie/{tmdb_id}?append_to_response=credits")
+    credits_data = movie_data.get("credits", {})
 
     return _populate_obj(
         MovieDetail,
