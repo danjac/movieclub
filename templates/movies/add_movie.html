@@ -8,8 +8,8 @@
                 <li class="flex justify-center items-center sm:justify-start">{% search_form placeholder="Search Movies" %}</li>
                 {% if request.user.is_authenticated %}
                     <li class="flex justify-center items-center sm:justify-start">
-                        <a class="inline-flex space-x-2 btn btn-primary"
-                           href="{{ search_tmdb_url }}">
+                        <a href="{{ add_movie_url }}"
+                           class="inline-flex space-x-2 btn btn-primary">
                             {% heroicon_mini "plus" %}
                             <span>Add a Movie</span>
                         </a>

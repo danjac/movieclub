@@ -3,7 +3,6 @@ from django.db.models import Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.views.decorators.cache import cache_control, cache_page
 from django.views.decorators.http import require_POST, require_safe
 from django_htmx.http import reswap, retarget
 
@@ -21,13 +20,24 @@ from movieclub.reviews.views import render_review, render_review_form
 def index(request: HttpRequest) -> HttpResponse:
     """Returns list of movies."""
     movies = Movie.objects.order_by("-pk")
+    search_tmdb_url = reverse("movies:search_tmdb")
+
     if request.search:
         movies = movies.filter(
             Q(title__icontains=request.search.value)
             | Q(cast_members__person__name__icontains=request.search.value)
             | Q(crew_members__person__name__icontains=request.search.value)
         ).distinct()
-    return render_pagination(request, movies, "movies/index.html")
+        search_tmdb_url += "?" + request.search.qs
+
+    return render_pagination(
+        request,
+        movies,
+        "movies/index.html",
+        {
+            "search_tmdb_url": search_tmdb_url,
+        },
+    )
 
 
 @require_safe
@@ -130,20 +140,20 @@ def delete_review(request: HttpRequest, review_id: int) -> HttpResponse:
 
 
 @require_safe
-@cache_control(max_age=60 * 60 * 24, immutable=True)
-@cache_page(60 * 60)
+@require_auth
 def search_tmdb(request: HttpRequest, limit: int = 12) -> HttpResponse:
     """Search TMDB and get result.
-    This should be cached!
+
+    TBD: make full page, with "Add" button.
     """
     results: list[tmdb.Movie] = []
 
-    if query := request.GET.get("query", None):
-        results = tmdb.search_movies(get_client(), query)
+    if request.search:
+        results = tmdb.search_movies(get_client(), request.search)
 
     return render(
         request,
-        "movies/_search_tmdb.html",
+        "movies/search_tmdb.html",
         {
             "search_results": results[:limit],
         },
