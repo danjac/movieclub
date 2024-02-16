@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.text import slugify
 
 
 class Person(models.Model):
@@ -17,3 +18,8 @@ class Person(models.Model):
     def __str__(self) -> str:
         """Return person's name."""
         return self.name
+
+    @property
+    def slug(self) -> str:
+        """Return name as slug"""
+        return slugify(self.name)

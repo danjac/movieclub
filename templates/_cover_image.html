@@ -2,10 +2,16 @@
 {% spaceless %}
     <img class="object-cover border bg-transparent{% if url %} hover:grayscale cursor-pointer{% endif %} {{ css_class }}"
         title="{{ title }}" alt="{{ title }}" aria-hidden="true" loading="lazy" decoding="async" width="{{ width }}"
-        height="{{ height }}" src="{{ cover_url|default:placeholder }}" {% if cover_url %} x-data="{
-        isLoaded: false,
-        src: '{{ cover_url|escapejs }}',
-        placeholder: '{{ placeholder|escapejs }}'
-        }" @load.once="isLoaded=true;" @error.once="src=placeholder;isLoaded=true;"
-        :src="isLoaded ? src : placeholder" {% endif %}{# djlint:on #}>
-    {% endspaceless %}
+        height="{{ height }}" src="{{ cover_url|default:placeholder }}"
+        {% if cover_url %}
+            {# djlint:off #}
+        x-data="{
+          isLoaded: false,
+          src: '{{ cover_url|escapejs }}',
+          placeholder: '{{ placeholder|escapejs }}'
+          }"
+        @load.once="isLoaded=true;"
+        @error.once="src=placeholder;isLoaded=true;"
+        :src="isLoaded ? src : placeholder"
+            {% endif %}{# djlint:on #}>
+        {% endspaceless %}

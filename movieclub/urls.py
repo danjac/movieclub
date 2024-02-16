@@ -16,6 +16,7 @@ urlpatterns = [
         name="cover_image",
     ),
     path("movies/", include("movieclub.movies.urls")),
+    path("people/", include("movieclub.people.urls")),
     path("account/", include("allauth.urls")),
     path("invitations/", include("invitations.urls")),
     path("ht/", include("health_check.urls")),

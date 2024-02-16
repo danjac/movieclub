@@ -40,7 +40,7 @@ def genre_detail(request: HttpRequest, genre_id: int, slug: str) -> HttpResponse
     """Returns list of movies for a genre."""
 
     genre = get_object_or_404(Genre, pk=genre_id)
-    movies = genre.movies.order_by("-pk")
+    movies = genre.movies.order_by("-release_date")
 
     if request.search:
         movies = movies.search(request.search.value)
@@ -62,9 +62,7 @@ def movie_detail(request: HttpRequest, movie_id: int, slug: str) -> HttpResponse
     context = {
         "movie": movie,
         "reviews": movie.reviews.select_related("user").order_by("-created"),
-        "cast_members": movie.cast_members.exclude(person__profile_url="")
-        .select_related("person")
-        .order_by("order")[:6],
+        "cast_members": movie.cast_members.select_related("person").order_by("order"),
     }
     if request.user.is_authenticated:
         context = {

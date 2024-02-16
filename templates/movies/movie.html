@@ -5,7 +5,7 @@
         {{ movie.title }}
         {% if movie.release_date %}({{ movie.release_date|date:"Y" }}){% endif %}
     </h1>
-    <div class="mb-6 space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
+    <div class="mb-6 space-y-3 sm:flex sm:space-y-0 sm:space-x-6">
         <div>{% cover_image movie.poster_url 200 300 title=movie.title %}</div>
         <div class="space-y-3">
             <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ movie.overview }}</p>
@@ -23,15 +23,27 @@
         </div>
     </div>
     {% if cast_members %}
-        <div class="mb-6">
-            <h2 class="pb-6 mb-6 text-lg font-bold border-b lg:text-xl xl:text-2xl">Cast</h2>
-            <div class="grid grid-cols-3 gap-1 sm:grid-cols-6">
-                {% for cast_member in cast_members %}
-                    <a href="" title="{{ cast_member.person.name }}">
-                        {% cover_image cast_member.person.profile_url 200 300 title=cast_member.person.name %}
-                    </a>
-                {% endfor %}
-            </div>
+        <h2 class="pb-6 mb-6 text-lg font-bold border-b lg:text-xl xl:text-2xl">Cast</h2>
+        <div class="flex overflow-x-scroll mb-6">
+            {% for cast_member in cast_members %}
+                <a href="{% url 'people:cast_member' person_id=cast_member.person.pk slug=cast_member.person.slug %}"
+                   title="{{ cast_member.person.name }}"
+                   class="flex-none px-3 first:pl-0">
+                    {% cover_image cast_member.person.profile_url 200 300 title=cast_member.person.name %}
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% if crew_members %}
+        <h2 class="pb-6 mb-6 text-lg font-bold border-b lg:text-xl xl:text-2xl">crew</h2>
+        <div class="flex overflow-x-scroll mb-6">
+            {% for crew_member in crew_members %}
+                <a href=""
+                   title="{{ crew_member.person.name }}"
+                   class="flex-none px-3 first:pl-0">
+                    {% cover_image crew_member.person.profile_url 200 300 title=crew_member.person.name %}
+                </a>
+            {% endfor %}
         </div>
     {% endif %}
     <div>
