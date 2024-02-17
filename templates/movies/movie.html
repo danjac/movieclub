@@ -24,7 +24,7 @@
     </div>
     {% if cast_members %}
         <details class="mb-6">
-            <summary class="mb-3 text-lg font-bold cursor-pointer lg:text-xl xl:text-2xl">Cast</summary>
+            <summary class="mb-3 text-lg font-bold cursor-pointer lg:text-xl xl:text-2xl link">Cast</summary>
             <ul class="border-t divide-y divide">
                 {% regroup cast_members by person as groups %}
                 {% for group in groups %}
@@ -60,7 +60,7 @@
     {% endif %}
     {% if crew_members %}
         <details class="mb-6">
-            <summary class="mb-3 text-lg font-bold cursor-pointer lg:text-xl xl:text-2xl">Crew</summary>
+            <summary class="mb-3 text-lg font-bold cursor-pointer lg:text-xl xl:text-2xl link">Crew</summary>
             <ul class="border-t divide-y divide">
                 {% regroup crew_members by person as groups %}
                 {% for group in groups %}
