@@ -33,11 +33,11 @@ class ReleaseQuerySet(models.QuerySet):
 
     def movies(self) -> ReleaseQuerySet:
         """Returns movies only"""
-        return self.filter(release_type=self.model.ReleaseType.MOVIE)
+        return self.filter(category=self.model.Category.MOVIE)
 
     def tv_shows(self) -> ReleaseQuerySet:
         """Returns tv shows only"""
-        return self.filter(release_type=self.model.ReleaseType.TV_SHOW)
+        return self.filter(category=self.model.Category.TV_SHOW)
 
     def search(self, search_term: str) -> ReleaseQuerySet:
         """Does a full text search"""
@@ -53,11 +53,11 @@ class ReleaseQuerySet(models.QuerySet):
 class Release(models.Model):
     """Movie or TV show details."""
 
-    class ReleaseType(models.TextChoices):
+    class Category(models.TextChoices):
         MOVIE = "movie", "Movie"
         TV_SHOW = "tv_show", "TV Show"
 
-    release_type = models.CharField(max_length=12, choices=ReleaseType.choices)
+    category = models.CharField(max_length=12, choices=Category.choices)
 
     title = models.CharField(max_length=120)
     original_title = models.CharField(max_length=120, blank=True)

@@ -11,7 +11,7 @@ urlpatterns = [
         "movies/<slug:slug>-<int:release_id>/",
         views.release_detail,
         name="movie_detail",
-        kwargs={"release_type": Release.ReleaseType.MOVIE},
+        kwargs={"category": Release.Category.MOVIE},
     ),
     path("movies/new/<int:tmdb_id>/", views.add_movie, name="add_movie"),
     path("movies/search-tmdb/", views.search_tmdb_movies, name="search_tmdb_movies"),
@@ -20,7 +20,7 @@ urlpatterns = [
         "tv-shows/<slug:slug>-<int:release_id>/",
         views.release_detail,
         name="release_detail",
-        kwargs={"release_type": Release.ReleaseType.TV_SHOW},
+        kwargs={"category": Release.Category.TV_SHOW},
     ),
     path("tv-shows/new/<int:tmdb_id>/", views.add_tv_show, name="add_tv_show"),
     path(

@@ -76,12 +76,12 @@ def genre_detail(request: HttpRequest, genre_id: int, slug: str) -> HttpResponse
 @require_safe
 def release_detail(
     request: HttpRequest,
-    release_type: Release.ReleaseType,
+    category: Release.Category,
     release_id: int,
     slug: str,
 ) -> HttpResponse:
     """Returns details of movie."""
-    release = get_object_or_404(release_type=release_type, pk=release_id)
+    release = get_object_or_404(category=category, pk=release_id)
     context = {
         "movie": release,
         "reviews": release.reviews.select_related("user").order_by("-created"),

@@ -13,7 +13,7 @@ def populate_movie(client: httpx.Client, tmdb_id: int) -> Release:
 
     movie = Release.objects.create(
         tmdb_id=tmdb_id,
-        release_type=Release.ReleaseType.MOVIE,
+        category=Release.Category.MOVIE,
         countries=",".join([c.iso_3166_1 for c in details.production_countries]),
         backdrop_url=details.backdrop_path,
         poster_url=details.poster_path,
@@ -47,7 +47,7 @@ def populate_tv_show(client: httpx.Client, tmdb_id: int) -> Release:
 
     tv_show = Release.objects.create(
         tmdb_id=tmdb_id,
-        release_type=Release.ReleaseType.TV_SHOW,
+        category=Release.Category.TV_SHOW,
         title=details.name,
         release_date=details.first_air_date,
         countries=",".join(details.origin_country),
