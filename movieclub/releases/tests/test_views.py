@@ -10,7 +10,7 @@ from movieclub.tests.factories import create_batch
 
 
 class TestMovies:
-    url = reverse_lazy("movies:index")
+    url = reverse_lazy("releases:movies")
 
     @pytest.mark.django_db()
     def test_get(self, client):
@@ -83,7 +83,7 @@ class TestSearchTmdbMovies:
 
 class TestAddMovie:
     tmdb_id = 245891
-    url = reverse_lazy("movies:add_movie", args=[tmdb_id])
+    url = reverse_lazy("releases:add_movie", args=[tmdb_id])
 
     @pytest.mark.django_db()
     def test_post_new(self, client, auth_user, mocker):

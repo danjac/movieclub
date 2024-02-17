@@ -37,7 +37,7 @@ class CastMember(models.Model):
     person = models.ForeignKey(
         "credits.Person",
         on_delete=models.CASCADE,
-        related_name="cast_credits",
+        related_name="cast_members",
     )
 
     character = models.CharField(max_length=120)
@@ -60,12 +60,9 @@ class CrewMember(models.Model):
     person = models.ForeignKey(
         "credits.Person",
         on_delete=models.CASCADE,
-        related_name="crew_credits",
+        related_name="crew_members",
     )
     job = models.CharField(max_length=120)
-
-    class Meta:
-        abstract = True
 
     def __str__(self) -> str:
         """Returns job."""

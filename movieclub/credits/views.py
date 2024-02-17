@@ -1,9 +1,9 @@
-from django.db.models import Count, OuterRef
+from django.db.models import Count
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_safe
 
-from movieclub.credits.models import CastMember, CrewMember, Person
+from movieclub.credits.models import CrewMember, Person
 from movieclub.pagination import render_pagination
 
 
@@ -11,9 +11,10 @@ from movieclub.pagination import render_pagination
 def cast_members(request: HttpRequest) -> HttpResponse:
     """List persons."""
 
-    persons = Person.objects.annotate(
-        num_members=Count(CastMember.objects.filter(person=OuterRef("pk")))
-    ).filter(num_members__gt=0)
+    # tbd: group by release
+    persons = Person.objects.annotate(num_credits=Count("cast_members")).filter(
+        num_credits__gt=0
+    )
 
     return render_pagination(request, persons, "credits/cast_members.html")
 
@@ -22,9 +23,10 @@ def cast_members(request: HttpRequest) -> HttpResponse:
 def crew_members(request: HttpRequest) -> HttpResponse:
     """List persons."""
 
-    persons = Person.objects.annotate(
-        num_members=Count(CrewMember.objects.filter(person=OuterRef("pk")))
-    ).filter(num_members__gt=0)
+    # tbd: group by release
+    persons = Person.objects.annotate(num_credits=Count("crew_members")).filter(
+        num_credits__gt=0
+    )
 
     return render_pagination(request, persons, "credits/crew_members.html")
 

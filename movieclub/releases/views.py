@@ -25,7 +25,7 @@ def movies(request: HttpRequest) -> HttpResponse:
 
     return render_pagination(
         request,
-        movies,
+        qs,
         "releases/movies.html",
         {
             "search_tmdb_url": search_tmdb_url,

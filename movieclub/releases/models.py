@@ -5,6 +5,7 @@ from typing import ClassVar
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
 from django.db import models
 from django.urls import reverse
+from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django_countries.fields import CountryField
 
@@ -23,11 +24,14 @@ class Genre(models.Model):
         """Return genre detail URL."""
         return reverse(
             "movies:genre_detail",
-            kwargs={
-                "genre_id": self.pk,
-                "slug": slugify(self.name),
-            },
+            kwargs={"genre_id": self.pk, "slug": self.slug},
         )
+
+    @cached_property
+    def slug(self) -> str:
+        """Returns slugified name."""
+
+        return slugify(self.name)
 
 
 class ReleaseQuerySet(models.QuerySet):
@@ -109,3 +113,19 @@ class Release(models.Model):
     def __str__(self) -> str:
         """Returns title."""
         return self.title
+
+    def get_absolute_url(self) -> str:
+        """Absolute url to movie or TV show detail."""
+
+        url_name = (
+            "releases:tv_show_detail"
+            if self.category == self.Category.TV_SHOW
+            else "releases:movie_detail"
+        )
+
+        return reverse(url_name, kwargs={"release_id": self.pk, "slug": self.slug})
+
+    @cached_property
+    def slug(self) -> str:
+        """Return slug of title."""
+        return slugify(self.title)
