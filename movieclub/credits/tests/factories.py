@@ -1,6 +1,6 @@
 import faker
 
-from movieclub.people.models import Person
+from movieclub.credits.models import Person
 from movieclub.tests.factories import NotSet, resolve
 
 _faker = faker.Faker()

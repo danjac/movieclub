@@ -1,8 +1,8 @@
 from django.urls import path
 
-from movieclub.people import views
+from movieclub.credits import views
 
-app_name = "people"
+app_name = "credits"
 
 urlpatterns = [
     path("actors/", views.cast_members, name="cast_members"),

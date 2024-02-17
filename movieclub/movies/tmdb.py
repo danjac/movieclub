@@ -2,8 +2,8 @@ import attrs
 import httpx
 
 from movieclub import tmdb
+from movieclub.credits.models import Person
 from movieclub.movies.models import CastMember, CrewMember, Genre, Movie
-from movieclub.people.models import Person
 
 
 def populate_movie(client: httpx.Client, tmdb_id: int) -> Movie:

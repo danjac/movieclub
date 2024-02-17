@@ -6,7 +6,7 @@
         <nav>
             <ul class="items-center space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
                 <li>
-                    <a href="{% url 'people:crew_members' %}" class="link">Crew</a>
+                    <a href="{% url 'credits:crew_members' %}" class="link">Crew</a>
                 </li>
                 <li class="flex justify-center items-center sm:justify-start">{% search_form placeholder="Search Actors" %}</li>
             </ul>
@@ -20,7 +20,7 @@
                 <li class="pb-3">{% include "_pagination_links.html" %}</li>
             {% endif %}
             {% for person in page_obj %}
-                {% url 'people:cast_member' person_id=person.pk slug=person.slug as cast_member_url %}
+                {% url 'credits:cast_member' person_id=person.pk slug=person.slug as cast_member_url %}
                 <li class="py-3">
                     <article class="flex items-center space-x-3 cursor-pointer group"
                              role="link"

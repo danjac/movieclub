@@ -3,8 +3,8 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_safe
 
+from movieclub.credits.models import Person
 from movieclub.pagination import render_pagination
-from movieclub.people.models import Person
 
 
 @require_safe
@@ -15,7 +15,7 @@ def cast_members(request: HttpRequest) -> HttpResponse:
         num_movies=Count("movies_as_cast_member"),
     ).filter(num_movies__gt=0)
 
-    return render_pagination(request, persons, "people/cast_members.html")
+    return render_pagination(request, persons, "credits/cast_members.html")
 
 
 @require_safe
@@ -26,7 +26,7 @@ def crew_members(request: HttpRequest) -> HttpResponse:
         num_movies=Count("movies_as_crew_member"),
     ).filter(num_movies__gt=0)
 
-    return render_pagination(request, persons, "people/crew_members.html")
+    return render_pagination(request, persons, "credits/crew_members.html")
 
 
 @require_safe
@@ -41,7 +41,7 @@ def cast_member(request: HttpRequest, person_id: int, slug: str) -> HttpResponse
         person.movies_as_cast_member.select_related("movie").order_by(
             "-movie__release_date"
         ),
-        "people/cast_member.html",
+        "credits/cast_member.html",
         {
             "person": person,
             "is_crew_member": is_crew_member,
@@ -61,7 +61,7 @@ def crew_member(request: HttpRequest, person_id: int, slug: str) -> HttpResponse
         person.movies_as_crew_member.select_related("movie").order_by(
             "-movie__release_date"
         ),
-        "people/crew_member.html",
+        "credits/crew_member.html",
         {
             "person": person,
             "is_cast_member": is_cast_member,

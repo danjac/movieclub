@@ -1,8 +1,8 @@
 import faker
 
+from movieclub.credits.models import Person
+from movieclub.credits.tests.factories import create_person
 from movieclub.movies.models import CastMember, CrewMember, Genre, Movie, Review
-from movieclub.people.models import Person
-from movieclub.people.tests.factories import create_person
 from movieclub.tests.factories import NotSet, resolve
 from movieclub.users.models import User
 from movieclub.users.tests.factories import create_user

@@ -104,7 +104,7 @@ class CastMember(models.Model):
         on_delete=models.CASCADE,
     )
     person = models.ForeignKey(
-        "people.Person",
+        "credits.Person",
         related_name="movies_as_cast_member",
         on_delete=models.CASCADE,
     )
@@ -125,7 +125,7 @@ class CrewMember(models.Model):
         on_delete=models.CASCADE,
     )
     person = models.ForeignKey(
-        "people.Person",
+        "credits.Person",
         related_name="movies_as_crew_member",
         on_delete=models.CASCADE,
     )

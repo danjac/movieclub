@@ -1,4 +1,4 @@
-from movieclub.people.models import Person
+from movieclub.credits.models import Person
 
 
 class TestPerson:
