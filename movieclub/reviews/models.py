@@ -12,6 +12,7 @@ class BaseReview(TimeStampedModel):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+        related_name="+",
     )
 
     url = models.URLField(blank=True)
