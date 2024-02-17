@@ -39,7 +39,7 @@
                                        aria-label="{{ movie.title }}"
                                        href="{{ movie.get_absolute_url }}">{{ movie.title }}</a>
                                 </h2>
-                                <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm dark:text-gray-300 truncate">
+                                <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm lg:w-full dark:text-gray-300 truncate lg:truncate-none">
                                     {% for credit in group.list %}
                                         {{ credit.job }}
                                         {% if not forloop.last %}/{% endif %}
