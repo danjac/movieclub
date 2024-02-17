@@ -43,7 +43,7 @@ def populate_tv_show(client: httpx.Client, tmdb_id: int) -> Release:
     """Populate TV show."""
 
     details = tmdb.get_tv_show_detail(client, tmdb_id)
-    fields = attrs.fields(tmdb.MovieDetail)
+    fields = attrs.fields(tmdb.TVShowDetail)
 
     tv_show = Release.objects.create(
         tmdb_id=tmdb_id,

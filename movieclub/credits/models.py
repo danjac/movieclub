@@ -31,7 +31,7 @@ class CastMember(models.Model):
     release = models.ForeignKey(
         "releases.Release",
         on_delete=models.CASCADE,
-        related_name="actors",
+        related_name="cast_members",
     )
 
     person = models.ForeignKey(
@@ -54,7 +54,7 @@ class CrewMember(models.Model):
     release = models.ForeignKey(
         "releases.Release",
         on_delete=models.CASCADE,
-        related_name="crew",
+        related_name="crew_members",
     )
 
     person = models.ForeignKey(

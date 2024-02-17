@@ -66,7 +66,7 @@ def genre_detail(request: HttpRequest, genre_id: int, slug: str) -> HttpResponse
     return render_pagination(
         request,
         releases,
-        "movies/genre.html",
+        "releases/genre.html",
         {
             "genre": genre,
         },
@@ -81,22 +81,15 @@ def release_detail(
     slug: str,
 ) -> HttpResponse:
     """Returns details of movie."""
-    release = get_object_or_404(category=category, pk=release_id)
+    release = get_object_or_404(Release, category=category, pk=release_id)
     context = {
-        "movie": release,
+        "release": release,
         "reviews": release.reviews.select_related("user").order_by("-created"),
         "cast_members": release.cast_members.select_related("person").order_by("order"),
         "crew_members": release.crew_members.select_related("person"),
     }
     if request.user.is_authenticated:
-        context = {
-            **context,
-            "review_form": ReviewForm(),
-            "review_submit_url": reverse(
-                "releases:add_review",
-                kwargs={"release_id": release.pk},
-            ),
-        }
+        context = {**context, "review_form": ReviewForm(), "review_submit_url": "/"}
 
     return render(request, "releases/release.html", context)
 

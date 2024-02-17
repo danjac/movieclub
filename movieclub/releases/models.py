@@ -23,7 +23,7 @@ class Genre(models.Model):
     def get_absolute_url(self) -> str:
         """Return genre detail URL."""
         return reverse(
-            "movies:genre_detail",
+            "releases:genre_detail",
             kwargs={"genre_id": self.pk, "slug": self.slug},
         )
 
