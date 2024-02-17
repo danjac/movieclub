@@ -37,7 +37,7 @@ class Person:
 
 @attrs.define(kw_only=True)
 class CastMember(Person):
-    """Imdb Cast member."""
+    """Tmdb Cast member."""
 
     order: int = 0
     character: str = ""
@@ -45,7 +45,7 @@ class CastMember(Person):
 
 @attrs.define(kw_only=True)
 class CrewMember(Person):
-    """Imdb Cast member."""
+    """Tmdb Cast member."""
 
     job: str = ""
 
@@ -109,6 +109,45 @@ class MovieDetail(Movie):
     production_countries: list = attrs.field(default=attrs.Factory(list))
 
 
+@attrs.define(kw_only=True)
+class TVShow:
+    """Tmdb Search result."""
+
+    id: int
+    name: str
+
+    overview: str = ""
+
+    first_air_date: datetime.date | None = attrs.field(
+        converter=_release_date, default=None
+    )
+
+    last_air_date: datetime.date | None = attrs.field(
+        converter=_release_date, default=None
+    )
+
+    backdrop_path: str = attrs.field(converter=_image_url, default="")
+    poster_path: str = attrs.field(converter=_image_url, default="")
+
+
+@attrs.define(kw_only=True)
+class TVShowDetail(TVShow):
+    """Tmdb Movie."""
+
+    tagline: str = ""
+    homepage: str = ""
+
+    number_of_episodes: int = 0
+    number_of_seasons: int = 0
+
+    genres: list = attrs.field(default=attrs.Factory(list))
+
+    cast_members: list = attrs.field(default=attrs.Factory(list))
+    crew_members: list = attrs.field(default=attrs.Factory(list))
+
+    origin_country: list = attrs.field(default=attrs.Factory(list))
+
+
 def search_movies(client: httpx.Client, query: str) -> list[Movie]:
     """Searches movies."""
     response = _fetch_json(
@@ -120,6 +159,19 @@ def search_movies(client: httpx.Client, query: str) -> list[Movie]:
     )
 
     return [_populate_obj(Movie, result) for result in response["results"]]
+
+
+def search_tv_shows(client: httpx.Client, query: str) -> list[TVShow]:
+    """Searches movies."""
+    response = _fetch_json(
+        client,
+        "search/tv",
+        params={
+            "query": query,
+        },
+    )
+
+    return [_populate_obj(TVShow, result) for result in response["results"]]
 
 
 def get_movie_detail(client: httpx.Client, tmdb_id: int) -> MovieDetail:
@@ -156,6 +208,38 @@ def get_movie_detail(client: httpx.Client, tmdb_id: int) -> MovieDetail:
             _populate_obj(Country, item)
             for item in movie_data.get(
                 "production_countries",
+                [],
+            )
+        ],
+    )
+
+
+def get_tv_show_detail(client: httpx.Client, tmdb_id: int) -> TVShowDetail:
+    """Returns details on TV show."""
+    show_data = _fetch_json(client, f"tv/{tmdb_id}?append_to_response=credits")
+    credits_data = show_data.get("credits", {})
+
+    return _populate_obj(
+        TVShowDetail,
+        show_data,
+        cast_members=[
+            _populate_obj(CastMember, item)
+            for item in credits_data.get(
+                "cast",
+                [],
+            )
+        ],
+        crew_members=[
+            _populate_obj(CrewMember, item)
+            for item in credits_data.get(
+                "crew",
+                [],
+            )
+        ],
+        genres=[
+            _populate_obj(Genre, item)
+            for item in show_data.get(
+                "genres",
                 [],
             )
         ],
