@@ -1,9 +1,32 @@
+from django.db.models import Count
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_safe
 
 from movieclub.pagination import render_pagination
 from movieclub.people.models import Person
+
+
+@require_safe
+def cast_members(request: HttpRequest) -> HttpResponse:
+    """List persons."""
+
+    persons = Person.objects.annotate(
+        num_movies=Count("movies_as_cast_member"),
+    ).filter(num_movies__gt=0)
+
+    return render_pagination(request, persons, "people/cast_members.html")
+
+
+@require_safe
+def crew_members(request: HttpRequest) -> HttpResponse:
+    """List persons."""
+
+    persons = Person.objects.annotate(
+        num_movies=Count("movies_as_crew_member"),
+    ).filter(num_movies__gt=0)
+
+    return render_pagination(request, persons, "people/crew_members.html")
 
 
 @require_safe

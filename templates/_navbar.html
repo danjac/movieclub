@@ -25,16 +25,14 @@
                 <a href="" aria-label="" title="" class="flex items-center font-bold">TV Shows</a>
             </li>
             <li>
-                <a href="" aria-label="" title="" class="flex items-center font-bold">Collections</a>
+                <a href="{% url 'people:cast_members' %}"
+                   aria-label=""
+                   title=""
+                   class="flex items-center font-bold">Credits</a>
             </li>
-            {% if user.is_authenticated %}
-                <li>
-                    <a href="" aria-label="" title="" class="flex items-center font-bold">Watchlist</a>
-                </li>
-                <li>
-                    <a href="" aria-label="" title="" class="flex items-center font-bold">Reviews</a>
-                </li>
-            {% endif %}
+            <li>
+                <a href="" aria-label="" title="" class="flex items-center font-bold">Lists</a>
+            </li>
             <li>
                 <a href="" aria-label="" title="" class="flex items-center font-bold">About</a>
             </li>
