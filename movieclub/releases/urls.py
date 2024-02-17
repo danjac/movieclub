@@ -1,7 +1,7 @@
 from django.urls import path
 
-from movieclub.models import Release
 from movieclub.releases import views
+from movieclub.releases.models import Release
 
 app_name = "releases"
 
@@ -26,6 +26,5 @@ urlpatterns = [
     path(
         "tv-shows/search-tmdb/", views.search_tmdb_tv_shows, name="search_tmdb_tv_shows"
     ),
-    path("reviews/new/<int:release_id>/", views.add_review, name="add_review"),
     path("genre/<slug:slug>-<int:genre_id>/", views.genre_detail, name="genre_detail"),
 ]

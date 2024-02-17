@@ -9,14 +9,14 @@ admin.site.site_header = settings.ADMIN_SITE_HEADER
 
 urlpatterns = [
     path("", views.landing_page, name="landing_page"),
+    path("", include("movieclub.releases.urls")),
+    path("credits/", include("movieclub.credits.urls")),
     path("accept-cookies/", views.accept_cookies, name="accept_cookies"),
     path(
         "cover/<int:width>/<int:height>/",
         views.cover_image,
         name="cover_image",
     ),
-    path("movies/", include("movieclub.movies.urls")),
-    path("credits/", include("movieclub.credits.urls")),
     path("account/", include("allauth.urls")),
     path("invitations/", include("invitations.urls")),
     path("ht/", include("health_check.urls")),
