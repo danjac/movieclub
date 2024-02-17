@@ -1,11 +1,7 @@
 import pytest
 
-from movieclub.movies.models import Genre, Movie
-from movieclub.movies.tests.factories import (
-    create_cast_member,
-    create_crew_member,
-    create_movie,
-)
+from movieclub.releases.models import Genre, Release
+from movieclub.releases.tests.factories import create_movie
 
 
 class TestGenre:
@@ -16,29 +12,15 @@ class TestGenre:
 
 class TestMovie:
     def test_str(self):
-        movie = Movie(title="John Wick")
+        movie = Release(title="John Wick")
         assert str(movie) == "John Wick"
 
     @pytest.mark.django_db()
     def test_search(self):
         movie = create_movie(title="John Wick")
-        assert Movie.objects.search("john wick").first() == movie
+        assert Release.objects.search("john wick").first() == movie
 
     @pytest.mark.django_db()
     def test_search_empty(self):
         create_movie(title="John Wick")
-        assert Movie.objects.search("").count() == 0
-
-
-class TestCastMember:
-    @pytest.mark.django_db()
-    def test_str(self):
-        member = create_cast_member()
-        assert str(member) == "Lead Role"
-
-
-class TestCrewMember:
-    @pytest.mark.django_db()
-    def test_str(self):
-        member = create_crew_member()
-        assert str(member) == "Director"
+        assert Release.objects.search("").count() == 0

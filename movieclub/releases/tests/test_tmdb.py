@@ -2,8 +2,8 @@ import httpx
 import pytest
 
 from movieclub import tmdb
-from movieclub.movies.tests.factories import create_genre
-from movieclub.movies.tmdb import populate_movie
+from movieclub.releases.tests.factories import create_genre
+from movieclub.releases.tmdb import populate_movie
 
 
 class TestPopulateMovie:

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import ClassVar
+
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVectorField
 from django.db import models
 from django.urls import reverse
@@ -95,6 +97,14 @@ class Release(models.Model):
     countries = CountryField(multiple=True)
 
     objects = ReleaseQuerySet.as_manager()
+
+    class Meta:
+        constraints: ClassVar = [
+            models.UniqueConstraint(
+                fields=["category", "tmdb_id"],
+                name="%(app_label)s_%(class)s_unique_tmdb_id_category",
+            )
+        ]
 
     def __str__(self) -> str:
         """Returns title."""

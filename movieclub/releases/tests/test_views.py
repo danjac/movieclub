@@ -1,15 +1,15 @@
 import http
 
 import pytest
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 
 from movieclub import tmdb
-from movieclub.movies.models import Movie, Review
-from movieclub.movies.tests.factories import create_genre, create_movie, create_review
+from movieclub.releases.models import Release
+from movieclub.releases.tests.factories import create_genre, create_movie
 from movieclub.tests.factories import create_batch
 
 
-class TestIndex:
+class TestMovies:
     url = reverse_lazy("movies:index")
 
     @pytest.mark.django_db()
@@ -51,93 +51,18 @@ class TestDetail:
     @pytest.mark.django_db()
     def test_get(self, client):
         movie = create_movie()
-        create_batch(create_review, 3, movie=movie)
         response = client.get(movie.get_absolute_url())
         assert response.status_code == http.HTTPStatus.OK
 
     @pytest.mark.django_db()
     def test_get_for_user(self, client, auth_user):
         movie = create_movie()
-        create_batch(create_review, 3, movie=movie)
         response = client.get(movie.get_absolute_url())
         assert response.status_code == http.HTTPStatus.OK
 
 
-class TestAddReview:
-    @pytest.mark.django_db()
-    def test_post(self, client, auth_user):
-        movie = create_movie()
-        response = client.post(
-            reverse("movies:add_review", args=[movie.pk]),
-            {"comment": "test!"},
-        )
-
-        assert response.status_code == http.HTTPStatus.OK
-        assert movie.reviews.filter(user=auth_user).count() == 1
-
-    @pytest.mark.django_db()
-    def test_post_invalid(self, client, auth_user):
-        movie = create_movie()
-        response = client.post(reverse("movies:add_review", args=[movie.pk]), {})
-
-        assert response.status_code == http.HTTPStatus.OK
-        assert movie.reviews.filter(user=auth_user).count() == 0
-
-
-class TestEditReview:
-    @pytest.mark.django_db()
-    def test_get_is_owner(self, client, auth_user):
-        review = create_review(user=auth_user)
-        response = client.get(review.get_edit_url())
-        assert response.status_code == http.HTTPStatus.OK
-
-    @pytest.mark.django_db()
-    def test_get_cancel(self, client, auth_user):
-        review = create_review(user=auth_user)
-        response = client.get(review.get_edit_url(), {"action": "cancel"})
-        assert response.status_code == http.HTTPStatus.OK
-
-    @pytest.mark.django_db()
-    def test_get_is_not_owner(self, client, auth_user):
-        review = create_review()
-        response = client.get(review.get_edit_url())
-        assert response.status_code == http.HTTPStatus.NOT_FOUND
-
-    @pytest.mark.django_db()
-    def test_post(self, client, auth_user):
-        review = create_review(user=auth_user)
-        response = client.post(
-            review.get_edit_url(),
-            {
-                "comment": "updated comment!",
-                "url": "https://example.com",
-            },
-        )
-        assert response.status_code == http.HTTPStatus.OK
-
-        review.refresh_from_db()
-        assert review.comment == "updated comment!"
-        assert review.url == "https://example.com"
-
-
-class TestDeleteReview:
-    @pytest.mark.django_db()
-    def test_delete_is_owner(self, client, auth_user):
-        review = create_review(user=auth_user)
-        response = client.delete(review.get_delete_url())
-        assert response.status_code == http.HTTPStatus.OK
-        assert Review.objects.exists() is False
-
-    @pytest.mark.django_db()
-    def test_delete_is_not_owner(self, client, auth_user):
-        review = create_review()
-        response = client.delete(review.get_delete_url())
-        assert response.status_code == http.HTTPStatus.OK
-        assert Review.objects.exists() is True
-
-
-class TestSearchTmdb:
-    url = reverse_lazy("movies:search_tmdb")
+class TestSearchTmdbMovies:
+    url = reverse_lazy("releases:search_tmdb_movies")
 
     @pytest.mark.django_db()
     def test_get(self, client, mocker, auth_user):
@@ -165,12 +90,12 @@ class TestAddMovie:
         movie = create_movie(tmdb_id=self.tmdb_id)
 
         mocker.patch(
-            "movieclub.movies.models.Movie.objects.get",
-            side_effect=Movie.DoesNotExist,
+            "movieclub.releases.models.Release.objects.get",
+            side_effect=Release.DoesNotExist,
         )
 
         mocker.patch(
-            "movieclub.movies.views.populate_movie",
+            "movieclub.releases.views.populate_movie",
             return_value=movie,
         )
 
@@ -182,4 +107,4 @@ class TestAddMovie:
         movie = create_movie(tmdb_id=self.tmdb_id)
         response = client.post(self.url)
         assert response.url == movie.get_absolute_url()
-        assert Movie.objects.count() == 1
+        assert Release.objects.movies().count() == 1

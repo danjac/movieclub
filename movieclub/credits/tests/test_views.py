@@ -3,8 +3,11 @@ import http
 import pytest
 from django.urls import reverse, reverse_lazy
 
-from movieclub.credits.tests.factories import create_person
-from movieclub.movies.tests.factories import create_cast_member, create_crew_member
+from movieclub.credits.tests.factories import (
+    create_cast_member,
+    create_crew_member,
+    create_person,
+)
 
 
 @pytest.fixture()
