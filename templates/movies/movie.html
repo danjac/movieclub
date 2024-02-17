@@ -26,15 +26,16 @@
         <details class="mb-6">
             <summary class="mb-3 text-lg font-bold cursor-pointer lg:text-xl xl:text-2xl">Cast</summary>
             <ul class="border-t divide-y divide">
-                {% for cast_member in cast_members %}
-                    {% with person=cast_member.person %}
+                {% regroup cast_members by person as groups %}
+                {% for group in groups %}
+                    {% with person=group.grouper %}
                         <li class="py-3">
-                            {% url 'people:cast_member' person_id=cast_member.person.pk slug=cast_member.person.slug as cast_member_url %}
+                            {% url 'people:cast_member' person_id=person.pk slug=person.slug as cast_member_url %}
                             <article class="flex items-center space-x-3 cursor-pointer group"
                                      role="link"
                                      hx-get="{{ cast_member_url }}"
                                      hx-push-url="true">
-                                {% cover_image cast_member.person.profile_url 100 150 title=cast_member.person.name css_class="w-16 h-20 group-hover:grayscale" %}
+                                {% cover_image person.profile_url 100 150 title=person.name css_class="w-16 h-20 group-hover:grayscale" %}
                                 <div class="flex flex-col place-content-between h-16">
                                     <h2 class="font-bold tracking-tight leading-tight break-words line-clamp-2"
                                         aria-label="{{ person.name }}"
@@ -44,7 +45,10 @@
                                            href="{{ cast_member_url }}">{{ person.name }}</a>
                                     </h2>
                                     <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm dark:text-gray-300 truncate">
-                                        {{ cast_member.character }}
+                                        {% for credit in group.list %}
+                                            {{ credit.character }}
+                                            {% if not forloop.last %}/{% endif %}
+                                        {% endfor %}
                                     </h3>
                                 </div>
                             </article>
@@ -58,15 +62,16 @@
         <details class="mb-6">
             <summary class="mb-3 text-lg font-bold cursor-pointer lg:text-xl xl:text-2xl">Crew</summary>
             <ul class="border-t divide-y divide">
-                {% for crew_member in crew_members %}
-                    {% with person=crew_member.person %}
+                {% regroup crew_members by person as groups %}
+                {% for group in groups %}
+                    {% with person=group.grouper %}
                         <li class="py-3">
-                            {% url 'people:crew_member' person_id=crew_member.person.pk slug=crew_member.person.slug as crew_member_url %}
+                            {% url 'people:crew_member' person_id=person.pk slug=person.slug as crew_member_url %}
                             <article class="flex items-center space-x-3 cursor-pointer group"
                                      role="link"
                                      hx-get="{{ crew_member_url }}"
                                      hx-push-url="true">
-                                {% cover_image crew_member.person.profile_url 100 150 title=crew_member.person.name css_class="w-16 h-20 group-hover:grayscale" %}
+                                {% cover_image person.profile_url 100 150 title=person.name css_class="w-16 h-20 group-hover:grayscale" %}
                                 <div class="flex flex-col place-content-between h-16">
                                     <h2 class="font-bold tracking-tight leading-tight break-words line-clamp-2"
                                         aria-label="{{ person.name }}"
@@ -76,7 +81,10 @@
                                            href="{{ crew_member_url }}">{{ person.name }}</a>
                                     </h2>
                                     <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm dark:text-gray-300 truncate">
-                                        {{ crew_member.job }}
+                                        {% for credit in group.list %}
+                                            {{ credit.job }}
+                                            {% if not forloop.last %}/{% endif %}
+                                        {% endfor %}
                                     </h3>
                                 </div>
                             </article>
