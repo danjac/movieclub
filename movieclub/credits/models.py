@@ -25,32 +25,42 @@ class Person(models.Model):
         return slugify(self.name)
 
 
-class BaseCastMember(models.Model):
-    """A cast member base class."""
+class CastMember(models.Model):
+    """A cast member"""
+
+    release = models.ForeignKey(
+        "releases.Release",
+        on_delete=models.CASCADE,
+        related_name="actors",
+    )
 
     person = models.ForeignKey(
         "credits.Person",
         on_delete=models.CASCADE,
-        related_name="+",
+        related_name="cast_credits",
     )
+
     character = models.CharField(max_length=120)
     order = models.PositiveSmallIntegerField(null=True, blank=True)
-
-    class Meta:
-        abstract = True
 
     def __str__(self) -> str:
         """Returns character name."""
         return self.character
 
 
-class BaseCrewMember(models.Model):
-    """A cast or crew member"""
+class CrewMember(models.Model):
+    """A crew member"""
+
+    release = models.ForeignKey(
+        "releases.Release",
+        on_delete=models.CASCADE,
+        related_name="crew",
+    )
 
     person = models.ForeignKey(
         "credits.Person",
         on_delete=models.CASCADE,
-        related_name="+",
+        related_name="crew_credits",
     )
     job = models.CharField(max_length=120)
 

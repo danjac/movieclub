@@ -3,23 +3,26 @@ from django.db import models
 from model_utils.models import TimeStampedModel
 
 
-class BaseReview(TimeStampedModel):
+class Review(TimeStampedModel):
     """Abstract model class."""
+
+    release = models.ForeignKey(
+        "releases.Release",
+        on_delete=models.CASCADE,
+        related_name="reviews",
+    )
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name="+",
+        related_name="reviews",
     )
 
     url = models.URLField(blank=True)
 
     comment = models.TextField()
-
-    class Meta:
-        abstract = True
 
     def get_target_id(self) -> str:
         """Return HTMX target in DOM."""

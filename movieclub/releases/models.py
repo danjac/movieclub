@@ -6,12 +6,9 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django_countries.fields import CountryField
 
-from movieclub.credits.models import BaseCastMember, BaseCrewMember
-from movieclub.reviews.models import BaseReview
-
 
 class Genre(models.Model):
-    """A movie genre."""
+    """A movie or TV show genre."""
 
     name = models.CharField(max_length=30, unique=True)
     tmdb_id = models.PositiveIntegerField(unique=True)
@@ -31,10 +28,18 @@ class Genre(models.Model):
         )
 
 
-class MovieQuerySet(models.QuerySet):
+class ReleaseQuerySet(models.QuerySet):
     """QuerySet for Movie model."""
 
-    def search(self, search_term: str) -> MovieQuerySet:
+    def movies(self) -> ReleaseQuerySet:
+        """Returns movies only"""
+        return self.filter(release_type=self.model.ReleaseType.MOVIE)
+
+    def tv_shows(self) -> ReleaseQuerySet:
+        """Returns tv shows only"""
+        return self.filter(release_type=self.model.ReleaseType.TV_SHOW)
+
+    def search(self, search_term: str) -> ReleaseQuerySet:
         """Does a full text search"""
         if not search_term:
             return self.none()
@@ -45,8 +50,14 @@ class MovieQuerySet(models.QuerySet):
         ).filter(search_vector=query)
 
 
-class Movie(models.Model):
-    """Movie details."""
+class Release(models.Model):
+    """Movie or TV show details."""
+
+    class ReleaseType(models.TextChoices):
+        MOVIE = "movie", "Movie"
+        TV_SHOW = "tv_show", "TV Show"
+
+    release_type = models.CharField(max_length=12, choices=ReleaseType.choices)
 
     title = models.CharField(max_length=120)
     original_title = models.CharField(max_length=120, blank=True)
@@ -54,7 +65,8 @@ class Movie(models.Model):
     tagline = models.TextField(blank=True)
     overview = models.TextField(blank=True)
 
-    tmdb_id = models.BigIntegerField(unique=True)
+    # should be unique together with release type
+    tmdb_id = models.BigIntegerField()
     imdb_id = models.CharField(max_length=12, blank=True)
 
     genres = models.ManyToManyField(Genre, blank=True, related_name="movies")
@@ -76,63 +88,14 @@ class Movie(models.Model):
 
     search_vector = SearchVectorField(null=True, editable=False)
 
+    # for TV shows
+    num_seasons = models.PositiveIntegerField(default=0)
+    num_episodes = models.PositiveIntegerField(default=0)
+
     countries = CountryField(multiple=True)
 
-    objects = MovieQuerySet.as_manager()
+    objects = ReleaseQuerySet.as_manager()
 
     def __str__(self) -> str:
         """Returns title."""
         return self.title
-
-    def get_absolute_url(self) -> str:
-        """Returns detail url."""
-
-        return reverse(
-            "movies:movie_detail",
-            kwargs={
-                "slug": slugify(self.title),
-                "movie_id": self.pk,
-            },
-        )
-
-
-class CastMember(BaseCastMember):
-    """A cast or crew member"""
-
-    movie = models.ForeignKey(
-        Movie,
-        related_name="cast_members",
-        on_delete=models.CASCADE,
-    )
-
-
-class CrewMember(BaseCrewMember):
-    """A cast or crew member"""
-
-    movie = models.ForeignKey(
-        Movie,
-        related_name="crew_members",
-        on_delete=models.CASCADE,
-    )
-
-
-class Review(BaseReview):
-    """Movie review."""
-
-    movie = models.ForeignKey(
-        Movie,
-        on_delete=models.CASCADE,
-        related_name="reviews",
-    )
-
-    def get_target_id(self) -> str:
-        """Return target in DOM"""
-        return f"review-movie-{self.pk}"
-
-    def get_edit_url(self) -> str:
-        """URL to edit endpoint."""
-        return reverse("movies:edit_review", kwargs={"review_id": self.pk})
-
-    def get_delete_url(self) -> str:
-        """URL to delete endpoint."""
-        return reverse("movies:delete_review", kwargs={"review_id": self.pk})

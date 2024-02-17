@@ -2,18 +2,18 @@ import attrs
 import httpx
 
 from movieclub import tmdb
-from movieclub.credits.models import Person
-from movieclub.movies.models import CastMember, CrewMember, Genre, Movie
+from movieclub.credits.models import CastMember, CrewMember, Person
+from movieclub.releases.models import Genre, Release
 
 
-def populate_movie(client: httpx.Client, tmdb_id: int) -> Movie:
+def populate_movie(client: httpx.Client, tmdb_id: int) -> Release:
     """Generate movie from Tmdb."""
     details = tmdb.get_movie_detail(client, tmdb_id)
-
     fields = attrs.fields(tmdb.MovieDetail)
 
-    movie = Movie.objects.create(
+    movie = Release.objects.create(
         tmdb_id=tmdb_id,
+        release_type=Release.ReleaseType.MOVIE,
         countries=",".join([c.iso_3166_1 for c in details.production_countries]),
         backdrop_url=details.backdrop_path,
         poster_url=details.poster_path,
@@ -33,8 +33,62 @@ def populate_movie(client: httpx.Client, tmdb_id: int) -> Movie:
         ),
     )
 
-    movie.genres.set(Genre.objects.filter(tmdb_id__in=[g.id for g in details.genres]))
+    _populate_genres(movie, details.genres)
+    _populate_credits(movie, details.cast_members, details.crew_members)
 
+    return movie
+
+
+def populate_tv_show(client: httpx.Client, tmdb_id: int) -> Release:
+    """Populate TV show."""
+
+    details = tmdb.get_tv_show_detail(client, tmdb_id)
+    fields = attrs.fields(tmdb.MovieDetail)
+
+    tv_show = Release.objects.create(
+        tmdb_id=tmdb_id,
+        release_type=Release.ReleaseType.TV_SHOW,
+        title=details.name,
+        release_date=details.first_air_date,
+        countries=",".join(details.origin_country),
+        backdrop_url=details.backdrop_path,
+        poster_url=details.poster_path,
+        num_episodes=details.number_of_episodes,
+        num_seasons=details.number_of_seasons,
+        **attrs.asdict(
+            details,
+            filter=attrs.filters.exclude(
+                fields.backdrop_path,
+                fields.cast_members,
+                fields.crew_members,
+                fields.genres,
+                fields.poster_path,
+                fields.name,
+                fields.first_air_date,
+                fields.last_air_date,
+                fields.origin_country,
+                fields.number_of_episodes,
+                fields.number_of_seasons,
+                fields.id,
+            ),
+        ),
+    )
+
+    _populate_genres(tv_show, details.genres)
+    _populate_credits(tv_show, details.cast_members, details.crew_members)
+
+    return tv_show
+
+
+def _populate_genres(release: Release, genres: list[tmdb.Genre]) -> None:
+    release.genres.set(Genre.objects.filter(tmdb_id__in=[g.id for g in genres]))
+
+
+def _populate_credits(
+    release: Release,
+    cast_members: list[tmdb.CastMember],
+    crew_members: list[tmdb.CrewMember],
+):
     cast_member_fields = attrs.fields(tmdb.CastMember)
 
     persons = [
@@ -51,7 +105,7 @@ def populate_movie(client: httpx.Client, tmdb_id: int) -> Movie:
                 ),
             ),
         )
-        for member in details.cast_members
+        for member in cast_members
     ]
 
     crew_member_fields = attrs.fields(tmdb.CrewMember)
@@ -69,7 +123,7 @@ def populate_movie(client: httpx.Client, tmdb_id: int) -> Movie:
                 ),
             ),
         )
-        for member in details.crew_members
+        for member in crew_members
     ]
 
     person_ids = [p.tmdb_id for p in persons]
@@ -81,24 +135,22 @@ def populate_movie(client: httpx.Client, tmdb_id: int) -> Movie:
     CastMember.objects.bulk_create(
         [
             CastMember(
-                movie=movie,
+                release=release,
                 person=persons_dict[member.id],
                 order=member.order,
                 character=member.character,
             )
-            for member in details.cast_members
+            for member in cast_members
         ]
     )
 
     CrewMember.objects.bulk_create(
         [
             CrewMember(
-                movie=movie,
+                release=release,
                 person=persons_dict[member.id],
                 job=member.job,
             )
-            for member in details.crew_members
+            for member in crew_members
         ]
     )
-
-    return movie

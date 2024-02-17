@@ -4,7 +4,7 @@ from django import forms
 from django.core.validators import MaxLengthValidator
 
 
-class BaseReviewForm(forms.ModelForm):
+class ReviewForm(forms.ModelForm):
     """Base form."""
 
     class Meta:
