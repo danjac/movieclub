@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.db import models
-from model_utils.managers import InheritanceManager
 from model_utils.models import TimeStampedModel
 
 
@@ -18,8 +17,6 @@ class BaseReview(TimeStampedModel):
     url = models.URLField(blank=True)
 
     comment = models.TextField()
-
-    objects = InheritanceManager()
 
     class Meta:
         abstract = True
