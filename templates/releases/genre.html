@@ -3,18 +3,17 @@
 {% block content %}
     <header class="justify-between items-center pb-3 mb-6 space-y-3 border-b sm:flex sm:space-y-0">
         <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
-            {{ genre.name }} releases
+            {{ genre.name }}
         </h1>
         <nav>
             <ul class="items-center space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
                 <li class="flex justify-center items-center sm:justify-start">
-                    {% search_form placeholder="Search "|add:genre.name|add:" releases" %}
+                    {% search_form placeholder="Search "|add:genre.name %}
                 </li>
             </ul>
         </nav>
     </header>
     {% partialdef pagination inline=True %}
-    {% cache 600 genre-releases-list request.get_full_path %}
     <ul class="divide-y divide-solid" id="{{ pagination_target }}">
         {% with has_other_pages=page_obj.has_other_pages %}
             {% if has_other_pages %}
@@ -54,6 +53,5 @@
             {% endif %}
         {% endwith %}
     </ul>
-{% endcache %}
 {% endpartialdef pagination %}
 {% endblock content %}

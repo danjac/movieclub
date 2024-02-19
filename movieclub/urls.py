@@ -11,6 +11,7 @@ urlpatterns = [
     path("", views.landing_page, name="landing_page"),
     path("", include("movieclub.releases.urls")),
     path("credits/", include("movieclub.credits.urls")),
+    path("reviews/", include("movieclub.reviews.urls")),
     path("accept-cookies/", views.accept_cookies, name="accept_cookies"),
     path(
         "cover/<int:width>/<int:height>/",

@@ -19,7 +19,6 @@
         </nav>
     </header>
     {% partialdef pagination inline=True %}
-    {% cache 600 movies-list request.get_full_path %}
     <ul class="divide-y divide-solid" id="{{ pagination_target }}">
         {% with has_other_pages=page_obj.has_other_pages %}
             {% if has_other_pages %}
@@ -58,6 +57,5 @@
             {% endif %}
         {% endwith %}
     </ul>
-{% endcache %}
 {% endpartialdef pagination %}
 {% endblock content %}

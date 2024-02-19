@@ -4,7 +4,7 @@
       hx-target="this"
       {% if hx_oob %}hx-swap-oob="true"{% endif %}
       class="space-y-3{% if not review %} pb-3 mb-3 border-b{% endif %}"
-      id="review-form{% if review %}-{{ review.get_target_id }}{% endif %}">
+      id="review-form{% if review %}-{{ review.pk }}{% endif %}">
     <h3 class="my-3 text-base font-semibold lg:text-lg">
         {% if review %}
             Edit Review
@@ -16,9 +16,8 @@
     <div class="flex items-center space-x-2">
         {% if review %}
             <button class="text-xs lg:text-sm link"
-                    hx-get="{{ review.get_edit_url }}"
-                    hx-target="#{{ review.get_target_id }}"
-                    hx-vals='{"action": "cancel"}'
+                    hx-get="{% url 'reviews:review_detail' review.id %}"
+                    hx-target="#review-{{ review.pk }}"
                     hx-swap="innerHTML">Cancel</button>
         {% endif %}
         <button class="inline-flex items-center btn btn-primary">

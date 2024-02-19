@@ -10,7 +10,6 @@ from movieclub.decorators import require_auth
 from movieclub.pagination import render_pagination
 from movieclub.releases.models import Genre, Release
 from movieclub.releases.tmdb import populate_movie, populate_tv_show
-from movieclub.reviews.forms import ReviewForm
 
 
 @require_safe
@@ -82,16 +81,18 @@ def release_detail(
 ) -> HttpResponse:
     """Returns details of movie."""
     release = get_object_or_404(Release, category=category, pk=release_id)
-    context = {
-        "release": release,
-        "reviews": release.reviews.select_related("user").order_by("-created"),
-        "cast_members": release.cast_members.select_related("person").order_by("order"),
-        "crew_members": release.crew_members.select_related("person"),
-    }
-    if request.user.is_authenticated:
-        context = {**context, "review_form": ReviewForm(), "review_submit_url": "/"}
 
-    return render(request, "releases/release.html", context)
+    return render(
+        request,
+        "releases/release.html",
+        {
+            "release": release,
+            "cast_members": release.cast_members.select_related("person").order_by(
+                "order"
+            ),
+            "crew_members": release.crew_members.select_related("person"),
+        },
+    )
 
 
 @require_POST

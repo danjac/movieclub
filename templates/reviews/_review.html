@@ -1,41 +1,39 @@
 {# vim: set filetype=htmldjango #}
 {% load heroicons %}
-{% with target_id=review.get_target_id %}
-    <div class="relative py-3 space-y-3" id="{{ target_id }}">
-        {% if edit_mode %}
-            {% include "reviews/_review_form.html" %}
-        {% else %}
-            <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
-                <div class="flex items-center space-x-3">
-                    <a href="" class="link">{{ review.user.username }}</a>
-                </div>
-                <div class="font-semibold">Posted {{ review.created|date }}</div>
+<div class="relative py-3 space-y-3" id="review-{{ review.pk }}">
+    {% if edit_mode %}
+        {% include "reviews/_review_form.html" %}
+    {% else %}
+        <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
+            <div class="flex items-center space-x-3">
+                <a href="" class="link">{{ review.user.username }}</a>
             </div>
-            <div class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ review.comment|linebreaksbr }}</div>
-            <div class="flex justify-between items-center text-xs lg:text-sm">
-                <div class="flex items-center space-x-3">
-                    {% if user == review.user %}
-                        <button class="link"
-                                hx-get="{{ review.get_edit_url }}"
-                                hx-target="#{{ target_id }}"
-                                hx-swap="innerHTML">Edit</button>
-                        <button class="link"
-                                hx-delete="{{ review.get_delete_url }}"
-                                hx-target="#{{ target_id }}"
-                                hx-swap="delete"
-                                hx-confirm="Are you sure you want to delete your review?">Delete</button>
-                    {% else %}
-                        <button class="link">Like</button>
-                    {% endif %}
-                </div>
-                <div class="flex items-center space-x-3">
-                    <div class="font-semibold">3 Likes</div>
-                    {% if review.url %}<a href="{{ review.url }}" target="_blank" rel="noopener" class="link">Link</a>{% endif %}
-                </div>
+            <div class="font-semibold">Posted {{ review.created|date }}</div>
+        </div>
+        <div class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ review.comment|linebreaksbr }}</div>
+        <div class="flex justify-between items-center text-xs lg:text-sm">
+            <div class="flex items-center space-x-3">
+                {% if request.user == review.user %}
+                    <button class="link"
+                            hx-get="{% url 'reviews:edit_review' review.pk %}"
+                            hx-target="#review-{{ review.pk }}"
+                            hx-swap="innerHTML">Edit</button>
+                    <button class="link"
+                            hx-delete="{% url 'reviews:delete_review' review.pk %}"
+                            hx-target="#review-{{ review.pk }}"
+                            hx-swap="delete"
+                            hx-confirm="Are you sure you want to delete your review?">Delete</button>
+                {% else %}
+                    <button class="link">Like</button>
+                {% endif %}
             </div>
-        {% endif %}
-    </div>
-{% endwith %}
+            <div class="flex items-center space-x-3">
+                <div class="font-semibold">3 Likes</div>
+                {% if review.url %}<a href="{{ review.url }}" target="_blank" rel="noopener" class="link">Link</a>{% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
 {% if new_review %}
     {% include "reviews/_review_form.html" with hx_oob=True review=None %}
 {% endif %}
