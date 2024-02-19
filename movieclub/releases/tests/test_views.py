@@ -102,6 +102,26 @@ class TestSearchTmdbMovies:
         assert response.status_code == http.HTTPStatus.OK
 
 
+class TestSearchTmdbTVShows:
+    url = reverse_lazy("releases:search_tmdb_tv_shows")
+
+    @pytest.mark.django_db()
+    def test_get(self, client, mocker, auth_user):
+        mocker.patch(
+            "movieclub.tmdb.search_tv_shows",
+            return_value=[
+                tmdb.TVShow(
+                    id=1000,
+                    name="Poker Face",
+                    first_air_date="2023-01-01",
+                )
+            ],
+        )
+
+        response = client.get(self.url, {"query": "Poker Face"})
+        assert response.status_code == http.HTTPStatus.OK
+
+
 class TestAddMovie:
     tmdb_id = 245891
     url = reverse_lazy("releases:add_movie", args=[tmdb_id])
@@ -110,9 +130,12 @@ class TestAddMovie:
     def test_post_new(self, client, auth_user, mocker):
         movie = create_movie(tmdb_id=self.tmdb_id)
 
+        mock_qs = mocker.Mock()
+        mock_qs.get.side_effect = Release.DoesNotExist
+
         mocker.patch(
-            "movieclub.releases.models.Release.objects.get",
-            side_effect=Release.DoesNotExist,
+            "movieclub.releases.models.Release.objects.movies",
+            return_value=mock_qs,
         )
 
         mocker.patch(
@@ -129,3 +152,35 @@ class TestAddMovie:
         response = client.post(self.url)
         assert response.url == movie.get_absolute_url()
         assert Release.objects.movies().count() == 1
+
+
+class TestAddTVShow:
+    tmdb_id = 245891
+    url = reverse_lazy("releases:add_tv_show", args=[tmdb_id])
+
+    @pytest.mark.django_db()
+    def test_post_new(self, client, auth_user, mocker):
+        tv_show = create_tv_show(tmdb_id=self.tmdb_id)
+
+        mock_qs = mocker.Mock()
+        mock_qs.get.side_effect = Release.DoesNotExist
+
+        mocker.patch(
+            "movieclub.releases.models.Release.objects.tv_shows",
+            return_value=mock_qs,
+        )
+
+        mocker.patch(
+            "movieclub.releases.views.populate_tv_show",
+            return_value=tv_show,
+        )
+
+        response = client.post(self.url)
+        assert response.url == tv_show.get_absolute_url()
+
+    @pytest.mark.django_db()
+    def test_post_exists(self, client, auth_user):
+        tv_show = create_tv_show(tmdb_id=self.tmdb_id)
+        response = client.post(self.url)
+        assert response.url == tv_show.get_absolute_url()
+        assert Release.objects.tv_shows().count() == 1
