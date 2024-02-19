@@ -49,15 +49,9 @@ def cover_image(request: HttpRequest, width: int, height=int) -> FileResponse:
     if (width, height) not in COVER_IMAGE_SIZES:
         raise Http404
 
-    # check cover url is legit
     try:
         cover_url = Signer().unsign(request.GET["url"])
-    except (KeyError, BadSignature) as exc:
-        raise Http404 from exc
 
-    output: io.BufferedIOBase
-
-    try:
         response = get_client().get(cover_url)
         response.raise_for_status()
 
@@ -72,7 +66,5 @@ def cover_image(request: HttpRequest, width: int, height=int) -> FileResponse:
 
         return FileResponse(output, content_type="image/webp")
 
-    except (OSError, httpx.HTTPError) as e:
-        # if error we should return a placeholder, so we don't keep
-        # trying to fetch and process a bad image instead of caching result
+    except (KeyError, OSError, httpx.HTTPError, BadSignature) as e:
         raise Http404 from e
