@@ -26,11 +26,10 @@ def add_review(request: HttpRequest, release_id: int) -> HttpResponse:
 
         return retarget(
             reswap(
-                render(
+                _render_review(
                     request,
-                    "reviews/_review.html",
+                    review,
                     {
-                        "review": review,
                         "review_form": ReviewForm(),
                         "review_submit_url": request.path,
                         "new_review": True,
@@ -40,14 +39,7 @@ def add_review(request: HttpRequest, release_id: int) -> HttpResponse:
             ),
             "#reviews",
         )
-    return render(
-        request,
-        "reviews/_review_form.html",
-        {
-            "review_form": form,
-            "review_submit_url": request.path,
-        },
-    )
+    return _render_review_form(request, form)
 
 
 @require_safe
@@ -55,13 +47,7 @@ def review_detail(request: HttpRequest, review_id: int) -> HttpResponse:
     """Just render the review snippet."""
 
     review = get_object_or_404(Review, user=request.user, pk=review_id)
-    return render(
-        request,
-        "reviews/_review.html",
-        {
-            "review": review,
-        },
-    )
+    return _render_review(request, review)
 
 
 @require_form_methods
@@ -75,25 +61,11 @@ def edit_review(request: HttpRequest, review_id: int) -> HttpResponse:
         if form.is_valid():
             form.save()
             messages.success(request, "Your review has been updated")
-            return render(
-                request,
-                "reviews/_review.html",
-                {
-                    "review": review,
-                },
-            )
+            return _render_review(request, review)
     else:
         form = ReviewForm()
 
-    return render(
-        request,
-        "reviews/_review_form.html",
-        {
-            "review_form": form,
-            "review": review,
-            "review_submit_url": request.path,
-        },
-    )
+    return _render_review_form(request, form, {"review": review})
 
 
 @require_DELETE
@@ -104,3 +76,30 @@ def delete_review(request: HttpRequest, review_id: int) -> HttpResponse:
     review.delete()
     messages.info(request, "Your review has been deleted")
     return HttpResponse()
+
+
+def _render_review(
+    request: HttpRequest, review: Review, extra_context: dict | None = None
+) -> HttpResponse:
+    return render(
+        request,
+        "reviews/_review.html",
+        {
+            "review": review,
+            **(extra_context or {}),
+        },
+    )
+
+
+def _render_review_form(
+    request: HttpRequest, form: ReviewForm, extra_context: dict | None = None
+) -> HttpResponse:
+    return render(
+        request,
+        "reviews/_review_form.html",
+        {
+            "review_form": form,
+            "review_submit_url": request.path,
+            **(extra_context or {}),
+        },
+    )
