@@ -3,7 +3,112 @@ import pytest
 
 from movieclub import tmdb
 from movieclub.releases.tests.factories import create_genre
-from movieclub.releases.tmdb import populate_movie
+from movieclub.releases.tmdb import populate_movie, populate_tv_show
+
+
+class TestPopulateTVShow:
+    @pytest.mark.django_db()
+    def test_ok(self, mocker):
+        create_genre(tmdb_id=9648, name="Mystery")
+        create_genre(tmdb_id=80, name="Crime")
+        create_genre(tmdb_id=18, name="Drama")
+
+        mocker.patch(
+            "movieclub.tmdb.get_tv_show_detail",
+            return_value=tmdb.TVShowDetail(
+                id=484,
+                name="Murder, She Wrote",
+                overview="An unassuming mystery writer turned sleuth uses her professional insight to help solve real-life homicide cases.",
+                first_air_date="1984-9-30",
+                last_air_date="1996-5-19",
+                backdrop_path="https://image.tmdb.org/t/p/original/8k67coQA1KXLg0HmB5PJBBTL6dX.jpg",
+                poster_path="https://image.tmdb.org/t/p/original/3UxBFG4fiuZ0P9n2sCrjXh64Avy.jpg",
+                tagline="",
+                homepage="",
+                number_of_episodes=264,
+                number_of_seasons=12,
+                genres=[
+                    tmdb.Genre(id=9648, name="Mystery"),
+                    tmdb.Genre(id=80, name="Crime"),
+                    tmdb.Genre(id=18, name="Drama"),
+                ],
+                cast_members=[
+                    tmdb.CastMember(
+                        id=14730,
+                        gender=1,
+                        name="Angela Lansbury",
+                        profile_path="https://image.tmdb.org/t/p/original/sNIHnWjXEpBcTjRxzmrwuJyHqfi.jpg",
+                        order=0,
+                        character="Jessica Fletcher",
+                    )
+                ],
+                crew_members=[
+                    tmdb.CrewMember(
+                        id=14930,
+                        gender=2,
+                        name="John Addison",
+                        profile_path="",
+                        job="Main Title Theme Composer",
+                    ),
+                    tmdb.CrewMember(
+                        id=372172,
+                        gender=2,
+                        name="Robert F. O'Neill",
+                        profile_path="",
+                        job="Producer",
+                    ),
+                    tmdb.CrewMember(
+                        id=1217028,
+                        gender=0,
+                        name="Douglas Benton",
+                        profile_path="",
+                        job="Producer",
+                    ),
+                    tmdb.CrewMember(
+                        id=14730,
+                        gender=1,
+                        name="Angela Lansbury",
+                        profile_path="https://image.tmdb.org/t/p/original/sNIHnWjXEpBcTjRxzmrwuJyHqfi.jpg",
+                        job="Producer",
+                    ),
+                    tmdb.CrewMember(
+                        id=151395,
+                        gender=2,
+                        name="Peter S. Fischer",
+                        profile_path="",
+                        job="Executive Producer",
+                    ),
+                    tmdb.CrewMember(
+                        id=42058,
+                        gender=2,
+                        name="William Link",
+                        profile_path="",
+                        job="Executive Producer",
+                    ),
+                    tmdb.CrewMember(
+                        id=42057,
+                        gender=2,
+                        name="Richard Levinson",
+                        profile_path="",
+                        job="Executive Producer",
+                    ),
+                ],
+                origin_country=["US"],
+            ),
+        )
+
+        tv_show = populate_tv_show(httpx.Client(), 484)
+
+        assert tv_show.title == "Murder, She Wrote"
+        assert tv_show.num_episodes == 264
+        assert tv_show.num_seasons == 12
+
+        assert tv_show.genres.count() == 3
+
+        assert tv_show.cast_members.count() == 1
+        assert tv_show.crew_members.count() == 7
+
+        assert tv_show.countries == ["US"]
 
 
 class TestPopulateMovie:
