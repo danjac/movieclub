@@ -36,7 +36,7 @@ def movies(request: HttpRequest) -> HttpResponse:
 @require_safe
 def tv_shows(request: HttpRequest) -> HttpResponse:
     """Returns list of TV shows."""
-    qs = Release.objects.movies().order_by("-pk")
+    qs = Release.objects.tv_shows().order_by("-pk")
     search_tmdb_url = reverse("releases:search_tmdb_tv_shows")
 
     if request.search:

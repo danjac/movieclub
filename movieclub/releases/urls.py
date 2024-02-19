@@ -19,7 +19,7 @@ urlpatterns = [
     path(
         "tv-shows/<slug:slug>-<int:release_id>/",
         views.release_detail,
-        name="release_detail",
+        name="tv_show_detail",
         kwargs={"category": Release.Category.TV_SHOW},
     ),
     path("tv-shows/new/<int:tmdb_id>/", views.add_tv_show, name="add_tv_show"),

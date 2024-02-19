@@ -5,7 +5,11 @@ from django.urls import reverse_lazy
 
 from movieclub import tmdb
 from movieclub.releases.models import Release
-from movieclub.releases.tests.factories import create_genre, create_movie
+from movieclub.releases.tests.factories import (
+    create_genre,
+    create_movie,
+    create_tv_show,
+)
 from movieclub.tests.factories import create_batch
 
 
@@ -22,6 +26,23 @@ class TestMovies:
     def test_get_search(self, client):
         movie = create_movie(title="Jaws")
         response = client.get(self.url, {"query": "jaws"})
+        assert response.status_code == http.HTTPStatus.OK
+        assert movie in response.context["page_obj"].object_list
+
+
+class TestTVShows:
+    url = reverse_lazy("releases:tv_shows")
+
+    @pytest.mark.django_db()
+    def test_get(self, client):
+        create_batch(create_movie, 10)
+        response = client.get(self.url)
+        assert response.status_code == http.HTTPStatus.OK
+
+    @pytest.mark.django_db()
+    def test_get_search(self, client):
+        movie = create_tv_show(title="Columbo")
+        response = client.get(self.url, {"query": "columbo"})
         assert response.status_code == http.HTTPStatus.OK
         assert movie in response.context["page_obj"].object_list
 
