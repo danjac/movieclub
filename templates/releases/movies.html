@@ -11,7 +11,7 @@
                         <a class="inline-flex space-x-2 btn btn-primary"
                            href="{{ search_tmdb_url }}">
                             {% heroicon_mini "plus" %}
-                            <span>Add a Movie</span>
+                            <span>Add Movie</span>
                         </a>
                     </li>
                 {% endif %}
@@ -50,7 +50,10 @@
                 </li>
             {% empty %}
                 <li class="py-3">
-                    Sorry, we couldn't find a movie matching your search. You can search <a class="underline link" href="{{ search_tmdb_url }}">the Movie Database</a> and add the movie to our collection!
+                    Sorry, we couldn't find a movie matching your search.
+                    {% if request.user.is_authenticated %}
+                        You can search <a class="underline link" href="{{ search_tmdb_url }}">the Movie Database</a> and add the movie to our collection!
+                    {% endif %}
                 </li>
             {% endfor %}
             {% if has_other_pages %}
