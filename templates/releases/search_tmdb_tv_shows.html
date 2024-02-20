@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load heroicons %}
 {% block content %}
-    <header class="justify-between items-center pb-3 mb-6 space-y-3 border-b sm:flex sm:space-y-0">
+    <header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
         <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
             Add TV Show
         </h1>
@@ -14,7 +14,7 @@
     {% if search_results %}
         <ul class="divide-y divide-solid">
             {% for result in search_results %}
-                <li class="flex justify-between items-center py-2 hover:bg-gray-100 dark:hover:bg-gray-900">
+                <li class="flex justify-between items-center py-2 hover:bg-gray-100 dark:hover:bg-gray-900 first-of-type:pt-0">
                     <div class="font-semibold">
                         {{ result.name }}
                         {% if result.first_air_date %}({{ result.first_air_date|date:"Y" }}){% endif %}

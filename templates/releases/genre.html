@@ -20,28 +20,7 @@
                 <li class="pb-3">{% include "_pagination_links.html" %}</li>
             {% endif %}
             {% for release in page_obj %}
-                <li class="py-3">
-                    <article class="flex items-center space-x-3 cursor-pointer group"
-                             role="link"
-                             hx-get="{{ release.get_absolute_url }}"
-                             hx-push-url="true">
-                        {% cover_image release.poster_url 100 150 title=release.title css_class="w-16 h-20 group-hover:grayscale" %}
-                        <div class="flex flex-col place-content-between h-16">
-                            <h2 class="font-bold tracking-tight leading-tight break-words line-clamp-2"
-                                aria-label="{{ release.title }}"
-                                title="{{ release.title }}">
-                                <a class="group-hover:text-blue-600 link dark:group-hover:text-blue-300"
-                                   aria-label="{{ release.title }}"
-                                   href="{{ release.get_absolute_url }}">{{ release.title }}</a>
-                            </h2>
-                            {% if release.release_date %}
-                                <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm dark:text-gray-300 truncate">
-                                    {{ release.release_date|date:"Y" }}
-                                </h3>
-                            {% endif %}
-                        </div>
-                    </article>
-                </li>
+                <li class="py-3 first-of-type:pt-0">{% include "releases/_release.html" %}</li>
             {% empty %}
                 <li class="py-3">
                     Sorry, we couldn't find a release matching your search. You can search <a class="underline link"

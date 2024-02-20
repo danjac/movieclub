@@ -20,7 +20,7 @@
             {% endif %}
             {% for person in page_obj %}
                 {% url 'credits:cast_member' person_id=person.pk slug=person.slug as cast_member_url %}
-                <li class="py-3">
+                <li class="py-3 first-of-type:pt-0">
                     <article class="flex items-center space-x-3 cursor-pointer group"
                              role="link"
                              hx-get="{{ cast_member_url }}"
