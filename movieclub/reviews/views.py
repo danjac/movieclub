@@ -63,7 +63,7 @@ def edit_review(request: HttpRequest, review_id: int) -> HttpResponse:
             messages.success(request, "Your review has been updated")
             return _render_review(request, review)
     else:
-        form = ReviewForm()
+        form = ReviewForm(instance=review)
 
     return _render_review_form(request, form, {"review": review})
 

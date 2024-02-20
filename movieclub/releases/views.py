@@ -15,12 +15,14 @@ from movieclub.releases.tmdb import populate_movie, populate_tv_show
 @require_safe
 def movies(request: HttpRequest) -> HttpResponse:
     """Returns list of movies."""
-    qs = Release.objects.movies().order_by("-pk")
+    qs = Release.objects.movies()
     search_tmdb_url = reverse("releases:search_tmdb_movies")
 
     if request.search:
-        qs = qs.search(request.search.value)
+        qs = qs.search(request.search.value).order_by("-rank")
         search_tmdb_url += "?" + request.search.qs
+    else:
+        qs = qs.order_by("-release_date")
 
     return render_pagination(
         request,
@@ -35,12 +37,14 @@ def movies(request: HttpRequest) -> HttpResponse:
 @require_safe
 def tv_shows(request: HttpRequest) -> HttpResponse:
     """Returns list of TV shows."""
-    qs = Release.objects.tv_shows().order_by("-pk")
+    qs = Release.objects.tv_shows()
     search_tmdb_url = reverse("releases:search_tmdb_tv_shows")
 
     if request.search:
-        qs = qs.search(request.search.value)
+        qs = qs.search(request.search.value).order_by("-rank")
         search_tmdb_url += "?" + request.search.qs
+    else:
+        qs = qs.order_by("-release_date")
 
     return render_pagination(
         request,

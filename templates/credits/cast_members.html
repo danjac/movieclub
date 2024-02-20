@@ -13,7 +13,6 @@
         </nav>
     </header>
     {% partialdef pagination inline=True %}
-    {% cache 600 cast-members-list request.get_full_path %}
     <ul class="divide-y divide-solid" id="{{ pagination_target }}">
         {% with has_other_pages=page_obj.has_other_pages %}
             {% if has_other_pages %}
@@ -36,7 +35,7 @@
                                    href="{{ cast_member_url }}">{{ person.name }}</a>
                             </h2>
                             <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm dark:text-gray-300 truncate">
-                                {{ person.num_credits }} Movie{{ person.num_credits|pluralize }}
+                                {{ person.num_credits }} Credit{{ person.num_credits|pluralize }}
                             </h3>
                         </div>
                     </article>
@@ -49,6 +48,5 @@
             {% endif %}
         {% endwith %}
     </ul>
-{% endcache %}
 {% endpartialdef pagination %}
 {% endblock content %}
