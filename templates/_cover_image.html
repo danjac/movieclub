@@ -1,8 +1,14 @@
 {# vim: set filetype=htmldjango #}
 {% spaceless %}
     <img class="object-cover border bg-transparent{% if url %} hover:grayscale cursor-pointer{% endif %} {{ css_class }}"
-        title="{{ title }}" alt="{{ title }}" aria-hidden="true" loading="lazy" decoding="async" width="{{ width }}"
-        height="{{ height }}" src="{{ cover_url|default:placeholder }}"
+        title="{{ title }}"
+        alt="{{ title }}"
+        aria-hidden="true"
+        loading="lazy"
+        decoding="async"
+        width="{{ width }}"
+        height="{{ height }}"
+        src="{{ cover_url|default:placeholder }}"
         {% if cover_url %}
             {# djlint:off #}
         x-data="{
