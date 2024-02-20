@@ -9,9 +9,15 @@ from movieclub.releases.models import Genre, Release
 class GenreAdmin(admin.ModelAdmin):
     """Admin for Genre model."""
 
+    ordering: ClassVar = ["name"]
+
 
 @admin.register(Release)
 class ReleaseAdmin(admin.ModelAdmin):
     """Admin for Release model."""
 
+    date_hierarchy = "release_date"
+
     list_filter: ClassVar = ["category"]
+
+    ordering: ClassVar = ["title"]
