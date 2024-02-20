@@ -119,19 +119,11 @@
                         <a href="{% url 'releases:movies' %}" class="{{ MENU_CSS }}">Movies</a>
                     </li>
                     <li>
-                        <a href="" class="{{ MENU_CSS }}">TV Shows</a>
+                        <a href="{% url 'releases:tv_shows' %}" class="{{ MENU_CSS }}">TV Shows</a>
                     </li>
                     <li>
-                        <a href="" class="{{ MENU_CSS }}">Collections</a>
+                        <a href="" class="{{ MENU_CSS }}">List</a>
                     </li>
-                    {% if user.is_authenticated %}
-                        <li>
-                            <a href="" class="{{ MENU_CSS }}">Watchlist</a>
-                        </li>
-                        <li>
-                            <a href="" class="{{ MENU_CSS }}">Reviews</a>
-                        </li>
-                    {% endif %}
                     <li>
                         <a href="" aria-label="" title="" class="{{ MENU_CSS }}">About</a>
                     </li>

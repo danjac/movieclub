@@ -15,6 +15,16 @@ class TestRelease:
         movie = Release(title="John Wick")
         assert str(movie) == "John Wick"
 
+    def test_is_movie(self):
+        movie = Release(category=Release.Category.MOVIE)
+        assert movie.is_movie
+        assert not movie.is_tv_show
+
+    def test_is_tv_show(self):
+        show = Release(category=Release.Category.TV_SHOW)
+        assert show.is_tv_show
+        assert not show.is_movie
+
     @pytest.mark.django_db()
     def test_movies(self):
         create_movie()

@@ -115,17 +115,30 @@ class Release(models.Model):
         return self.title
 
     def get_absolute_url(self) -> str:
-        """Absolute url to movie or TV show detail."""
+        """Absolute URL to movie or TV show detail."""
 
         url_name = (
-            "releases:tv_show_detail"
-            if self.category == self.Category.TV_SHOW
-            else "releases:movie_detail"
+            "releases:tv_show_detail" if self.is_tv_show else "releases:movie_detail"
         )
 
         return reverse(url_name, kwargs={"release_id": self.pk, "slug": self.slug})
+
+    def get_tmdb_url(self) -> str:
+        """Returns URL of TMDB page."""
+        category = "tv" if self.is_tv_show else "movie"
+        return f"https://themoviedb.org/{category}/{self.tmdb_id }/"
 
     @cached_property
     def slug(self) -> str:
         """Return slug of title."""
         return slugify(self.title)
+
+    @cached_property
+    def is_movie(self) -> bool:
+        """If category Movie."""
+        return self.category == self.Category.MOVIE
+
+    @cached_property
+    def is_tv_show(self) -> bool:
+        """If category TV."""
+        return self.category == self.Category.TV_SHOW

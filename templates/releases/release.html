@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load heroicons reviews %}
+{% load static heroicons reviews %}
 {% block content %}
     <h1 class="pb-6 mb-6 text-xl font-bold border-b lg:text-2xl xl:text-3xl">
         {{ release.title }}
@@ -12,6 +12,14 @@
         <div>{% cover_image release.poster_url 200 300 title=release.title %}</div>
         <div class="space-y-3">
             <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ release.overview }}</p>
+            <div>
+                <a class="link"
+                   target="_blank"
+                   rel="noopener"
+                   href="{{ release.get_tmdb_url }}">
+                    <img alt="The Movie Database" title="View on TMDB" src="{% static "img/tmdb.svg" %}" height=30 width=120>
+                </a>
+            </div>
             <div class="flex flex-wrap items-center max-w-prose leading-loose">
                 {% for genre in release.genres.all %}
                     <a class="inline-flex items-center m-2 link first-of-type:ml-0"
