@@ -11,10 +11,14 @@ from movieclub.pagination import render_pagination
 def cast_members(request: HttpRequest) -> HttpResponse:
     """List persons."""
 
-    # tbd: group by release
     persons = Person.objects.annotate(num_credits=Count("cast_members")).filter(
         num_credits__gt=0
     )
+
+    if request.search:
+        persons = persons.search(request.search.value).order_by("-rank")
+    else:
+        persons = persons.order_by("-pk")
 
     return render_pagination(request, persons, "credits/cast_members.html")
 
@@ -23,10 +27,14 @@ def cast_members(request: HttpRequest) -> HttpResponse:
 def crew_members(request: HttpRequest) -> HttpResponse:
     """List persons."""
 
-    # tbd: group by release
     persons = Person.objects.annotate(num_credits=Count("crew_members")).filter(
         num_credits__gt=0
     )
+
+    if request.search:
+        persons = persons.search(request.search.value).order_by("-rank")
+    else:
+        persons = persons.order_by("-pk")
 
     return render_pagination(request, persons, "credits/crew_members.html")
 

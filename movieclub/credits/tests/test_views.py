@@ -12,7 +12,7 @@ from movieclub.credits.tests.factories import (
 
 @pytest.fixture()
 def person():
-    return create_person()
+    return create_person(name="tester")
 
 
 class TestCastMembers:
@@ -20,9 +20,15 @@ class TestCastMembers:
 
     @pytest.mark.django_db()
     def test_get(self, client, person):
-        create_crew_member(person=person)
+        create_cast_member(person=person)
         response = client.get(self.url)
 
+        assert response.status_code == http.HTTPStatus.OK
+
+    @pytest.mark.django_db()
+    def test_search(self, client, person):
+        create_cast_member(person=person)
+        response = client.get(self.url, {"query": "tester"})
         assert response.status_code == http.HTTPStatus.OK
 
 
@@ -34,6 +40,12 @@ class TestCrewMembers:
         create_cast_member(person=person)
         response = client.get(self.url)
 
+        assert response.status_code == http.HTTPStatus.OK
+
+    @pytest.mark.django_db()
+    def test_search(self, client, person):
+        create_crew_member(person=person)
+        response = client.get(self.url, {"query": "tester"})
         assert response.status_code == http.HTTPStatus.OK
 
 
