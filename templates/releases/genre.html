@@ -24,7 +24,7 @@
             {% empty %}
                 <li class="py-3">
                     Sorry, we couldn't find a release matching your search. You can search <a class="underline link"
-    href="{% url 'releases:index' %}?{{ request.search.qs }}">all releases</a> to find what you are looking for.
+    href="{% url 'releases:movies' %}?{{ request.search.qs }}">all releases</a> to find what you are looking for.
                 </li>
             {% endfor %}
             {% if has_other_pages %}
