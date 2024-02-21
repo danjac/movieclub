@@ -18,7 +18,10 @@ class Collection(TimeStampedModel):
         related_name="collections",
     )
 
-    releases = models.ManyToManyField("releases.Release", through="CollectionItem")
+    releases = models.ManyToManyField(
+        "releases.Release",
+        through="CollectionItem",
+    )
 
 
 class CollectionItem(TimeStampedModel):

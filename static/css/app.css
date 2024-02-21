@@ -32,12 +32,16 @@
 
     .form-control:not(.is-checkbox) {
         input,
+        select,
         textarea {
             background-color: inherit;
             color: inherit;
             font-size: inherit;
-            padding: theme("spacing.1");
             border-radius: 0.25rem;
+        }
+        input,
+        textarea {
+            padding: theme("spacing.1");
         }
     }
 
