@@ -13,20 +13,20 @@ from movieclub.releases.tmdb import populate_movie, populate_tv_show
 
 
 @require_safe
-def movies(request: HttpRequest) -> HttpResponse:
+def movie_list(request: HttpRequest) -> HttpResponse:
     """Returns list of movies."""
-    qs = Release.objects.movies()
+    movies = Release.objects.movies()
     search_tmdb_url = reverse("releases:search_tmdb_movies")
 
     if request.search:
-        qs = qs.search(request.search.value).order_by("-rank")
-        search_tmdb_url += "?" + request.search.qs
+        movies = movies.search(request.search.value).order_by("-rank")
+        search_tmdb_url += "?" + request.search.movies
     else:
-        qs = qs.order_by("-release_date")
+        movies = movies.order_by("-release_date")
 
     return render_pagination(
         request,
-        qs,
+        movies,
         "releases/movies.html",
         {
             "search_tmdb_url": search_tmdb_url,
@@ -35,24 +35,45 @@ def movies(request: HttpRequest) -> HttpResponse:
 
 
 @require_safe
-def tv_shows(request: HttpRequest) -> HttpResponse:
+def movie_detail(request: HttpRequest, release_id: int, slug: str) -> HttpResponse:
+    """Render TV show details."""
+    return _render_release_detail(
+        request,
+        get_object_or_404(Release.objects.movies(), pk=release_id),
+    )
+
+
+@require_safe
+def tv_show_list(request: HttpRequest) -> HttpResponse:
     """Returns list of TV shows."""
-    qs = Release.objects.tv_shows()
+    tv_shows = Release.objects.tv_shows()
     search_tmdb_url = reverse("releases:search_tmdb_tv_shows")
 
     if request.search:
-        qs = qs.search(request.search.value).order_by("-rank")
-        search_tmdb_url += "?" + request.search.qs
+        tv_shows = tv_shows.search(request.search.value).order_by("-rank")
+        search_tmdb_url += "?" + request.search.tv_shows
     else:
-        qs = qs.order_by("-release_date")
+        tv_shows = tv_shows.order_by("-release_date")
 
     return render_pagination(
         request,
-        qs,
+        tv_shows,
         "releases/tv_shows.html",
         {
             "search_tmdb_url": search_tmdb_url,
         },
+    )
+
+
+@require_safe
+def tv_show_detail(request: HttpRequest, release_id: int, slug: str) -> HttpResponse:
+    """Render TV show details."""
+    return _render_release_detail(
+        request,
+        get_object_or_404(
+            Release.objects.tv_shows(),
+            pk=release_id,
+        ),
     )
 
 
@@ -72,29 +93,6 @@ def genre_detail(request: HttpRequest, genre_id: int, slug: str) -> HttpResponse
         "releases/genre.html",
         {
             "genre": genre,
-        },
-    )
-
-
-@require_safe
-def release_detail(
-    request: HttpRequest,
-    category: Release.Category,
-    release_id: int,
-    slug: str,
-) -> HttpResponse:
-    """Returns details of movie."""
-    release = get_object_or_404(Release, category=category, pk=release_id)
-
-    return render(
-        request,
-        "releases/release.html",
-        {
-            "release": release,
-            "cast_members": release.cast_members.select_related("person").order_by(
-                "order"
-            ),
-            "crew_members": release.crew_members.select_related("person"),
         },
     )
 
@@ -165,5 +163,19 @@ def search_tmdb_tv_shows(request: HttpRequest, limit: int = 12) -> HttpResponse:
         "releases/search_tmdb_tv_shows.html",
         {
             "search_results": results[:limit],
+        },
+    )
+
+
+def _render_release_detail(request: HttpRequest, release: Release) -> HttpResponse:
+    return render(
+        request,
+        "releases/release.html",
+        {
+            "release": release,
+            "cast_members": release.cast_members.select_related("person").order_by(
+                "order"
+            ),
+            "crew_members": release.crew_members.select_related("person"),
         },
     )

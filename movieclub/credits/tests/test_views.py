@@ -15,8 +15,8 @@ def person():
     return create_person(name="tester")
 
 
-class TestCastMembers:
-    url = reverse_lazy("credits:cast_members")
+class TestCastList:
+    url = reverse_lazy("credits:cast_list")
 
     @pytest.mark.django_db()
     def test_get(self, client, person):
@@ -32,8 +32,8 @@ class TestCastMembers:
         assert response.status_code == http.HTTPStatus.OK
 
 
-class TestCrewMembers:
-    url = reverse_lazy("credits:crew_members")
+class TestCrewList:
+    url = reverse_lazy("credits:crew_list")
 
     @pytest.mark.django_db()
     def test_get(self, client, person):
@@ -49,13 +49,13 @@ class TestCrewMembers:
         assert response.status_code == http.HTTPStatus.OK
 
 
-class TestCrewMember:
+class TestCrewDetail:
     @pytest.mark.django_db()
     def test_get(self, client, person):
         create_crew_member(person=person)
         response = client.get(
             reverse(
-                "credits:crew_member",
+                "credits:crew_detail",
                 kwargs={
                     "person_id": person.pk,
                     "slug": person.slug,
@@ -65,13 +65,13 @@ class TestCrewMember:
         assert response.status_code == http.HTTPStatus.OK
 
 
-class TestCastMember:
+class TestCastDetail:
     @pytest.mark.django_db()
     def test_get(self, client, person):
         create_cast_member(person=person)
         response = client.get(
             reverse(
-                "credits:cast_member",
+                "credits:cast_detail",
                 kwargs={
                     "person_id": person.pk,
                     "slug": person.slug,

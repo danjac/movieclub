@@ -13,8 +13,8 @@ from movieclub.releases.tests.factories import (
 from movieclub.tests.factories import create_batch
 
 
-class TestMovies:
-    url = reverse_lazy("releases:movies")
+class TestMovieList:
+    url = reverse_lazy("releases:movie_list")
 
     @pytest.mark.django_db()
     def test_get(self, client):
@@ -30,8 +30,8 @@ class TestMovies:
         assert movie in response.context["page_obj"].object_list
 
 
-class TestTVShows:
-    url = reverse_lazy("releases:tv_shows")
+class TestTVShowList:
+    url = reverse_lazy("releases:tv_show_list")
 
     @pytest.mark.django_db()
     def test_get(self, client):
@@ -68,7 +68,7 @@ class TestGenreDetail:
         assert movie in response.context["page_obj"].object_list
 
 
-class TestDetail:
+class TestMovieDetail:
     @pytest.mark.django_db()
     def test_get(self, client):
         movie = create_movie()
@@ -79,6 +79,20 @@ class TestDetail:
     def test_get_for_user(self, client, auth_user):
         movie = create_movie()
         response = client.get(movie.get_absolute_url())
+        assert response.status_code == http.HTTPStatus.OK
+
+
+class TestTVShowDetail:
+    @pytest.mark.django_db()
+    def test_get(self, client):
+        movie = create_movie()
+        response = client.get(movie.get_absolute_url())
+        assert response.status_code == http.HTTPStatus.OK
+
+    @pytest.mark.django_db()
+    def test_get_for_user(self, client, auth_user):
+        tv_show = create_tv_show()
+        response = client.get(tv_show.get_absolute_url())
         assert response.status_code == http.HTTPStatus.OK
 
 

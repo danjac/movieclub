@@ -8,7 +8,7 @@ from movieclub.pagination import render_pagination
 
 
 @require_safe
-def cast_members(request: HttpRequest) -> HttpResponse:
+def cast_list(request: HttpRequest) -> HttpResponse:
     """List persons."""
 
     persons = Person.objects.annotate(num_credits=Count("cast_members")).filter(
@@ -24,7 +24,7 @@ def cast_members(request: HttpRequest) -> HttpResponse:
 
 
 @require_safe
-def crew_members(request: HttpRequest) -> HttpResponse:
+def crew_list(request: HttpRequest) -> HttpResponse:
     """List persons."""
 
     persons = Person.objects.annotate(num_credits=Count("crew_members")).filter(
@@ -40,7 +40,7 @@ def crew_members(request: HttpRequest) -> HttpResponse:
 
 
 @require_safe
-def cast_member(request: HttpRequest, person_id: int, slug: str) -> HttpResponse:
+def cast_detail(request: HttpRequest, person_id: int, slug: str) -> HttpResponse:
     """Render details of a person.
     We probably want 2 views here, for movie cast roles and crew jobs.
     """
@@ -64,7 +64,7 @@ def cast_member(request: HttpRequest, person_id: int, slug: str) -> HttpResponse
 
 
 @require_safe
-def crew_member(request: HttpRequest, person_id: int, slug: str) -> HttpResponse:
+def crew_detail(request: HttpRequest, person_id: int, slug: str) -> HttpResponse:
     """Render details of a person.
     We probably want 2 views here, for movie cast roles and crew jobs.
     """

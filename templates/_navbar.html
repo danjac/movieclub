@@ -8,7 +8,7 @@
         {% with site_name=request.site.name %}
             <div class="flex flex-shrink-0 items-center">
                 <a class="inline-flex items-center text-lg font-bold md:text-xl xl:text-2xl"
-                   href="{% url 'releases:movies' %}"
+                   href="{% url 'releases:movie_list' %}"
                    title="{{ site_name }}: Home Page">
                     {% comment %}
                     <img src="{% static 'img/wave-white.png' %}" height="100" width="100" alt="{{ site_name }}" class="mr-3 w-6 h-6 lg:w-8 lg:h-8" title="{{ site_name }}" aria-hidden="true">
@@ -19,17 +19,17 @@
         {% endwith %}
         <ul class="hidden items-center space-x-6 lg:flex">
             <li>
-                <a href="{% url 'releases:movies' %}"
+                <a href="{% url 'releases:movie_list' %}"
                    class="flex items-center font-bold">Movies</a>
             </li>
             <li>
-                <a href="{% url 'releases:tv_shows' %}"
+                <a href="{% url 'releases:tv_show_list' %}"
                    aria-label=""
                    title=""
                    class="flex items-center font-bold">TV Shows</a>
             </li>
             <li>
-                <a href="{% url 'credits:cast_members' %}"
+                <a href="{% url 'credits:cast_list' %}"
                    aria-label=""
                    title=""
                    class="flex items-center font-bold">Credits</a>
@@ -116,10 +116,10 @@
             <nav class="pl-3 text-base md:text-lg">
                 <ul class="space-y-3">
                     <li>
-                        <a href="{% url 'releases:movies' %}" class="{{ MENU_CSS }}">Movies</a>
+                        <a href="{% url 'releases:movie_list' %}" class="{{ MENU_CSS }}">Movies</a>
                     </li>
                     <li>
-                        <a href="{% url 'releases:tv_shows' %}" class="{{ MENU_CSS }}">TV Shows</a>
+                        <a href="{% url 'releases:tv_show_list' %}" class="{{ MENU_CSS }}">TV Shows</a>
                     </li>
                     <li>
                         <a href="" class="{{ MENU_CSS }}">List</a>

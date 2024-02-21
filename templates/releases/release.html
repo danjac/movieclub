@@ -41,7 +41,7 @@
                 {% for group in groups %}
                     {% with person=group.grouper %}
                         <li class="py-3">
-                            {% url 'credits:cast_member' person_id=person.pk slug=person.slug as cast_member_url %}
+                            {% url 'credits:cast_detail' person_id=person.pk slug=person.slug as cast_member_url %}
                             <article class="flex items-center space-x-3 cursor-pointer group"
                                      role="link"
                                      hx-get="{{ cast_member_url }}"
@@ -77,7 +77,7 @@
                 {% for group in groups %}
                     {% with person=group.grouper %}
                         <li class="py-3">
-                            {% url 'credits:crew_member' person_id=person.pk slug=person.slug as crew_member_url %}
+                            {% url 'credits:crew_detail' person_id=person.pk slug=person.slug as crew_member_url %}
                             <article class="flex items-center space-x-3 cursor-pointer group"
                                      role="link"
                                      hx-get="{{ crew_member_url }}"
