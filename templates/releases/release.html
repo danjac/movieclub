@@ -10,7 +10,7 @@
     </h1>
     <div class="mb-6 space-y-3 sm:flex sm:space-y-0 sm:space-x-6">
         <div>{% cover_image release.poster_url 200 300 title=release.title %}</div>
-        <div class="flex flex-col place-content-between py-3">
+        <div class="space-y-6 sm:py-3">
             <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ release.overview }}</p>
             <div class="flex flex-wrap items-center max-w-prose leading-loose">
                 {% for genre in release.genres.all %}
@@ -23,45 +23,43 @@
                     </a>
                 {% endfor %}
             </div>
-            <div class="flex items-center space-x-6">
-                <nav x-data="{showDropdown: false}" class="relative">
-                    <button id="collections-dropdown-btn"
-                            tabindex="0"
-                            @click="showDropdown = !showDropdown"
-                            @click.outside="showDropdown=false"
-                            @keyup.escape.window="showDropdown=false"
-                            class="flex items-center py-1 px-2 rounded-lg border sm:justify-end focus:ring focus:outline-none link md:hover:bg-transparent">
-                        Add to Collection...
-                        {% heroicon_mini "chevron-down" class="ml-3" %}
-                    </button>
-                    <div class="absolute z-20 my-2 w-56 bg-white rounded shadow dark:bg-gray-900 dark:border"
-                         x-cloak
-                         x-show="showDropdown"
-                         x-transition.scape.origin.top>
-                        <ul class="py-1 list-none" aria-labelledby="collections-dropdown-btn">
-                            <li>
-                                <label class="flex items-center p-2 space-x-3 cursor-pointer hover:dark:bg-gray-800">
-                                    <input type="checkbox" class="bg-inherit">
-                                    <span>70s Disaster Movies</span>
-                                </label>
-                            </li>
-                            <li>
-                                <label class="flex items-center p-2 space-x-3 cursor-pointer hover:dark:bg-gray-800">
-                                    <input type="checkbox" class="bg-inherit">
-                                    <span>B-Movie Scifi</span>
-                                </label>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
-                <div>
-                    <a class="link"
-                       target="_blank"
-                       rel="noopener"
-                       href="{{ release.get_tmdb_url }}">
-                        <img alt="The Movie Database" title="View on TMDB" src="{% static "img/tmdb.svg" %}" height=30 width=120>
-                    </a>
+            <nav x-data="{showDropdown: false}" class="relative">
+                <button id="collections-dropdown-btn"
+                        tabindex="0"
+                        @click="showDropdown = !showDropdown"
+                        @click.outside="showDropdown=false"
+                        @keyup.escape.window="showDropdown=false"
+                        class="flex items-center py-1 px-2 rounded-lg border sm:justify-end focus:ring focus:outline-none link md:hover:bg-transparent">
+                    Add to Collection...
+                    {% heroicon_mini "chevron-down" class="ml-3" %}
+                </button>
+                <div class="absolute z-20 my-2 w-56 bg-white rounded shadow dark:bg-gray-900 dark:border"
+                     x-cloak
+                     x-show="showDropdown"
+                     x-transition.scape.origin.top>
+                    <ul class="py-1 list-none" aria-labelledby="collections-dropdown-btn">
+                        <li>
+                            <label class="flex items-center p-2 space-x-3 cursor-pointer hover:dark:bg-gray-800">
+                                <input type="checkbox" class="bg-inherit">
+                                <span>70s Disaster Movies</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="flex items-center p-2 space-x-3 cursor-pointer hover:dark:bg-gray-800">
+                                <input type="checkbox" class="bg-inherit">
+                                <span>B-Movie Scifi</span>
+                            </label>
+                        </li>
+                    </ul>
                 </div>
+            </nav>
+            <div>
+                <a class="link"
+                   target="_blank"
+                   rel="noopener"
+                   href="{{ release.get_tmdb_url }}">
+                    <img alt="The Movie Database" title="View on TMDB" src="{% static "img/tmdb.svg" %}" height=30 width=120>
+                </a>
             </div>
         </div>
     </div>
