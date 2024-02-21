@@ -20,7 +20,7 @@ def movie_list(request: HttpRequest) -> HttpResponse:
 
     if request.search:
         movies = movies.search(request.search.value).order_by("-rank")
-        search_tmdb_url += "?" + request.search.movies
+        search_tmdb_url += "?" + request.search.qs
     else:
         movies = movies.order_by("-release_date")
 
@@ -51,7 +51,7 @@ def tv_show_list(request: HttpRequest) -> HttpResponse:
 
     if request.search:
         tv_shows = tv_shows.search(request.search.value).order_by("-rank")
-        search_tmdb_url += "?" + request.search.tv_shows
+        search_tmdb_url += "?" + request.search.qs
     else:
         tv_shows = tv_shows.order_by("-release_date")
 
