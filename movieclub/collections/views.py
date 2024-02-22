@@ -4,11 +4,14 @@ from django.contrib import messages
 from django.db import IntegrityError
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils.html import format_html
 from django.views.decorators.http import require_POST, require_safe
 
 from movieclub.collections.forms import CollectionForm
 from movieclub.collections.models import Collection, CollectionItem
 from movieclub.decorators import require_auth, require_DELETE, require_form_methods
+from movieclub.htmx import render_htmx
 from movieclub.pagination import render_pagination
 from movieclub.releases.models import Release
 
@@ -56,7 +59,13 @@ def add_collection(request: HttpRequest) -> HttpResponse:
     else:
         form = CollectionForm()
 
-    return render(request, "collections/form.html", {"form": form})
+    return render_htmx(
+        request,
+        "collections/form.html",
+        {"form": form},
+        partial=form,
+        target="collection-form",
+    )
 
 
 @require_form_methods
@@ -96,7 +105,15 @@ def add_release_to_collection(
     with contextlib.suppress(IntegrityError):
         CollectionItem.objects.create(collection=collection, release=release)
 
-    return HttpResponse()
+    return HttpResponse(
+        format_html(
+            '<input type="checkbox" hx-delete="{remove_url}" hx-swap="outerHTML" hx-target="this">',
+            remove_url=reverse(
+                "collections:remove_release_from_collection",
+                args=[collection_id, release_id],
+            ),
+        )
+    )
 
 
 @require_DELETE
@@ -111,4 +128,12 @@ def remove_release_from_collection(
         release_id=release_id,
     ).delete()
 
-    return HttpResponse()
+    return HttpResponse(
+        format_html(
+            '<input type="checkbox" hx-post="{add_url}" hx-swap="outerHTML" hx-target="this">',
+            add_url=reverse(
+                "collections:add_release_to_collection",
+                args=[collection_id, release_id],
+            ),
+        )
+    )

@@ -29,14 +29,18 @@
 
 @layer components {
     /* FORMS */
+    input,
+    select,
+    textarea {
+        background-color: inherit;
+        color: inherit;
+        font-size: inherit;
+    }
 
     .form-control:not(.is-checkbox) {
         input,
         select,
         textarea {
-            background-color: inherit;
-            color: inherit;
-            font-size: inherit;
             border-radius: 0.25rem;
         }
         input,

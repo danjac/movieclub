@@ -7,14 +7,24 @@ app_name = "collections"
 urlpatterns = [
     path("", views.collection_list, name="collection_list"),
     path("add/", views.add_collection, name="add_collection"),
-    path("<int:collection_id>/edit/", name="collection_edit"),
+    path(
+        "<int:collection_id>/edit/",
+        views.edit_collection,
+        name="edit_collection",
+    ),
     path(
         "<int:collection_id>/add/<int:release_id>/",
-        name="add_resource_to_collection",
+        views.add_release_to_collection,
+        name="add_release_to_collection",
     ),
     path(
         "<int:collection_id>/remove/<int:release_id>/",
-        name="remove_resource_from_collection",
+        views.remove_release_from_collection,
+        name="remove_release_from_collection",
     ),
-    path("<int:collection_id>-<slug:slug>/", name="collection_detail"),
+    path(
+        "<int:collection_id>-<slug:slug>/",
+        views.collection_detail,
+        name="collection_detail",
+    ),
 ]

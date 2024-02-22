@@ -4,6 +4,8 @@ from typing import ClassVar
 
 from django.conf import settings
 from django.db import models
+from django.urls import reverse
+from django.utils.text import slugify
 from model_utils.models import TimeStampedModel
 
 
@@ -19,6 +21,16 @@ class Collection(TimeStampedModel):
         on_delete=models.SET_NULL,
         related_name="collections",
     )
+
+    def get_absolute_url(self) -> str:
+        """Return link to detail page."""
+        return reverse(
+            "collections:collection_detail",
+            kwargs={
+                "collection_id": self.pk,
+                "slug": slugify(self.name),
+            },
+        )
 
 
 class CollectionItem(TimeStampedModel):
