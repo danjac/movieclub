@@ -107,7 +107,7 @@ def add_release_to_collection(
 
     return HttpResponse(
         format_html(
-            '<input type="checkbox" hx-delete="{remove_url}" hx-swap="outerHTML" hx-target="this">',
+            '<input type="checkbox" checked class="bg-inherit" hx-delete="{remove_url}" hx-swap="outerHTML" hx-target="this">',
             remove_url=reverse(
                 "collections:remove_release_from_collection",
                 args=[collection_id, release_id],
@@ -130,7 +130,7 @@ def remove_release_from_collection(
 
     return HttpResponse(
         format_html(
-            '<input type="checkbox" hx-post="{add_url}" hx-swap="outerHTML" hx-target="this">',
+            '<input type="checkbox" class="bg-inherit" hx-post="{add_url}" hx-swap="outerHTML" hx-target="this">',
             add_url=reverse(
                 "collections:add_release_to_collection",
                 args=[collection_id, release_id],
