@@ -10,7 +10,7 @@
     </h1>
     <div class="mb-6 space-y-3 sm:flex sm:space-y-0 sm:space-x-6">
         <div>{% cover_image release.poster_url 200 300 title=release.title %}</div>
-        <div class="space-y-6 sm:py-3">
+        <div class="space-y-6">
             <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ release.overview }}</p>
             <div class="flex flex-wrap items-center max-w-prose leading-loose">
                 {% for genre in release.genres.all %}
@@ -23,7 +23,7 @@
                     </a>
                 {% endfor %}
             </div>
-            {% collection_dropdown release %}
+            {% collection_selector release %}
             <div>
                 <a class="link"
                    target="_blank"

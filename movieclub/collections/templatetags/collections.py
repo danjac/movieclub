@@ -9,7 +9,7 @@ register = template.Library()
 
 
 @register.inclusion_tag("collections/_dropdown.html", takes_context=True)
-def collection_dropdown(context: RequestContext, release: Release) -> dict:
+def collection_selector(context: RequestContext, release: Release) -> dict:
     """Collection selector component."""
     if context.request.user.is_authenticated:
         collections = context.request.user.collections.annotate(
