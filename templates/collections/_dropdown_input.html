@@ -1,0 +1,9 @@
+{# vim: set filetype=htmldjango #}
+<input type="checkbox"
+       class="bg-inherit"
+       autocomplete="off"
+       {% if is_added %} checked hx-delete="{% url 'collections:remove_release_from_collection' collection.pk release.pk %}" {% else %} hx-post="{% url 'collections:add_release_to_collection' collection.pk release.pk %}" {% endif %}
+       hx-swap="outerHTML"
+       hx-indicator="this"
+       hx-target="this"
+       hx-trigger="click">

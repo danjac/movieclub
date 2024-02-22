@@ -20,5 +20,5 @@ def collection_dropdown(context: RequestContext, release: Release) -> dict:
             )
         ).order_by("name")
 
-        return {"collections": collections}
+        return {"collections": collections, "release": release}
     return {}

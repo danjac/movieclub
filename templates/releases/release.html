@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static heroicons reviews %}
+{% load static heroicons reviews collections %}
 {% block content %}
     <h1 class="pb-6 mb-6 text-xl font-bold border-b lg:text-2xl xl:text-3xl">
         {{ release.title }}
@@ -23,6 +23,7 @@
                     </a>
                 {% endfor %}
             </div>
+            {% collection_dropdown release %}
             <div>
                 <a class="link"
                    target="_blank"

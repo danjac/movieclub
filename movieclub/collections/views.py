@@ -4,8 +4,6 @@ from django.contrib import messages
 from django.db import IntegrityError
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
-from django.utils.html import format_html
 from django.views.decorators.http import require_POST, require_safe
 
 from movieclub.collections.forms import CollectionForm
@@ -105,14 +103,14 @@ def add_release_to_collection(
     with contextlib.suppress(IntegrityError):
         CollectionItem.objects.create(collection=collection, release=release)
 
-    return HttpResponse(
-        format_html(
-            '<input type="checkbox" checked class="bg-inherit" hx-delete="{remove_url}" hx-swap="outerHTML" hx-target="this">',
-            remove_url=reverse(
-                "collections:remove_release_from_collection",
-                args=[collection_id, release_id],
-            ),
-        )
+    return render(
+        request,
+        "collections/_dropdown_input.html",
+        {
+            "collection": collection,
+            "release": release,
+            "is_added": True,
+        },
     )
 
 
@@ -122,18 +120,18 @@ def remove_release_from_collection(
     request: HttpRequest, collection_id: int, release_id: int
 ) -> HttpResponse:
     """Add a release."""
-    CollectionItem.objects.filter(
-        collection__user=request.user,
-        collection_id=collection_id,
-        release_id=release_id,
-    ).delete()
 
-    return HttpResponse(
-        format_html(
-            '<input type="checkbox" class="bg-inherit" hx-post="{add_url}" hx-swap="outerHTML" hx-target="this">',
-            add_url=reverse(
-                "collections:add_release_to_collection",
-                args=[collection_id, release_id],
-            ),
-        )
+    collection = get_object_or_404(Collection, user=request.user, pk=collection_id)
+    release = get_object_or_404(Release, pk=release_id)
+
+    CollectionItem.objects.filter(collection=collection, release=release).delete()
+
+    return render(
+        request,
+        "collections/_dropdown_input.html",
+        {
+            "collection": collection,
+            "release": release,
+            "is_added": False,
+        },
     )
