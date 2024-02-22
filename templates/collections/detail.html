@@ -7,6 +7,9 @@
         </h1>
         <nav>
             <ul class="items-center space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
+                <li>
+                    by <a href="" class="link">{{ collection.user.username }}</a>
+                </li>
                 {% if request.user == collection.user %}
                     <li class="flex justify-center items-center sm:justify-start">
                         <a class="inline-flex space-x-2 btn btn-primary"

@@ -6,7 +6,11 @@ from movieclub.tests.factories import NotSet, resolve
 _faker = faker.Faker()
 
 
-def create_movie(tmdb_id: int = NotSet, title: str = NotSet, **kwargs) -> Release:
+def create_movie(
+    tmdb_id: int = NotSet,
+    title: str = NotSet,
+    **kwargs,
+) -> Release:
     return Release.objects.create(
         tmdb_id=resolve(tmdb_id, _faker.unique.numerify),
         category=Release.Category.MOVIE,

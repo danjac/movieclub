@@ -22,6 +22,10 @@ class Collection(TimeStampedModel):
         related_name="collections",
     )
 
+    def __str__(self) -> str:
+        """Returns name."""
+        return self.name
+
     def get_absolute_url(self) -> str:
         """Return link to detail page."""
         return reverse(
