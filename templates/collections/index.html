@@ -32,6 +32,7 @@
                              role="link"
                              hx-get="{{ collection.get_absolute_url }}"
                              hx-push-url="true">
+                        {% cover_image collection.poster_url 100 150 title=collection.name css_class="w-16 h-20 group-hover:grayscale" %}
                         <div class="flex flex-col place-content-between h-16">
                             <h2 class="font-bold tracking-tight leading-tight break-words line-clamp-2"
                                 aria-label="{{ collection.name }}"

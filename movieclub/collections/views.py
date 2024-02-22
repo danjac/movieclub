@@ -2,6 +2,7 @@ import contextlib
 
 from django.contrib import messages
 from django.db import IntegrityError
+from django.db.models import OuterRef
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST, require_safe
@@ -19,7 +20,13 @@ def collection_list(request: HttpRequest) -> HttpResponse:
     """Index list of collections."""
     return render_pagination(
         request,
-        Collection.objects.order_by("-created").select_related("user"),
+        Collection.objects.annotate(
+            poster_url=CollectionItem.objects.filter(collection=OuterRef("pk"))
+            .order_by("-created")
+            .values("release__poster_url")[:1]
+        )
+        .order_by("-created")
+        .select_related("user"),
         "collections/index.html",
     )
 
