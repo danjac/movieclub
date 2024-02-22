@@ -1,5 +1,4 @@
 from django.contrib import messages
-from django.db.models import Exists, OuterRef
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -7,7 +6,6 @@ from django.views.decorators.http import require_POST, require_safe
 
 from movieclub import tmdb
 from movieclub.client import get_client
-from movieclub.collections.models import CollectionItem
 from movieclub.decorators import require_auth
 from movieclub.pagination import render_pagination
 from movieclub.releases.models import Genre, Release
@@ -175,13 +173,4 @@ def _render_release_detail(request: HttpRequest, release: Release) -> HttpRespon
         "cast_members": release.cast_members.select_related("person").order_by("order"),
         "crew_members": release.crew_members.select_related("person"),
     }
-    if request.user.is_authenticated:
-        context["collections"] = request.user.collections.annotate(
-            is_added=Exists(
-                CollectionItem.objects.filter(
-                    collection=OuterRef("pk"), release=release
-                )
-            )
-        ).order_by("name")
-
     return render(request, "releases/release.html", context)
