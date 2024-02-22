@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import ClassVar
+
 from django.conf import settings
 from django.db import models
 from model_utils.models import TimeStampedModel
@@ -18,11 +20,6 @@ class Collection(TimeStampedModel):
         related_name="collections",
     )
 
-    releases = models.ManyToManyField(
-        "releases.Release",
-        through="CollectionItem",
-    )
-
 
 class CollectionItem(TimeStampedModel):
     """Item in Collection."""
@@ -30,8 +27,19 @@ class CollectionItem(TimeStampedModel):
     collection = models.ForeignKey(
         Collection,
         on_delete=models.CASCADE,
+        related_name="collection_items",
     )
+
     release = models.ForeignKey(
         "releases.Release",
         on_delete=models.CASCADE,
+        related_name="collection_items",
     )
+
+    class Meta:
+        constraints: ClassVar = [
+            models.UniqueConstraint(
+                fields=["collection", "release"],
+                name="%(app_label)s_%(class)s_unique_collection_item",
+            )
+        ]

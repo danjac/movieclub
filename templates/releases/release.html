@@ -23,120 +23,121 @@
                     </a>
                 {% endfor %}
             </div>
-            <nav x-data="{showDropdown: false}" class="relative">
-                <button id="collections-dropdown-btn"
-                        tabindex="0"
-                        @click="showDropdown = !showDropdown"
-                        @click.outside="showDropdown=false"
-                        @keyup.escape.window="showDropdown=false"
-                        class="flex items-center py-1 px-2 rounded-lg border sm:justify-end focus:ring focus:outline-none link md:hover:bg-transparent">
-                    Add to Collection...
-                    {% heroicon_mini "chevron-down" class="ml-3" %}
-                </button>
-                <div class="absolute z-20 my-2 w-56 bg-white rounded shadow dark:bg-gray-900 dark:border"
-                     x-cloak
-                     x-show="showDropdown"
-                     x-transition.scape.origin.top>
-                    <ul class="py-1 list-none" aria-labelledby="collections-dropdown-btn">
-                        <li>
-                            <label class="flex items-center p-2 space-x-3 cursor-pointer hover:dark:bg-gray-800">
-                                <input type="checkbox" class="bg-inherit">
-                                <span>70s Disaster Movies</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="flex items-center p-2 space-x-3 cursor-pointer hover:dark:bg-gray-800">
-                                <input type="checkbox" class="bg-inherit">
-                                <span>B-Movie Scifi</span>
-                            </label>
-                        </li>
-                    </ul>
+            {% if collections %}
+                <nav x-data="{showDropdown: false}" class="relative">
+                    <button id="collections-dropdown-btn"
+                            tabindex="0"
+                            @click="showDropdown = !showDropdown"
+                            @click.outside="showDropdown=false"
+                            @keyup.escape.window="showDropdown=false"
+                            class="flex items-center py-1 px-2 rounded-lg border sm:justify-end focus:ring focus:outline-none link md:hover:bg-transparent">
+                        Add to Collection...
+                        {% heroicon_mini "chevron-down" class="ml-3" %}
+                    </button>
+                    <div class="absolute z-20 my-2 w-56 bg-white rounded shadow dark:bg-gray-900 dark:border"
+                         x-cloak
+                         x-show="showDropdown"
+                         x-transition.scape.origin.top>
+                        <ul class="py-1 list-none" aria-labelledby="collections-dropdown-btn">
+                            {% for collection in collections %}
+                                <li>
+                                    <label class="flex items-center p-2 space-x-3 cursor-pointer hover:dark:bg-gray-800">
+                                        <input type="checkbox"
+                                               class="bg-inherit"
+                                               {% if collection.is_added %} hx-delete="/remove/" {% else %} hx-post="/add/" {% endif %}
+                                               hx-swap="none"
+                                               hx-trigger="changed">
+                                        <span>{{ collection.name }}</span>
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
+                {% endif %}
+                <div>
+                    <a class="link"
+                       target="_blank"
+                       rel="noopener"
+                       href="{{ release.get_tmdb_url }}">
+                        <img alt="The Movie Database" title="View on TMDB" src="{% static "img/tmdb.svg" %}" height=30 width=120>
+                    </a>
                 </div>
-            </nav>
-            <div>
-                <a class="link"
-                   target="_blank"
-                   rel="noopener"
-                   href="{{ release.get_tmdb_url }}">
-                    <img alt="The Movie Database" title="View on TMDB" src="{% static "img/tmdb.svg" %}" height=30 width=120>
-                </a>
             </div>
         </div>
-    </div>
-    {% if cast_members %}
-        <details class="mb-6">
-            <summary class="mb-3 text-lg font-bold cursor-pointer lg:text-xl xl:text-2xl link">Cast</summary>
-            <ul class="border-t divide-y divide">
-                {% regroup cast_members by person as groups %}
-                {% for group in groups %}
-                    {% with person=group.grouper %}
-                        <li class="py-3">
-                            {% url 'credits:cast_detail' person_id=person.pk slug=person.slug as cast_member_url %}
-                            <article class="flex items-center space-x-3 cursor-pointer group"
-                                     role="link"
-                                     hx-get="{{ cast_member_url }}"
-                                     hx-push-url="true">
-                                {% cover_image person.profile_url 100 150 title=person.name css_class="w-16 h-20 group-hover:grayscale" %}
-                                <div class="flex flex-col place-content-between h-16">
-                                    <h2 class="font-bold tracking-tight leading-tight break-words line-clamp-2"
-                                        aria-label="{{ person.name }}"
-                                        title="{{ person.name }}">
-                                        <a class="group-hover:text-blue-600 link dark:group-hover:text-blue-300"
-                                           aria-label="{{ release.title }}"
-                                           href="{{ cast_member_url }}">{{ person.name }}</a>
-                                    </h2>
-                                    <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm dark:text-gray-300 truncate">
-                                        {% for credit in group.list %}
-                                            {{ credit.character }}
-                                            {% if not forloop.last %}/{% endif %}
-                                        {% endfor %}
-                                    </h3>
-                                </div>
-                            </article>
-                        </li>
-                    {% endwith %}
-                {% endfor %}
-            </ul>
-        </details>
-    {% endif %}
-    {% if crew_members %}
-        <details class="mb-6">
-            <summary class="mb-3 text-lg font-bold cursor-pointer lg:text-xl xl:text-2xl link">Crew</summary>
-            <ul class="border-t divide-y divide">
-                {% regroup crew_members by person as groups %}
-                {% for group in groups %}
-                    {% with person=group.grouper %}
-                        <li class="py-3">
-                            {% url 'credits:crew_detail' person_id=person.pk slug=person.slug as crew_member_url %}
-                            <article class="flex items-center space-x-3 cursor-pointer group"
-                                     role="link"
-                                     hx-get="{{ crew_member_url }}"
-                                     hx-push-url="true">
-                                {% cover_image person.profile_url 100 150 title=person.name css_class="w-16 h-20 group-hover:grayscale" %}
-                                <div class="flex flex-col place-content-between h-16">
-                                    <h2 class="font-bold tracking-tight leading-tight break-words line-clamp-2"
-                                        aria-label="{{ person.name }}"
-                                        title="{{ person.name }}">
-                                        <a class="group-hover:text-blue-600 link dark:group-hover:text-blue-300"
-                                           aria-label="{{ release.title }}"
-                                           href="{{ crew_member_url }}">{{ person.name }}</a>
-                                    </h2>
-                                    <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm dark:text-gray-300 truncate">
-                                        {% for credit in group.list %}
-                                            {{ credit.job }}
-                                            {% if not forloop.last %}/{% endif %}
-                                        {% endfor %}
-                                    </h3>
-                                </div>
-                            </article>
-                        </li>
-                    {% endwith %}
-                {% endfor %}
-            </ul>
-        </details>
-    {% endif %}
-    <div>
-        <h2 class="pb-6 mb-6 text-lg font-bold border-b lg:text-xl xl:text-2xl">Reviews</h2>
-        {% review_list release %}
-    </div>
-{% endblock content %}
+        {% if cast_members %}
+            <details class="mb-6">
+                <summary class="mb-3 text-lg font-bold cursor-pointer lg:text-xl xl:text-2xl link">Cast</summary>
+                <ul class="border-t divide-y divide">
+                    {% regroup cast_members by person as groups %}
+                    {% for group in groups %}
+                        {% with person=group.grouper %}
+                            <li class="py-3">
+                                {% url 'credits:cast_detail' person_id=person.pk slug=person.slug as cast_member_url %}
+                                <article class="flex items-center space-x-3 cursor-pointer group"
+                                         role="link"
+                                         hx-get="{{ cast_member_url }}"
+                                         hx-push-url="true">
+                                    {% cover_image person.profile_url 100 150 title=person.name css_class="w-16 h-20 group-hover:grayscale" %}
+                                    <div class="flex flex-col place-content-between h-16">
+                                        <h2 class="font-bold tracking-tight leading-tight break-words line-clamp-2"
+                                            aria-label="{{ person.name }}"
+                                            title="{{ person.name }}">
+                                            <a class="group-hover:text-blue-600 link dark:group-hover:text-blue-300"
+                                               aria-label="{{ release.title }}"
+                                               href="{{ cast_member_url }}">{{ person.name }}</a>
+                                        </h2>
+                                        <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm dark:text-gray-300 truncate">
+                                            {% for credit in group.list %}
+                                                {{ credit.character }}
+                                                {% if not forloop.last %}/{% endif %}
+                                            {% endfor %}
+                                        </h3>
+                                    </div>
+                                </article>
+                            </li>
+                        {% endwith %}
+                    {% endfor %}
+                </ul>
+            </details>
+        {% endif %}
+        {% if crew_members %}
+            <details class="mb-6">
+                <summary class="mb-3 text-lg font-bold cursor-pointer lg:text-xl xl:text-2xl link">Crew</summary>
+                <ul class="border-t divide-y divide">
+                    {% regroup crew_members by person as groups %}
+                    {% for group in groups %}
+                        {% with person=group.grouper %}
+                            <li class="py-3">
+                                {% url 'credits:crew_detail' person_id=person.pk slug=person.slug as crew_member_url %}
+                                <article class="flex items-center space-x-3 cursor-pointer group"
+                                         role="link"
+                                         hx-get="{{ crew_member_url }}"
+                                         hx-push-url="true">
+                                    {% cover_image person.profile_url 100 150 title=person.name css_class="w-16 h-20 group-hover:grayscale" %}
+                                    <div class="flex flex-col place-content-between h-16">
+                                        <h2 class="font-bold tracking-tight leading-tight break-words line-clamp-2"
+                                            aria-label="{{ person.name }}"
+                                            title="{{ person.name }}">
+                                            <a class="group-hover:text-blue-600 link dark:group-hover:text-blue-300"
+                                               aria-label="{{ release.title }}"
+                                               href="{{ crew_member_url }}">{{ person.name }}</a>
+                                        </h2>
+                                        <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm dark:text-gray-300 truncate">
+                                            {% for credit in group.list %}
+                                                {{ credit.job }}
+                                                {% if not forloop.last %}/{% endif %}
+                                            {% endfor %}
+                                        </h3>
+                                    </div>
+                                </article>
+                            </li>
+                        {% endwith %}
+                    {% endfor %}
+                </ul>
+            </details>
+        {% endif %}
+        <div>
+            <h2 class="pb-6 mb-6 text-lg font-bold border-b lg:text-xl xl:text-2xl">Reviews</h2>
+            {% review_list release %}
+        </div>
+    {% endblock content %}
