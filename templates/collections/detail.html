@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static heroicons partials %}
+{% block content %}
+    <header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
+        <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
+            {{ collection.name }}
+        </h1>
+        <nav>
+            <ul class="items-center space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
+                {% if request.user == collection.user %}
+                    <li class="flex justify-center items-center sm:justify-start">
+                        <a class="inline-flex space-x-2 btn btn-primary"
+                           href="{% url 'collections:edit_collection' collection.pk %}">
+                            {% heroicon_mini "pencil" %}
+                            <span>Edit Collection</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    {% partialdef pagination inline=True %}
+    <ul class="divide-y divide-solid" id="{{ pagination_target }}">
+        {% with has_other_pages=page_obj.has_other_pages %}
+            {% if has_other_pages %}
+                <li class="pb-3">{% include "_pagination_links.html" %}</li>
+            {% endif %}
+            {% for item in page_obj %}
+                <li class="py-3 first-of-type:pt-0">{% include "releases/_release.html" with release=item.release %}</li>
+            {% empty %}
+                <li class="py-3"></li>
+            {% endfor %}
+            {% if has_other_pages %}
+                <li class="pt-3">{% include "_pagination_links.html" %}</li>
+            {% endif %}
+        {% endwith %}
+    </ul>
+{% endpartialdef pagination %}
+{% endblock content %}
