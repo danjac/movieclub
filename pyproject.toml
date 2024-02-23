@@ -82,6 +82,7 @@ addopts = [
 ]
 testpaths = "movieclub"
 env = [
+    "COVERAGE_CORE=sysmon",
     "TEMPLATE_DEBUG=true",
     "USE_COLLECTSTATIC=false",
     "USE_FASTDEV=true",
