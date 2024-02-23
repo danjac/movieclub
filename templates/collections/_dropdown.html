@@ -11,14 +11,14 @@
             Add to Collection...
             {% heroicon_mini "chevron-down" class="ml-3" %}
         </button>
-        <div class="absolute z-20 my-2 w-56 bg-white rounded shadow dark:bg-gray-900 dark:border"
+        <div class="absolute z-20 my-2 w-56 bg-white rounded border shadow dark:bg-gray-900"
              x-cloak
              x-show="showDropdown"
              x-transition.scape.origin.top>
             <ul class="py-1 list-none" aria-labelledby="collections-dropdown-btn">
                 {% for collection in collections %}
                     <li>
-                        <label class="flex items-center p-2 space-x-3 cursor-pointer hover:dark:bg-gray-800">
+                        <label class="flex items-center p-2 space-x-3 cursor-pointer hover:bg-gray-100 hover:dark:bg-gray-800">
                             {% include "collections/_dropdown_input.html" with is_added=collection.is_added %}
                             <span class="max-w-full truncate">{{ collection.name }}</span>
                         </label>
