@@ -8,29 +8,18 @@ from movieclub import tmdb
 from movieclub.client import get_client
 from movieclub.decorators import require_auth
 from movieclub.pagination import render_pagination
-from movieclub.releases.models import Genre, Release
+from movieclub.releases.models import Genre, Release, ReleaseQuerySet
 from movieclub.releases.tmdb import populate_movie, populate_tv_show
 
 
 @require_safe
 def movie_list(request: HttpRequest) -> HttpResponse:
     """Returns list of movies."""
-    movies = Release.objects.movies()
-    search_tmdb_url = reverse("releases:search_tmdb_movies")
-
-    if request.search:
-        movies = movies.search(request.search.value).order_by("-rank")
-        search_tmdb_url += "?" + request.search.qs
-    else:
-        movies = movies.order_by("-release_date")
-
-    return render_pagination(
+    return _render_release_list(
         request,
-        movies,
+        Release.objects.movies(),
         "releases/movies.html",
-        {
-            "search_tmdb_url": search_tmdb_url,
-        },
+        search_tmdb_url=reverse("releases:search_tmdb_movies"),
     )
 
 
@@ -46,22 +35,11 @@ def movie_detail(request: HttpRequest, release_id: int, slug: str) -> HttpRespon
 @require_safe
 def tv_show_list(request: HttpRequest) -> HttpResponse:
     """Returns list of TV shows."""
-    tv_shows = Release.objects.tv_shows()
-    search_tmdb_url = reverse("releases:search_tmdb_tv_shows")
-
-    if request.search:
-        tv_shows = tv_shows.search(request.search.value).order_by("-rank")
-        search_tmdb_url += "?" + request.search.qs
-    else:
-        tv_shows = tv_shows.order_by("-release_date")
-
-    return render_pagination(
+    return _render_release_list(
         request,
-        tv_shows,
+        Release.objects.tv_shows(),
         "releases/tv_shows.html",
-        {
-            "search_tmdb_url": search_tmdb_url,
-        },
+        search_tmdb_url=reverse("releases:search_tmdb_tv_shows"),
     )
 
 
@@ -163,6 +141,29 @@ def search_tmdb_tv_shows(request: HttpRequest, limit: int = 12) -> HttpResponse:
         "releases/search_tmdb_tv_shows.html",
         {
             "search_results": results[:limit],
+        },
+    )
+
+
+def _render_release_list(
+    request: HttpRequest,
+    releases: ReleaseQuerySet,
+    template_name: str,
+    *,
+    search_tmdb_url: str,
+) -> HttpResponse:
+    if request.search:
+        releases = releases.search(request.search.value).order_by("-rank")
+        search_tmdb_url += "?" + request.search.qs
+    else:
+        releases = releases.order_by("-release_date")
+
+    return render_pagination(
+        request,
+        releases,
+        template_name,
+        {
+            "search_tmdb_url": search_tmdb_url,
         },
     )
 
