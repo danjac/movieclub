@@ -26,10 +26,7 @@ def movie_list(request: HttpRequest) -> HttpResponse:
 @require_safe
 def movie_detail(request: HttpRequest, release_id: int, slug: str) -> HttpResponse:
     """Render TV show details."""
-    return _render_release_detail(
-        request,
-        get_object_or_404(Release.objects.movies(), pk=release_id),
-    )
+    return _render_release_detail(request, release_id, Release.objects.movies())
 
 
 @require_safe
@@ -46,13 +43,7 @@ def tv_show_list(request: HttpRequest) -> HttpResponse:
 @require_safe
 def tv_show_detail(request: HttpRequest, release_id: int, slug: str) -> HttpResponse:
     """Render TV show details."""
-    return _render_release_detail(
-        request,
-        get_object_or_404(
-            Release.objects.tv_shows(),
-            pk=release_id,
-        ),
-    )
+    return _render_release_detail(request, release_id, Release.objects.tv_shows())
 
 
 @require_safe
@@ -168,7 +159,10 @@ def _render_release_list(
     )
 
 
-def _render_release_detail(request: HttpRequest, release: Release) -> HttpResponse:
+def _render_release_detail(
+    request: HttpRequest, release_id: int, queryset: ReleaseQuerySet
+) -> HttpResponse:
+    release = get_object_or_404(queryset, pk=release_id)
     context = {
         "release": release,
         "cast_members": release.cast_members.select_related("person").order_by("order"),
