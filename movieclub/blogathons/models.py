@@ -83,7 +83,14 @@ class Blogathon(TimeStampedModel):
 
         A participant can only submit one entry per blogathon.
         """
-        if user.is_anonymous or not self.published or timezone.now() > self.end_date:
+        now = timezone.now().date()
+
+        if (
+            user.is_anonymous
+            or not self.published
+            or self.starts > now
+            or now > self.ends
+        ):
             return False
 
         if self.entries.filter(participant=user).exists():

@@ -3,7 +3,7 @@ import datetime
 import faker
 from django.utils import timezone
 
-from movieclub.blogathons.models import Blogathon, Proposal
+from movieclub.blogathons.models import Blogathon, Entry, Proposal
 from movieclub.tests.factories import NotSet, resolve
 from movieclub.users.models import User
 from movieclub.users.tests.factories import create_user
@@ -43,5 +43,25 @@ def create_proposal(
         ),
         participant=resolve(participant, create_user),
         proposal=resolve(proposal, lambda: _faker.text(100)),
+        **kwargs,
+    )
+
+
+def create_entry(
+    *,
+    blogathon: Blogathon = NotSet,
+    participant: User = NotSet,
+    blog_title: str = NotSet,
+    blog_url: str = NotSet,
+    **kwargs,
+) -> Proposal:
+    return Entry.objects.create(
+        blogathon=resolve(
+            blogathon,
+            create_blogathon,
+        ),
+        participant=resolve(participant, create_user),
+        blog_title=resolve(blog_title, lambda: _faker.text(100)),
+        blog_url=resolve(blog_title, _faker.url),
         **kwargs,
     )
