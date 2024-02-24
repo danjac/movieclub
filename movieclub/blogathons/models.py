@@ -60,9 +60,9 @@ class Blogathon(TimeStampedModel):
         """
         if (
             user.is_anonymous
-            or not self.submitted
+            or not self.published
             or user == self.organizer
-            or timezone.now() > self.start_date
+            or timezone.now().date() > self.starts
         ):
             return False
         return not self.proposals.filter(
@@ -101,15 +101,15 @@ class Blogathon(TimeStampedModel):
 class Proposal(TimeStampedModel):
     """Blogathon entry proposal."""
 
-    class State(models.TextChoices):
+    class Status(models.TextChoices):
         SUBMITTED = "submitted", "Submitted"
         ACCEPTED = "accepted", "Accepted"
         REJECTED = "rejected", "Rejected"
 
-    state = models.CharField(
+    status = models.CharField(
         max_length=12,
-        default=State.SUBMITTED,
-        choices=State,
+        default=Status.SUBMITTED,
+        choices=Status,
     )
 
     state_changed_at = models.DateTimeField(null=True, blank=True)
