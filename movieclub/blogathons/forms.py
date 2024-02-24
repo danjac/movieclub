@@ -28,6 +28,17 @@ class ProposalForm(forms.ModelForm):
         ]
 
 
+class ProposalResponseForm(forms.ModelForm):
+    """Proposal model form."""
+
+    class Meta:
+        model = Proposal
+        fields: ClassVar = [
+            "proposal",
+            "status",
+        ]
+
+
 class EntryForm(forms.ModelForm):
     """Entry model form."""
 

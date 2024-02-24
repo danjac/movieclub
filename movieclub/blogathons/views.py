@@ -6,7 +6,12 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_safe
 
-from movieclub.blogathons.forms import BlogathonForm, EntryForm, ProposalForm
+from movieclub.blogathons.forms import (
+    BlogathonForm,
+    EntryForm,
+    ProposalForm,
+    ProposalResponseForm,
+)
 from movieclub.blogathons.models import Blogathon, Proposal
 from movieclub.decorators import require_auth, require_form_methods
 from movieclub.pagination import render_pagination
@@ -37,42 +42,66 @@ def organizer_blogathon_list(request: HttpRequest) -> HttpResponse:
 
 
 @require_safe
+@require_auth
+def proposals(request: HttpRequest, blogathon_id: int) -> HttpResponse:
+    """Return all proposals."""
+    blogathon = get_object_or_404(
+        _get_available_blogathons(request.user), pk=blogathon_id
+    )
+    proposals = blogathon.proposals.order_by("-created").select_related("participant")
+
+    if request.user != blogathon.organizer:
+        proposals = proposals.filter(participant=request.user)
+
+    if status := request.GET.get("status", None):
+        proposals = proposals.filter(status=status)
+
+    return render_pagination(
+        request,
+        "blogathons/proposals.html",
+        proposals,
+        {
+            "blogathon": blogathon,
+            "proposal_status": status,
+            "can_respond": timezone.now().date() > blogathon.start_date,
+        },
+    )
+
+
+@require_POST
+@require_auth
+def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
+    """Reject proposal."""
+    proposal = get_object_or_404(
+        Proposal,
+        blogathon__organizer=request.user,
+        status=Proposal.Status.SUBMITTED,
+        pk=proposal_id,
+    )
+
+    form = ProposalResponseForm(request.POST, instance=proposal)
+    if form.is_valid():
+        proposal = form.save()
+        # TBD: send relevant emails etc
+
+        return redirect()
+    return HttpResponse()
+
+
+@require_safe
 def blogathon_detail(
     request: HttpRequest, blogathon_id: int, slug: str
 ) -> HttpResponse:
     """Blogathon detail."""
     blogathon = get_object_or_404(Blogathon, _get_available_blogathons(request.user))
+    entries = blogathon.entries.order_by("-created").select_related("participant")
 
-    can_submit_proposal, can_submit_entry = False, False
-
-    if (
-        request.user.is_authenticated
-        and blogathon.start_date > timezone.now().date()
-        and not blogathon.submitted
-    ):
-        if blogathon.organizer == request.user:
-            can_submit_entry = True
-        else:
-            proposals = blogathon.proposals.filter(participant=request.user)
-
-            can_submit_proposal = not proposals.filter(
-                status__in=(
-                    Proposal.Status.ACCEPTED,
-                    Proposal.Status.SUBMITTED,
-                )
-            ).exists()
-
-            can_submit_entry = proposals.filter(
-                status=Proposal.Status.ACCEPTED
-            ).exists()
-
-    return render(
+    return render_pagination(
         request,
         "blogathons/detail.html",
+        entries,
         {
             "blogathon": blogathon,
-            "can_submit_proposal": can_submit_proposal,
-            "can_submit_entry": can_submit_entry,
         },
     )
 
@@ -101,7 +130,9 @@ def add_blogathon(request: HttpRequest) -> HttpResponse:
 @require_auth
 def edit_blogathon(request: HttpRequest, blogathon_id: int) -> HttpResponse:
     """Edit blogathon detail."""
-    blogathon = get_object_or_404(Blogathon, organizer=request.user, pk=blogathon_id)
+    blogathon = get_object_or_404(
+        _get_blogathons_for_organizer(request.user), pk=blogathon_id
+    )
     if request.method == "POST":
         form = BlogathonForm(request.POST, instance=blogathon)
         form.save()
@@ -115,7 +146,9 @@ def edit_blogathon(request: HttpRequest, blogathon_id: int) -> HttpResponse:
 @require_auth
 def publish_blogathon(request: HttpRequest, blogathon_id: int) -> HttpResponse:
     """Makes ."""
-    blogathon = get_object_or_404(Blogathon, user=request.user, pk=blogathon_id)
+    blogathon = get_object_or_404(
+        _get_blogathons_for_organizer(request.user), pk=blogathon_id
+    )
     blogathon.submitted = timezone.now()
     blogathon.save()
     return HttpResponse()
@@ -130,11 +163,7 @@ def submit_proposal(request: HttpRequest, blogathon_id: int) -> HttpResponse:
         start_date__gt=timezone.now(),
         pk=blogathon_id,
     )
-    if Proposal.objects.filter(
-        blogathon=blogathon,
-        participant=request.user,
-        status=Proposal.Status.SUBMITTED,
-    ):
+    if not blogathon.can_submit_proposal(request.user):
         raise PermissionDenied("You have already submitted a proposal")
 
     form = ProposalForm(request.POST)
@@ -153,16 +182,10 @@ def submit_entry(request: HttpRequest, blogathon_id: int) -> HttpResponse:
     """Makes ."""
     blogathon = get_object_or_404(
         _get_available_blogathons(request.user),
-        start_date__gt=timezone.now(),
         pk=blogathon_id,
     )
-
-    if not blogathon.proposals.filter(
-        participant=request.user, status=Proposal.Status.ACCEPTED
-    ).exists():
-        raise PermissionDenied("You must submit a proposal first")
-    if blogathon.entries.filter(participant=request.user).exists():
-        raise PermissionDenied("You have already submitted an entry")
+    if not blogathon.can_submit_entry(request.user):
+        raise PermissionDenied("You cannot submit an entry")
 
     form = EntryForm(request.POST)
     if form.is_valid():
@@ -172,6 +195,10 @@ def submit_entry(request: HttpRequest, blogathon_id: int) -> HttpResponse:
         entry.save()
 
     return HttpResponse()
+
+
+def _get_blogathons_for_organizer(user: User) -> QuerySet[Blogathon]:
+    return Blogathon.objects.filter(organizer=user)
 
 
 def _get_available_blogathons(user: User | AnonymousUser) -> QuerySet[Blogathon]:

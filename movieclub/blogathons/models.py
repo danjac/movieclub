@@ -1,10 +1,16 @@
 from __future__ import annotations
 
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from model_utils.models import TimeStampedModel
+
+if TYPE_CHECKING:  # pragma: no cover
+    from django.contrib.auth.models import AnonymousUser
+
+    from movieclub.users.models import User
 
 
 class Blogathon(TimeStampedModel):
@@ -39,6 +45,39 @@ class Blogathon(TimeStampedModel):
 
     submitted = models.DateTimeField(null=True, blank=True)
 
+    def can_submit_proposal(self, user: User | AnonymousUser) -> bool:
+        """If user is able to submit a proposal."""
+        if (
+            user.is_anonymous
+            or not self.submitted
+            or user == self.organizer
+            or timezone.now() > self.start_date
+        ):
+            return False
+        return not self.proposals.filter(
+            participant=user,
+            status__in=(
+                Proposal.Status.ACCEPTED,
+                Proposal.Status.SUBMITTED,
+            ),
+        ).exists()
+
+    def can_submit_entry(self, user: User | AnonymousUser) -> bool:
+        """If user is able to submit an entry."""
+        if user.is_anonymous or not self.submitted or timezone.now() > self.end_date:
+            return False
+
+        if self.entries.filter(participant=user).exists():
+            return False
+
+        if user == self.organizer:
+            return True
+
+        return self.proposals.filter(
+            participant=user,
+            status=Proposal.Status.ACCEPTED,
+        ).exists()
+
 
 class Proposal(TimeStampedModel):
     """Blogathon entry proposal."""
@@ -71,6 +110,7 @@ class Proposal(TimeStampedModel):
     )
 
     proposal = models.TextField(blank=True)
+    response = models.TextField(blank=True)
 
     class Meta:
         constraints: ClassVar = [
