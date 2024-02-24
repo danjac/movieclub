@@ -3,7 +3,7 @@ import datetime
 import pytest
 from django.utils import timezone
 
-from movieclub.blogathons.tests.factories import create_blogathon
+from movieclub.blogathons.tests.factories import create_blogathon, create_proposal
 
 
 @pytest.fixture()
@@ -20,6 +20,11 @@ class TestBlogathon:
     @pytest.mark.django_db()
     def test_can_submit_proposal_ok(self, public_blogathon, user):
         assert public_blogathon.can_submit_proposal(user)
+
+    @pytest.mark.django_db()
+    def test_can_submit_proposal_already_submitted(self, public_blogathon, user):
+        create_proposal(participant=user, blogathon=public_blogathon)
+        assert not public_blogathon.can_submit_proposal(user)
 
     @pytest.mark.django_db()
     def test_can_submit_proposal_user_is_organizer(self, public_blogathon):
