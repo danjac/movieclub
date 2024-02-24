@@ -145,11 +145,11 @@ def edit_blogathon(request: HttpRequest, blogathon_id: int) -> HttpResponse:
 @require_POST
 @require_auth
 def publish_blogathon(request: HttpRequest, blogathon_id: int) -> HttpResponse:
-    """Makes ."""
+    """Makes blogathon public."""
     blogathon = get_object_or_404(
         _get_blogathons_for_organizer(request.user), pk=blogathon_id
     )
-    blogathon.submitted = timezone.now()
+    blogathon.published = timezone.now()
     blogathon.save()
     return HttpResponse()
 

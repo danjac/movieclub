@@ -13,20 +13,20 @@ if TYPE_CHECKING:  # pragma: no cover
     from movieclub.users.models import User
 
 
+class BlogathonQuerySet(models.QuerySet):
+    """Queryset for blogathon."""
+
+    def for_organizer(self, user: User) -> models.QuerySet[Blogathon]:
+        """Returns all blogathons for organized by this user."""
+        return self.filter(organizer=user) if user.is_authenticated else self.none()
+
+    def available(self, user: User | AnonymousUser) -> models.QuerySet[Blogathon]:
+        """Returns all available blogathons"""
+        return self.filter(published__isnull=False) | self.for_organizer(user)
+
+
 class Blogathon(TimeStampedModel):
-    """Blogathon model.
-
-    1. Organizer publishes a new Blogathon.
-    2. The Blogathon appears in the "New" tab.
-    3. Until the Blogathon starts, participants can submit a proposal.
-    4. If proposal is accepted, they can submit an article until the closing date.
-
-    Users can submit one proposal at a time (although can re-submit any number of times).
-
-    Users are allowed one entry each.
-
-    Organizer can also participate.
-    """
+    """Blogathon model."""
 
     name = models.CharField(max_length=120)
 
@@ -43,10 +43,21 @@ class Blogathon(TimeStampedModel):
 
     description = models.TextField(blank=True)
 
-    submitted = models.DateTimeField(null=True, blank=True)
+    published = models.DateTimeField(null=True, blank=True)
+
+    objects = BlogathonQuerySet.as_manager()
 
     def can_submit_proposal(self, user: User | AnonymousUser) -> bool:
-        """If user is able to submit a proposal."""
+        """If user is able to submit a proposal.
+
+        A proposal:
+
+            1) must be submitted by a logged in user;
+            2) cannot be the blogathon organizer;
+            3) must be submitted before the blogathon start date.
+
+        A participant can only have one SUBMITTED or ACCEPTED proposal per blogathon.
+        """
         if (
             user.is_anonymous
             or not self.submitted
@@ -63,8 +74,16 @@ class Blogathon(TimeStampedModel):
         ).exists()
 
     def can_submit_entry(self, user: User | AnonymousUser) -> bool:
-        """If user is able to submit an entry."""
-        if user.is_anonymous or not self.submitted or timezone.now() > self.end_date:
+        """If user is able to submit an entry.
+
+        An entry:
+            1) must be submitted by a logged in user;
+            2) must be either the organizer OR have had a successful proposal;
+            3) must be submitted before the end date of the blogathon.
+
+        A participant can only submit one entry per blogathon.
+        """
+        if user.is_anonymous or not self.published or timezone.now() > self.end_date:
             return False
 
         if self.entries.filter(participant=user).exists():
