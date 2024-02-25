@@ -13,7 +13,6 @@
     {% partialdef form inline=True %}
     <form post="{{ request.path }}"
           hx-post="{{ request.path }}"
-          novalidate
           class="space-y-3"
           id="blogathon-form">
         {{ form }}

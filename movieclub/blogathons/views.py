@@ -31,7 +31,7 @@ def organizer_blogathon_list(request: HttpRequest) -> HttpResponse:
     """Index list of blogathons for current user."""
     return render_pagination(
         request,
-        Blogathon.objects.filter(organizer=request.user).order_by("-starts"),
+        Blogathon.objects.for_organizer(request.user).order_by("-starts"),
         "blogathons/organizer.html",
         {
             "organizer": request.user,
@@ -67,14 +67,14 @@ def blogathon_detail(
 ) -> HttpResponse:
     """Blogathon detail."""
     blogathon = get_object_or_404(
-        Blogathon, Blogathon.objects.available(request.user), pk=blogathon_id
+        Blogathon.objects.available(request.user), pk=blogathon_id
     )
     entries = blogathon.entries.order_by("-created").select_related("participant")
 
     return render_pagination(
         request,
-        "blogathons/detail.html",
         entries,
+        "blogathons/detail.html",
         {
             "blogathon": blogathon,
         },

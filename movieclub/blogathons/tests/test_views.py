@@ -45,3 +45,10 @@ class TestAddBlogathon:
 
         blogathon = Blogathon.objects.get()
         assert blogathon.organizer == auth_user
+
+
+class TestBlogathonDetail:
+    @pytest.mark.django_db()
+    def test_get(self, client, auth_user, public_blogathon):
+        response = client.get(public_blogathon.get_absolute_url())
+        assert response.status_code == http.HTTPStatus.OK
