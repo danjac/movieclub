@@ -23,7 +23,7 @@ def blogathon_list(request: HttpRequest) -> HttpResponse:
     """Index list of blogathons."""
     return render_pagination(
         request,
-        _get_available_blogathons(request.user).order_by("-start_date"),
+        _get_available_blogathons(request.user).order_by("-starts"),
         "blogathons/index.html",
     )
 
@@ -37,6 +37,24 @@ def organizer_blogathon_list(request: HttpRequest) -> HttpResponse:
         "blogathons/organizer_blogathon_list.html",
         {
             "organizer": request.user,
+        },
+    )
+
+
+@require_safe
+def blogathon_detail(
+    request: HttpRequest, blogathon_id: int, slug: str
+) -> HttpResponse:
+    """Blogathon detail."""
+    blogathon = get_object_or_404(Blogathon, _get_available_blogathons(request.user))
+    entries = blogathon.entries.order_by("-created").select_related("participant")
+
+    return render_pagination(
+        request,
+        "blogathons/detail.html",
+        entries,
+        {
+            "blogathon": blogathon,
         },
     )
 
@@ -86,24 +104,6 @@ def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
 
         return redirect()
     return HttpResponse()
-
-
-@require_safe
-def blogathon_detail(
-    request: HttpRequest, blogathon_id: int, slug: str
-) -> HttpResponse:
-    """Blogathon detail."""
-    blogathon = get_object_or_404(Blogathon, _get_available_blogathons(request.user))
-    entries = blogathon.entries.order_by("-created").select_related("participant")
-
-    return render_pagination(
-        request,
-        "blogathons/detail.html",
-        entries,
-        {
-            "blogathon": blogathon,
-        },
-    )
 
 
 @require_form_methods

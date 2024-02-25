@@ -11,8 +11,8 @@ class BlogathonForm(forms.ModelForm):
     class Meta:
         model = Blogathon
         fields: ClassVar = [
-            "start_date",
-            "end_date",
+            "starts",
+            "ends",
             "name",
             "description",
         ]

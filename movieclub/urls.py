@@ -10,6 +10,7 @@ admin.site.site_header = settings.ADMIN_SITE_HEADER
 urlpatterns = [
     path("", views.landing_page, name="landing_page"),
     path("", include("movieclub.releases.urls")),
+    path("blogathons/", include("movieclub.blogathons.urls")),
     path("collections/", include("movieclub.collections.urls")),
     path("credits/", include("movieclub.credits.urls")),
     path("reviews/", include("movieclub.reviews.urls")),

@@ -38,8 +38,8 @@ class Blogathon(TimeStampedModel):
         related_name="blogathons",
     )
 
-    starts = models.DateField()
-    ends = models.DateField()
+    starts = models.DateField(verbose_name="Start Date")
+    ends = models.DateField(verbose_name="End Date")
 
     description = models.TextField(blank=True)
 
@@ -143,7 +143,7 @@ class Proposal(TimeStampedModel):
             models.UniqueConstraint(
                 fields=["participant", "blogathon"],
                 name="%(app_label)s_%(class)s_unique_blogathon_proposal",
-                condition=models.Q(state="submitted"),
+                condition=models.Q(status="submitted"),
             )
         ]
 
