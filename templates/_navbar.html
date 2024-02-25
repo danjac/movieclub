@@ -41,7 +41,7 @@
                    class="font-semibold text-gray-100 hover:text-blue-300">Collections</a>
             </li>
             <li>
-                <a href=""
+                <a href="{% url 'blogathons:blogathon_list' %}"
                    aria-label=""
                    title=""
                    class="font-semibold text-gray-100 hover:text-blue-300">Blogathons</a>
@@ -137,7 +137,7 @@
                         <a href="{% url 'collections:collection_list' %}" class="{{ MENU_CSS }}">Collections</a>
                     </li>
                     <li>
-                        <a href="" class="{{ MENU_CSS }}">Blogathons</a>
+                        <a href="{% url 'blogathons:blogathon_list' %}" class="{{ MENU_CSS }}">Blogathons</a>
                     </li>
                     <li>
                         <a href="" aria-label="" title="" class="{{ MENU_CSS }}">About</a>

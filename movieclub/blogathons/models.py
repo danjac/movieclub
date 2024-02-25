@@ -4,7 +4,9 @@ from typing import TYPE_CHECKING, ClassVar
 
 from django.conf import settings
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 from model_utils.models import TimeStampedModel
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -46,6 +48,13 @@ class Blogathon(TimeStampedModel):
     published = models.DateTimeField(null=True, blank=True)
 
     objects = BlogathonQuerySet.as_manager()
+
+    def get_absolute_url(self) -> str:
+        """URL of detail page."""
+        return reverse(
+            "blogathons:blogathon_detail",
+            kwargs={"blogathon_id": self.pk, "slug": slugify(self.name)},
+        )
 
     def can_submit_proposal(self, user: User | AnonymousUser) -> bool:
         """If user is able to submit a proposal.
