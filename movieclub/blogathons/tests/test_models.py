@@ -11,33 +11,6 @@ from movieclub.blogathons.tests.factories import (
 )
 
 
-@pytest.fixture()
-def blogathon():
-    return create_blogathon()
-
-
-@pytest.fixture()
-def public_blogathon():
-    return create_blogathon(published=timezone.now())
-
-
-@pytest.fixture()
-def open_blogathon():
-    return create_blogathon(
-        published=timezone.now(),
-        starts=timezone.now().date() - datetime.timedelta(days=7),
-    )
-
-
-@pytest.fixture()
-def accepted_proposal(open_blogathon, user):
-    return create_proposal(
-        participant=user,
-        blogathon=open_blogathon,
-        status=Proposal.Status.ACCEPTED,
-    )
-
-
 class TestBlogathon:
     @pytest.mark.django_db()
     def test_for_organizer(self, blogathon):
