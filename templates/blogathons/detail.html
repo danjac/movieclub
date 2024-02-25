@@ -7,10 +7,18 @@
         </h1>
         <nav>
             <ul class="items-center space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
-                {% if request.user == blogathon.organizer %}
-                    {% if not blogathon.published %}
+                {% if is_organizer %}
+                    {% if blogathon.published %}
                         <li class="flex justify-center items-center sm:justify-start">
-                            <button class="inline-flex space-x-2 btn btn-primary">
+                            <a class="link">
+                                <span>Proposals</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="flex justify-center items-center sm:justify-start">
+                            <button class="inline-flex space-x-2 btn btn-primary"
+                                    hx-post="{% url 'blogathons:publish_blogathon' blogathon.pk %}"
+                                    hx-confirm="Are you sure you want to publish this blogathon?">
                                 {% heroicon_mini "check" %}
                                 <span>Publish blogathon</span>
                             </button>
@@ -21,6 +29,22 @@
                            href="">
                             {% heroicon_mini "pencil" %}
                             <span>Edit blogathon</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if can_submit_entry %}
+                    <li class="flex justify-center items-center sm:justify-start">
+                        <a class="inline-flex space-x-2 btn btn-default" href="">
+                            {% heroicon_mini "plus" %}
+                            <span>Submit entry</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if can_submit_proposal %}
+                    <li class="flex justify-center items-center sm:justify-start">
+                        <a class="inline-flex space-x-2 btn btn-default" href="">
+                            {% heroicon_mini "plus" %}
+                            <span>Submit proposal</span>
                         </a>
                     </li>
                 {% endif %}

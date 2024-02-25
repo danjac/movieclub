@@ -67,7 +67,8 @@ def blogathon_detail(
 ) -> HttpResponse:
     """Blogathon detail."""
     blogathon = get_object_or_404(
-        Blogathon.objects.available(request.user), pk=blogathon_id
+        Blogathon.objects.available(request.user).select_related("organizer"),
+        pk=blogathon_id,
     )
     entries = blogathon.entries.order_by("-created").select_related("participant")
 
@@ -77,6 +78,9 @@ def blogathon_detail(
         "blogathons/detail.html",
         {
             "blogathon": blogathon,
+            "is_organizer": request.user == blogathon.organizer,
+            "can_submit_entry": blogathon.can_submit_entry(request.user),
+            "can_submit_proposal": blogathon.can_submit_proposal(request.user),
         },
     )
 
@@ -149,11 +153,16 @@ def edit_blogathon(request: HttpRequest, blogathon_id: int) -> HttpResponse:
 def publish_blogathon(request: HttpRequest, blogathon_id: int) -> HttpResponse:
     """Makes blogathon public."""
     blogathon = get_object_or_404(
-        Blogathon.objects.for_organizer(request.user), pk=blogathon_id
+        Blogathon.objects.for_organizer(request.user),
+        published__isnull=True,
+        pk=blogathon_id,
     )
     blogathon.published = timezone.now()
     blogathon.save()
-    return HttpResponse()
+
+    messages.success(request, "Blogathon is published")
+
+    return redirect(blogathon)
 
 
 @require_POST

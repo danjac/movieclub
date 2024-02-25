@@ -52,3 +52,15 @@ class TestBlogathonDetail:
     def test_get(self, client, auth_user, public_blogathon):
         response = client.get(public_blogathon.get_absolute_url())
         assert response.status_code == http.HTTPStatus.OK
+
+
+class TestPublishBlogathon:
+    @pytest.mark.django_db()
+    def test_post(self, client, auth_user):
+        blogathon = create_blogathon(organizer=auth_user)
+        response = client.post(
+            reverse("blogathons:publish_blogathon", args=[blogathon.pk])
+        )
+        assert response.url == blogathon.get_absolute_url()
+        blogathon.refresh_from_db()
+        assert blogathon.published
