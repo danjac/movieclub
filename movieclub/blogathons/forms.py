@@ -64,7 +64,6 @@ class ProposalResponseForm(forms.ModelForm):
         model = Proposal
         fields: ClassVar = [
             "proposal",
-            "status",
         ]
 
 

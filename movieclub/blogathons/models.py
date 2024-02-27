@@ -154,6 +154,18 @@ class Proposal(TimeStampedModel):
             )
         ]
 
+    def is_accepted(self) -> bool:
+        """If ACCEPTED status."""
+        return self.status == self.Status.ACCEPTED
+
+    def is_rejected(self) -> bool:
+        """If REJECTED status."""
+        return self.status == self.Status.REJECTED
+
+    def is_submitted(self) -> bool:
+        """If SUBMITTED status."""
+        return self.status == self.Status.SUBMITTED
+
 
 class Entry(TimeStampedModel):
     """Blogathon entry."""

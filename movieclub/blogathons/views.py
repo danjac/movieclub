@@ -142,26 +142,6 @@ def blogathon_proposals(request: HttpRequest, blogathon_id: int) -> HttpResponse
     )
 
 
-@require_POST
-@require_auth
-def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
-    """Reject proposal."""
-    proposal = get_object_or_404(
-        Proposal.objects.select_related("blogathon"),
-        blogathon__organizer=request.user,
-        status=Proposal.Status.SUBMITTED,
-        pk=proposal_id,
-    )
-
-    form = ProposalResponseForm(request.POST, instance=proposal)
-    if form.is_valid():
-        proposal = form.save()
-        # TBD: send relevant emails etc
-
-        return redirect(proposal.blogathon)
-    return HttpResponse()
-
-
 @require_form_methods
 @require_auth
 def submit_proposal(request: HttpRequest, blogathon_id: int) -> HttpResponse:
@@ -196,6 +176,62 @@ def submit_proposal(request: HttpRequest, blogathon_id: int) -> HttpResponse:
         {"blogathon": blogathon, "form": form},
         partial="form",
         target="proposal_form",
+    )
+
+
+@require_form_methods
+@require_auth
+def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
+    """Reject or accept proposal."""
+    proposal = get_object_or_404(
+        Proposal.objects.select_related("blogathon", "participant"),
+        blogathon__organizer=request.user,
+        status=Proposal.Status.SUBMITTED,
+        pk=proposal_id,
+    )
+
+    target = f"proposal-{proposal.pk}"
+    template_name = "blogathons/proposals.html"
+    context = {"proposal": proposal}
+
+    if request.method == "POST":
+        action = request.POST.get("action", "cancel")
+        is_valid = False
+
+        if action in ("accept", "reject"):
+            form = ProposalResponseForm(request.POST, instance=proposal)
+            if is_valid := form.is_valid():
+                proposal = form.save(commit=False)
+                proposal.status = (
+                    Proposal.Status.ACCEPTED
+                    if action == "accept"
+                    else Proposal.Status.REJECTED
+                )
+                proposal.status_changed_at = timezone.now()
+                # TBD: email participant
+                proposal.save()
+                is_valid = True
+
+        if is_valid or action == "cancel":
+            return render_htmx(
+                request,
+                template_name,
+                context,
+                partial="proposal",
+                target=target,
+            )
+    else:
+        form = ProposalResponseForm(instance=proposal)
+
+    return render_htmx(
+        request,
+        template_name,
+        {
+            **context,
+            "form": form,
+        },
+        partial="response_form",
+        target=target,
     )
 
 

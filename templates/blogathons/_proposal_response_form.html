@@ -1,0 +1,17 @@
+{% load heroicons %}
+{% if blogathon.description %}
+    <p class="mb-3 break-words prose prose-sm md:prose-base dark:prose-invert">{{ blogathon.description|linebreaksbr }}</p>
+{% endif %}
+<form post="{{ request.path }}"
+      hx-post="{{ request.path }}"
+      hx-target="proposal-{{ proposal.pk }}"
+      class="space-y-3"
+      id="proposal-form">
+    {{ form }}
+    <div class="flex items-center">
+        <button class="flex items-center btn btn-primary">
+            {% heroicon_mini "plus" class="mr-2" %}
+            Submit
+        </button>
+    </div>
+</form>
