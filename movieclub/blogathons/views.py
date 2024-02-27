@@ -13,6 +13,7 @@ from movieclub.blogathons.forms import (
 )
 from movieclub.blogathons.models import Blogathon, Proposal
 from movieclub.decorators import require_auth, require_form_methods
+from movieclub.htmx import render_htmx
 from movieclub.pagination import render_pagination
 
 
@@ -85,49 +86,6 @@ def blogathon_detail(
     )
 
 
-@require_safe
-@require_auth
-def blogathon_proposals(request: HttpRequest, blogathon_id: int) -> HttpResponse:
-    """Return all proposals."""
-    blogathon = get_object_or_404(
-        Blogathon.objects.for_organizer(request.user), pk=blogathon_id
-    )
-    proposals = blogathon.proposals.order_by("-created").select_related("participant")
-
-    if status := request.GET.get("status", None):
-        proposals = proposals.filter(status=status)
-
-    return render_pagination(
-        request,
-        proposals,
-        "blogathons/proposals.html",
-        {
-            "blogathon": blogathon,
-            "proposal_status": status,
-        },
-    )
-
-
-@require_POST
-@require_auth
-def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
-    """Reject proposal."""
-    proposal = get_object_or_404(
-        Proposal,
-        blogathon__organizer=request.user,
-        status=Proposal.Status.SUBMITTED,
-        pk=proposal_id,
-    )
-
-    form = ProposalResponseForm(request.POST, instance=proposal)
-    if form.is_valid():
-        proposal = form.save()
-        # TBD: send relevant emails etc
-
-        return redirect()
-    return HttpResponse()
-
-
 @require_form_methods
 @require_auth
 def edit_blogathon(request: HttpRequest, blogathon_id: int) -> HttpResponse:
@@ -161,26 +119,84 @@ def publish_blogathon(request: HttpRequest, blogathon_id: int) -> HttpResponse:
     return redirect(blogathon)
 
 
+@require_safe
+@require_auth
+def blogathon_proposals(request: HttpRequest, blogathon_id: int) -> HttpResponse:
+    """Return all proposals."""
+    blogathon = get_object_or_404(
+        Blogathon.objects.for_organizer(request.user), pk=blogathon_id
+    )
+    proposals = blogathon.proposals.order_by("-created").select_related("participant")
+
+    if status := request.GET.get("status", None):
+        proposals = proposals.filter(status=status)
+
+    return render_pagination(
+        request,
+        proposals,
+        "blogathons/proposals.html",
+        {
+            "blogathon": blogathon,
+            "proposal_status": status,
+        },
+    )
+
+
 @require_POST
 @require_auth
+def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
+    """Reject proposal."""
+    proposal = get_object_or_404(
+        Proposal.objects.select_related("blogathon"),
+        blogathon__organizer=request.user,
+        status=Proposal.Status.SUBMITTED,
+        pk=proposal_id,
+    )
+
+    form = ProposalResponseForm(request.POST, instance=proposal)
+    if form.is_valid():
+        proposal = form.save()
+        # TBD: send relevant emails etc
+
+        return redirect(proposal.blogathon)
+    return HttpResponse()
+
+
+@require_form_methods
+@require_auth
 def submit_proposal(request: HttpRequest, blogathon_id: int) -> HttpResponse:
-    """Makes ."""
+    """Submit proposal to blogathon."""
     blogathon = get_object_or_404(
-        Blogathon.objects.for_organizer(request.user),
-        start_date__gt=timezone.now(),
+        Blogathon.objects.available(request.user).select_related("organizer"),
+        starts__gt=timezone.now(),
         pk=blogathon_id,
     )
     if not blogathon.can_submit_proposal(request.user):
-        raise PermissionDenied("You have already submitted a proposal")
+        raise PermissionDenied("You cannot submit a proposal at this time.")
 
-    form = ProposalForm(request.POST)
-    if form.is_valid():
-        proposal = form.save(commit=False)
-        proposal.blogathon = blogathon
-        proposal.user = request.user
-        proposal.save()
+    if request.method == "POST":
+        form = ProposalForm(request.POST)
+        if form.is_valid():
+            proposal = form.save(commit=False)
+            proposal.blogathon = blogathon
+            proposal.participant = request.user
+            proposal.save()
 
-    return HttpResponse()
+            # TBD send email to organizer
+
+            messages.success(request, "Your proposal has been submitted")
+
+            return redirect(blogathon)
+    else:
+        form = ProposalForm()
+
+    return render_htmx(
+        request,
+        "blogathons/proposal_form.html",
+        {"blogathon": blogathon, "form": form},
+        partial="form",
+        target="proposal_form",
+    )
 
 
 @require_POST

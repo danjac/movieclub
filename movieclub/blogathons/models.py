@@ -132,9 +132,7 @@ class Proposal(TimeStampedModel):
 
     participant = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name="blogathon_proposals",
     )
 
@@ -144,7 +142,7 @@ class Proposal(TimeStampedModel):
         related_name="proposals",
     )
 
-    proposal = models.TextField(blank=True)
+    proposal = models.TextField()
     response = models.TextField(blank=True)
 
     class Meta:

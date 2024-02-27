@@ -6,7 +6,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 
 from movieclub.blogathons.models import Blogathon
-from movieclub.blogathons.tests.factories import create_blogathon
+from movieclub.blogathons.tests.factories import create_blogathon, create_proposal
 from movieclub.tests.factories import create_batch
 
 
@@ -64,6 +64,29 @@ class TestBlogathonProposals:
             reverse("blogathons:blogathon_proposals", args=[blogathon.pk])
         )
         assert response.status_code == http.HTTPStatus.OK
+
+
+class TestSubmitProposal:
+    @pytest.fixture()
+    def url(self, public_blogathon):
+        return reverse("blogathons:submit_proposal", args=[public_blogathon.pk])
+
+    @pytest.mark.django_db()
+    def test_get(self, client, auth_user, url):
+        response = client.get(url)
+        assert response.status_code == http.HTTPStatus.OK
+
+    @pytest.mark.django_db()
+    def test_get_not_allowed(self, client, auth_user, public_blogathon, url):
+        create_proposal(participant=auth_user, blogathon=public_blogathon)
+        response = client.get(url)
+        assert response.status_code == http.HTTPStatus.FORBIDDEN
+
+    @pytest.mark.django_db()
+    def test_post(self, client, auth_user, public_blogathon, url):
+        response = client.post(url, {"proposal": "test"})
+        assert response.url == public_blogathon.get_absolute_url()
+        assert public_blogathon.proposals.count() == 1
 
 
 class TestPublishBlogathon:

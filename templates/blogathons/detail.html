@@ -43,7 +43,8 @@
                 {% endif %}
                 {% if can_submit_proposal %}
                     <li class="flex justify-center items-center sm:justify-start">
-                        <a class="inline-flex space-x-2 btn btn-default" href="">
+                        <a class="inline-flex space-x-2 btn btn-default"
+                           href="{% url 'blogathons:submit_proposal' blogathon.pk %}">
                             {% heroicon_mini "plus" %}
                             <span>Submit proposal</span>
                         </a>
