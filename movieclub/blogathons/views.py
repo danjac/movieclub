@@ -87,27 +87,23 @@ def blogathon_detail(
 
 @require_safe
 @require_auth
-def proposals(request: HttpRequest, blogathon_id: int) -> HttpResponse:
+def blogathon_proposals(request: HttpRequest, blogathon_id: int) -> HttpResponse:
     """Return all proposals."""
     blogathon = get_object_or_404(
-        Blogathon.objects.available(request.user), pk=blogathon_id
+        Blogathon.objects.for_organizer(request.user), pk=blogathon_id
     )
     proposals = blogathon.proposals.order_by("-created").select_related("participant")
-
-    if request.user != blogathon.organizer:
-        proposals = proposals.filter(participant=request.user)
 
     if status := request.GET.get("status", None):
         proposals = proposals.filter(status=status)
 
     return render_pagination(
         request,
-        "blogathons/proposals.html",
         proposals,
+        "blogathons/proposals.html",
         {
             "blogathon": blogathon,
             "proposal_status": status,
-            "can_respond": timezone.now().date() > blogathon.start_date,
         },
     )
 

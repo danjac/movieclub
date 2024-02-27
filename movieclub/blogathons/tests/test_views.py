@@ -54,6 +54,18 @@ class TestBlogathonDetail:
         assert response.status_code == http.HTTPStatus.OK
 
 
+class TestBlogathonProposals:
+    @pytest.mark.django_db()
+    def test_get(self, client, auth_user):
+        blogathon = create_blogathon(
+            published=timezone.now().date(), organizer=auth_user
+        )
+        response = client.get(
+            reverse("blogathons:blogathon_proposals", args=[blogathon.pk])
+        )
+        assert response.status_code == http.HTTPStatus.OK
+
+
 class TestPublishBlogathon:
     @pytest.mark.django_db()
     def test_post(self, client, auth_user):

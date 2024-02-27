@@ -10,7 +10,8 @@
                 {% if is_organizer %}
                     {% if blogathon.published %}
                         <li class="flex justify-center items-center sm:justify-start">
-                            <a class="link">
+                            <a class="link"
+                               href="{% url "blogathons:blogathon_proposals" blogathon.pk %}">
                                 <span>Proposals</span>
                             </a>
                         </li>

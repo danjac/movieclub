@@ -13,6 +13,11 @@ urlpatterns = [
         name="publish_blogathon",
     ),
     path(
+        "<int:blogathon_id>/proposals/",
+        views.blogathon_proposals,
+        name="blogathon_proposals",
+    ),
+    path(
         "<slug:slug>-<int:blogathon_id>/",
         views.blogathon_detail,
         name="blogathon_detail",
