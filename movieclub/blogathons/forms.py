@@ -17,6 +17,19 @@ class CalendarInput(forms.DateInput):
 class BlogathonForm(forms.ModelForm):
     """Blogathon model form."""
 
+    class Meta:
+        model = Blogathon
+        fields: ClassVar = [
+            "starts",
+            "ends",
+            "name",
+            "description",
+        ]
+        widgets: ClassVar = {
+            "starts": CalendarInput,
+            "ends": CalendarInput,
+        }
+
     def clean_starts(self) -> datetime.date:
         """Check blogathon starts > today."""
         value = self.cleaned_data["starts"]
@@ -32,19 +45,6 @@ class BlogathonForm(forms.ModelForm):
         if starts and ends and starts > ends:
             self.add_error("ends", "Blogathon must end after it starts")
         return data
-
-    class Meta:
-        model = Blogathon
-        fields: ClassVar = [
-            "starts",
-            "ends",
-            "name",
-            "description",
-        ]
-        widgets: ClassVar = {
-            "starts": CalendarInput,
-            "ends": CalendarInput,
-        }
 
 
 class ProposalForm(forms.ModelForm):
