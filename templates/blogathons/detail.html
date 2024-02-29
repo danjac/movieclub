@@ -27,7 +27,7 @@
                     {% endif %}
                     <li class="flex justify-center items-center sm:justify-start">
                         <a class="inline-flex space-x-2 btn btn-{{ blogathon.published|yesno:'primary,default' }}"
-                           href="">
+                           href="{% url 'blogathons:edit_blogathon' blogathon.pk %}">
                             {% heroicon_mini "pencil" %}
                             <span>Edit blogathon</span>
                         </a>

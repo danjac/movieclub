@@ -8,6 +8,11 @@ urlpatterns = [
     path("", views.blogathon_list, name="blogathon_list"),
     path("add/", views.add_blogathon, name="add_blogathon"),
     path(
+        "<int:blogathon_id>/edit/",
+        views.edit_blogathon,
+        name="edit_blogathon",
+    ),
+    path(
         "<int:blogathon_id>/publish/",
         views.publish_blogathon,
         name="publish_blogathon",

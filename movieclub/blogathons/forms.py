@@ -63,7 +63,7 @@ class ProposalResponseForm(forms.ModelForm):
     class Meta:
         model = Proposal
         fields: ClassVar = [
-            "proposal",
+            "response",
         ]
 
 

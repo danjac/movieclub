@@ -15,27 +15,29 @@
             {% for proposal in page_obj %}
                 <li class="py-3 first-of-type:pt-0">
                     {% partialdef proposal inline=True %}
-                    <article class="relative py-3 space-y-3" id="proposal-{{ proposal.pk }}">
-                        <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
-                            <div class="flex items-center space-x-3">
-                                <a href="" class="link">{{ proposal.participant.username }}</a>
-                            </div>
-                            <div class="font-semibold">Submitted {{ proposal.created|date }}</div>
-                        </div>
-                        <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ proposal.proposal|linebreaksbr }}</p>
-                        <div class="flex justify-between items-center text-xs lg:text-sm">
-                            {% if proposal.is_submitted %}
+                    {% with target=proposal.get_hx_target %}
+                        <article class="relative py-3 space-y-3" id="{{ target }}">
+                            <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
                                 <div class="flex items-center space-x-3">
-                                    <button class="link"
-                                            hx-get="{% url 'blogathons:respond_to_proposal' proposal.pk %}"
-                                            hx-target="#proposal-{{ proposal.pk }}"
-                                            hx-swap="innerHTML">Reply</button>
+                                    <a href="" class="link">{{ proposal.participant.username }}</a>
                                 </div>
-                            {% else %}
-                                <strong>{{ proposal.get_status_display }}</strong>
-                            {% endif %}
-                        </div>
-                    </article>
+                                <div class="font-semibold">Submitted {{ proposal.created|date }}</div>
+                            </div>
+                            <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ proposal.proposal|linebreaksbr }}</p>
+                            <div class="flex justify-between items-center text-xs lg:text-sm">
+                                {% if proposal.is_submitted %}
+                                    <div class="flex items-center space-x-3">
+                                        <button class="link"
+                                                hx-get="{% url 'blogathons:respond_to_proposal' proposal.pk %}"
+                                                hx-target="#{{ target }}"
+                                                hx-swap="innerHTML">Reply</button>
+                                    </div>
+                                {% else %}
+                                    <strong>{{ proposal.get_status_display }}</strong>
+                                {% endif %}
+                            </div>
+                        </article>
+                    {% endwith %}
                 {% endpartialdef proposal %}
             </li>
         {% empty %}
@@ -50,7 +52,7 @@
 {% endblock content %}
 {% partialdef response_form %}
 <form post="{{ request.path }}"
-      hx-target="#proposal-{{ proposal.pk }}"
+      hx-target="#{{ proposal.get_hx_target }}"
       class="space-y-3"
       id="proposal-form">
     {{ form }}

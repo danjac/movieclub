@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_safe
 
@@ -27,19 +27,6 @@ def blogathon_list(request: HttpRequest) -> HttpResponse:
     )
 
 
-@require_safe
-def organizer_blogathon_list(request: HttpRequest) -> HttpResponse:
-    """Index list of blogathons for current user."""
-    return render_pagination(
-        request,
-        Blogathon.objects.for_organizer(request.user).order_by("-starts"),
-        "blogathons/organizer.html",
-        {
-            "organizer": request.user,
-        },
-    )
-
-
 @require_form_methods
 @require_auth
 def add_blogathon(request: HttpRequest) -> HttpResponse:
@@ -59,7 +46,13 @@ def add_blogathon(request: HttpRequest) -> HttpResponse:
     else:
         form = BlogathonForm()
 
-    return render(request, "blogathons/blogathon_form.html", {"form": form})
+    return render_htmx(
+        request,
+        "blogathons/blogathon_form.html",
+        {"form": form},
+        partial="form",
+        target="blogathon_form",
+    )
 
 
 @require_safe
@@ -95,11 +88,23 @@ def edit_blogathon(request: HttpRequest, blogathon_id: int) -> HttpResponse:
     )
     if request.method == "POST":
         form = BlogathonForm(request.POST, instance=blogathon)
-        form.save()
+        if form.is_valid():
+            messages.success(request, "Your blogathon has been updated")
+            form.save()
+            return redirect(blogathon)
     else:
         form = BlogathonForm(instance=blogathon)
 
-    return render()
+    return render_htmx(
+        request,
+        "blogathons/blogathon_form.html",
+        {
+            "blogathon": blogathon,
+            "form": form,
+        },
+        partial="form",
+        target="blogathon_form",
+    )
 
 
 @require_POST
@@ -128,16 +133,12 @@ def blogathon_proposals(request: HttpRequest, blogathon_id: int) -> HttpResponse
     )
     proposals = blogathon.proposals.order_by("-created").select_related("participant")
 
-    if status := request.GET.get("status", None):
-        proposals = proposals.filter(status=status)
-
     return render_pagination(
         request,
         proposals,
         "blogathons/proposals.html",
         {
             "blogathon": blogathon,
-            "proposal_status": status,
         },
     )
 
@@ -190,48 +191,35 @@ def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
         pk=proposal_id,
     )
 
-    target = f"proposal-{proposal.pk}"
-    template_name = "blogathons/proposals.html"
-    context = {"proposal": proposal}
+    form = None
+    is_valid = False
 
-    if request.method == "POST":
-        action = request.POST.get("action", "cancel")
-        is_valid = False
-
-        if action in ("accept", "reject"):
-            form = ProposalResponseForm(request.POST, instance=proposal)
-            if is_valid := form.is_valid():
-                proposal = form.save(commit=False)
-                proposal.status = (
-                    Proposal.Status.ACCEPTED
-                    if action == "accept"
-                    else Proposal.Status.REJECTED
-                )
-                proposal.status_changed_at = timezone.now()
-                # TBD: email participant
-                proposal.save()
-                is_valid = True
-
-        if is_valid or action == "cancel":
-            return render_htmx(
-                request,
-                template_name,
-                context,
-                partial="proposal",
-                target=target,
+    if request.method == "POST" and (
+        action := request.POST.get("action", "cancel")
+    ) in ("accept", "reject"):
+        form = ProposalResponseForm(request.POST, instance=proposal)
+        if is_valid := form.is_valid():
+            proposal = form.save(commit=False)
+            proposal.status = (
+                Proposal.Status.ACCEPTED
+                if action == "accept"
+                else Proposal.Status.REJECTED
             )
+            proposal.status_changed_at = timezone.now()
+            proposal.save()
+
     else:
         form = ProposalResponseForm(instance=proposal)
 
     return render_htmx(
         request,
-        template_name,
+        "blogathons/proposals.html",
         {
-            **context,
             "form": form,
+            "proposal": proposal,
         },
-        partial="response_form",
-        target=target,
+        partial="proposal" if is_valid or form is None else "response_form",
+        target=proposal.get_hx_target(),
     )
 
 

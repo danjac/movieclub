@@ -128,7 +128,7 @@ class Proposal(TimeStampedModel):
         choices=Status,
     )
 
-    state_changed_at = models.DateTimeField(null=True, blank=True)
+    status_changed_at = models.DateTimeField(null=True, blank=True)
 
     participant = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -153,6 +153,10 @@ class Proposal(TimeStampedModel):
                 condition=models.Q(status="submitted"),
             )
         ]
+
+    def get_hx_target(self) -> str:
+        """Returns HTMX target ID."""
+        return f"proposal-{self.pk}"
 
     def is_accepted(self) -> bool:
         """If ACCEPTED status."""
