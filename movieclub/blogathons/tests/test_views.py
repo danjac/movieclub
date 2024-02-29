@@ -5,7 +5,7 @@ import pytest
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 
-from movieclub.blogathons.models import Blogathon
+from movieclub.blogathons.models import Blogathon, Entry, Proposal
 from movieclub.blogathons.tests.factories import create_blogathon, create_proposal
 from movieclub.tests.factories import create_batch
 
@@ -186,3 +186,42 @@ class TestRespondToProposal:
         proposal.refresh_from_db()
         assert proposal.status_changed_at
         assert proposal.is_rejected()
+
+
+class TestSubmitEntry:
+    @pytest.fixture()
+    def proposal(self, open_blogathon, auth_user):
+        return create_proposal(
+            blogathon=open_blogathon,
+            participant=auth_user,
+            status=Proposal.Status.ACCEPTED,
+        )
+
+    @pytest.fixture()
+    def url(self, open_blogathon):
+        return reverse("blogathons:submit_entry", args=[open_blogathon.pk])
+
+    @pytest.mark.django_db()
+    def test_get(self, client, proposal, url):
+        response = client.get(url)
+        assert response.status_code == http.HTTPStatus.OK
+
+    @pytest.mark.django_db()
+    def test_get_permission_denied(self, client, auth_user, url):
+        response = client.get(url)
+        assert response.status_code == http.HTTPStatus.FORBIDDEN
+
+    @pytest.mark.django_db()
+    def test_post(self, client, proposal, open_blogathon, auth_user, url):
+        response = client.post(
+            url,
+            {
+                "blog_title": "test",
+                "blog_url": "https://example.com",
+                "blog_summary": "test",
+            },
+        )
+        assert response.url == open_blogathon.get_absolute_url()
+
+        entry = Entry.objects.get()
+        assert entry.participant == auth_user

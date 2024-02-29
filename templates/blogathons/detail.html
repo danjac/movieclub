@@ -70,7 +70,25 @@
                 <li class="pb-3">{% include "_pagination_links.html" %}</li>
             {% endif %}
             {% for entry in page_obj %}
-                <li class="py-3 first-of-type:pt-0">article goes here</li>
+                <li class="py-3">
+                    <article class="relative p-3 space-y-3 border">
+                        <h3 class="text-base font-bold md:text-lg">
+                            <a href="{{ entry.blog_url }}"
+                               class="link"
+                               target="_blank"
+                               rel="noopener">{{ entry.blog_title }}</a>
+                        </h3>
+                        <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
+                            <div class="flex items-center space-x-3">
+                                <a href="" class="link">{{ entry.participant.username }}</a>
+                            </div>
+                            <div class="font-semibold">Submitted {{ entry.created|date }}</div>
+                        </div>
+                        {% if entry.description %}
+                            <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ entry.description|linebreaksbr }}</p>
+                        </article>
+                    {% endif %}
+                </li>
             {% empty %}
                 <li class="py-3"></li>
             {% endfor %}
