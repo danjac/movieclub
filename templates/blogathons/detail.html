@@ -64,13 +64,13 @@
         </p>
     </div>
     {% partialdef pagination inline=True %}
-    <ul class="divide-y divide-solid" id="{{ pagination_target }}">
+    <ul class="mt-6 space-y-3" id="{{ pagination_target }}">
         {% with has_other_pages=page_obj.has_other_pages %}
             {% if has_other_pages %}
-                <li class="pb-3">{% include "_pagination_links.html" %}</li>
+                <li>{% include "_pagination_links.html" %}</li>
             {% endif %}
             {% for entry in page_obj %}
-                <li class="py-3">
+                <li>
                     <article class="relative p-3 space-y-3 border">
                         <h3 class="text-base font-bold md:text-lg">
                             <a href="{{ entry.blog_url }}"
@@ -78,22 +78,18 @@
                                target="_blank"
                                rel="noopener">{{ entry.blog_title }}</a>
                         </h3>
-                        <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
-                            <div class="flex items-center space-x-3">
-                                <a href="" class="link">{{ entry.participant.username }}</a>
-                            </div>
-                            <div class="font-semibold">Submitted {{ entry.created|date }}</div>
+                        <div>
+                            <a href="" class="link">{{ entry.participant.username }}</a>
                         </div>
-                        {% if entry.description %}
-                            <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ entry.description|linebreaksbr }}</p>
-                        </article>
-                    {% endif %}
+                        {% if entry.blog_summary %}
+                            <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ entry.blog_summary|linebreaksbr }}</p>
+                        {% endif %}
+                        <div class="font-semibold">Submitted {{ entry.created|date }}</div>
+                    </article>
                 </li>
-            {% empty %}
-                <li class="py-3"></li>
             {% endfor %}
             {% if has_other_pages %}
-                <li class="pt-3">{% include "_pagination_links.html" %}</li>
+                <li>{% include "_pagination_links.html" %}</li>
             {% endif %}
         {% endwith %}
     </ul>
