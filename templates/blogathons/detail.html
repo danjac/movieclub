@@ -21,7 +21,7 @@
                                     hx-post="{% url 'blogathons:publish_blogathon' blogathon.pk %}"
                                     hx-confirm="Are you sure you want to publish this blogathon?">
                                 {% heroicon_mini "check" %}
-                                <span>Publish blogathon</span>
+                                <span>Publish Blogathon</span>
                             </button>
                         </li>
                     {% endif %}
@@ -29,15 +29,16 @@
                         <a class="inline-flex space-x-2 btn btn-{{ blogathon.published|yesno:'primary,default' }}"
                            href="{% url 'blogathons:edit_blogathon' blogathon.pk %}">
                             {% heroicon_mini "pencil" %}
-                            <span>Edit blogathon</span>
+                            <span>Edit Blogathon</span>
                         </a>
                     </li>
                 {% endif %}
                 {% if can_submit_entry %}
                     <li class="flex justify-center items-center sm:justify-start">
-                        <a class="inline-flex space-x-2 btn btn-default" href="">
+                        <a class="inline-flex space-x-2 btn btn-default"
+                           href="{% url 'blogathons:submit_entry' blogathon.pk %}">
                             {% heroicon_mini "plus" %}
-                            <span>Submit entry</span>
+                            <span>Submit Entry</span>
                         </a>
                     </li>
                 {% endif %}
@@ -46,7 +47,7 @@
                         <a class="inline-flex space-x-2 btn btn-default"
                            href="{% url 'blogathons:submit_proposal' blogathon.pk %}">
                             {% heroicon_mini "plus" %}
-                            <span>Submit proposal</span>
+                            <span>Submit Proposal</span>
                         </a>
                     </li>
                 {% endif %}

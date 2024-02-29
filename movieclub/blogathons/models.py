@@ -188,8 +188,8 @@ class Entry(TimeStampedModel):
         related_name="entries",
     )
 
-    blog_title = models.CharField(max_length=300, blank=True)
-    blog_url = models.URLField(blank=True)
+    blog_title = models.CharField(max_length=300)
+    blog_url = models.URLField()
     blog_summary = models.TextField(blank=True)
 
     class Meta:

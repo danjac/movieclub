@@ -183,7 +183,10 @@ def submit_proposal(request: HttpRequest, blogathon_id: int) -> HttpResponse:
 @require_form_methods
 @require_auth
 def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
-    """Reject or accept proposal."""
+    """Reject or accept proposal.
+
+    TBD: break this up into discrete action endpoints.
+    """
     proposal = get_object_or_404(
         Proposal.objects.select_related("blogathon", "participant"),
         blogathon__organizer=request.user,
@@ -194,19 +197,18 @@ def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
     form = None
     is_valid = False
 
-    if request.method == "POST" and (
-        action := request.POST.get("action", "cancel")
-    ) in ("accept", "reject"):
-        form = ProposalResponseForm(request.POST, instance=proposal)
-        if is_valid := form.is_valid():
-            proposal = form.save(commit=False)
-            proposal.status = (
-                Proposal.Status.ACCEPTED
-                if action == "accept"
-                else Proposal.Status.REJECTED
-            )
-            proposal.status_changed_at = timezone.now()
-            proposal.save()
+    if request.method == "POST":
+        if (action := request.POST.get("action")) in ("accept", "reject"):
+            form = ProposalResponseForm(request.POST, instance=proposal)
+            if is_valid := form.is_valid():
+                proposal = form.save(commit=False)
+                proposal.status = (
+                    Proposal.Status.ACCEPTED
+                    if action == "accept"
+                    else Proposal.Status.REJECTED
+                )
+                proposal.status_changed_at = timezone.now()
+                proposal.save()
 
     else:
         form = ProposalResponseForm(instance=proposal)
@@ -223,22 +225,38 @@ def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
     )
 
 
-@require_POST
+@require_form_methods
 @require_auth
 def submit_entry(request: HttpRequest, blogathon_id: int) -> HttpResponse:
-    """Makes ."""
+    """Submit an entry."""
     blogathon = get_object_or_404(
-        Blogathon.objects.for_organizer(request.user),
+        Blogathon.objects.available(request.user),
         pk=blogathon_id,
     )
     if not blogathon.can_submit_entry(request.user):
         raise PermissionDenied("You cannot submit an entry")
 
-    form = EntryForm(request.POST)
-    if form.is_valid():
-        entry = form.save(commit=False)
-        entry.blogathon = blogathon
-        entry.user = request.user
-        entry.save()
+    if request.method == "POST":
+        form = EntryForm(request.POST)
 
-    return HttpResponse()
+        if form.is_valid():
+            entry = form.save(commit=False)
+            entry.blogathon = blogathon
+            entry.participant = request.user
+            entry.save()
+
+            messages.success(request, "Your entry has been submitted!")
+            return redirect(blogathon)
+    else:
+        form = EntryForm()
+
+    return render_htmx(
+        request,
+        "blogathons/entry_form.html",
+        {
+            "blogathon": blogathon,
+            "form": form,
+        },
+        partial="form",
+        target="entry-form",
+    )

@@ -33,6 +33,11 @@ urlpatterns = [
         name="respond_to_proposal",
     ),
     path(
+        "<int:blogathon_id>/entries/submit/",
+        views.submit_entry,
+        name="submit_entry",
+    ),
+    path(
         "<slug:slug>-<int:blogathon_id>/",
         views.blogathon_detail,
         name="blogathon_detail",
