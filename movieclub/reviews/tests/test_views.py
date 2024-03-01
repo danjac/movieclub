@@ -13,13 +13,22 @@ def review(auth_user):
     return create_review(user=auth_user)
 
 
+@pytest.fixture()
+def movie():
+    return create_movie()
+
+
 class TestAddReview:
+    @pytest.fixture()
+    def url(self, movie):
+        return reverse("reviews:add_review", args=[movie.pk])
+
     @pytest.mark.django_db()
-    def test_post(self, client, auth_user):
-        movie = create_movie()
+    def test_post(self, client, auth_user, movie, url):
         response = client.post(
-            reverse("reviews:add_review", args=[movie.pk]),
+            url,
             {"comment": "test"},
+            HTTP_HX_REQUEST="true",
         )
         assert response.status_code == http.HTTPStatus.OK
         review = Review.objects.get()
@@ -27,43 +36,59 @@ class TestAddReview:
         assert review.user == auth_user
 
     @pytest.mark.django_db()
-    def test_post_invalid(self, client, auth_user):
-        movie = create_movie()
+    def test_post_invalid(self, client, auth_user, url):
         response = client.post(
-            reverse("reviews:add_review", args=[movie.pk]),
+            url,
             {"comment": ""},
+            HTTP_HX_REQUEST="true",
         )
 
         assert response.status_code == http.HTTPStatus.OK
         assert Review.objects.count() == 0
 
 
-class TestReviewDetail:
-    @pytest.mark.django_db()
-    def test_get(self, client, review):
-        response = client.get(
-            reverse("reviews:review_detail", args=[review.pk]),
-        )
-        assert response.status_code == http.HTTPStatus.OK
-
-
 class TestEditReview:
+    @pytest.fixture()
+    def url(self, review):
+        return reverse("reviews:edit_review", args=[review.pk])
+
     @pytest.mark.django_db()
-    def test_get(self, client, review):
+    def test_get(self, client, review, url):
         response = client.get(
-            reverse("reviews:edit_review", args=[review.pk]),
+            url,
+            HTTP_HX_REQUEST="true",
+            HTTP_HX_TARGET=f"review-{review.pk}",
         )
         assert response.status_code == http.HTTPStatus.OK
 
     @pytest.mark.django_db()
-    def test_post(self, client, review):
+    def test_post(self, client, review, url):
         response = client.post(
-            reverse("reviews:edit_review", args=[review.pk]),
-            {"comment": "test"},
+            url,
+            {
+                "comment": "test",
+            },
+            HTTP_HX_REQUEST="true",
+            HTTP_HX_TARGET=f"review-{review.pk}",
         )
         assert response.status_code == http.HTTPStatus.OK
         review.refresh_from_db()
         assert review.comment == "test"
+
+    @pytest.mark.django_db()
+    def test_post_cancel(self, client, review, url):
+        response = client.post(
+            url,
+            {
+                "comment": "test",
+                "action": "cancel",
+            },
+            HTTP_HX_REQUEST="true",
+            HTTP_HX_TARGET=f"review-{review.pk}",
+        )
+        assert response.status_code == http.HTTPStatus.OK
+        review.refresh_from_db()
+        assert review.comment != "test"
 
 
 class TestDeleteReview:
