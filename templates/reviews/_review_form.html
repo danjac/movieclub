@@ -1,8 +1,8 @@
-{# vim: set filetype=htmldjango #}
 {% load heroicons %}
 <form hx-post="{{ review_submit_url }}"
       hx-target="this"
       {% if hx_oob %}hx-swap-oob="true"{% endif %}
+      {% if review %}hx-swap="innerHTML"{% endif %}
       class="space-y-3{% if not review %} pb-3 mb-3 border-b{% endif %}"
       id="review-form{% if review %}-{{ review.pk }}{% endif %}">
     <h3 class="my-3 text-base font-semibold lg:text-lg">
