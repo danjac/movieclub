@@ -102,7 +102,7 @@ class TestSearchTmdbMovies:
     @pytest.mark.django_db()
     def test_get(self, client, mocker, auth_user):
         mocker.patch(
-            "movieclub.tmdb.api.search_movies",
+            "movieclub.releases.views.search_movies",
             return_value=[
                 Movie(
                     id=1000,
@@ -122,7 +122,7 @@ class TestSearchTmdbTVShows:
     @pytest.mark.django_db()
     def test_get(self, client, mocker, auth_user):
         mocker.patch(
-            "movieclub.tmdb.api.search_tv_shows",
+            "movieclub.releases.views.search_tv_shows",
             return_value=[
                 TVShow(
                     id=1000,
