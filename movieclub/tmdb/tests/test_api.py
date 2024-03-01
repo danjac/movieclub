@@ -2,7 +2,7 @@ import http
 
 import httpx
 
-from movieclub import tmdb
+from movieclub.tmdb import api
 
 
 class TestTVShowDetail:
@@ -251,7 +251,7 @@ class TestTVShowDetail:
             return httpx.Response(http.HTTPStatus.OK, json=json)
 
         client = httpx.Client(transport=httpx.MockTransport(_handle))
-        show = tmdb.get_tv_show_detail(client, 484)
+        show = api.get_tv_show_detail(client, 484)
 
         assert show.id == 484
         assert show.name == "Murder, She Wrote"
@@ -398,7 +398,7 @@ class TestMovieDetail:
             return httpx.Response(http.HTTPStatus.OK, json=json)
 
         client = httpx.Client(transport=httpx.MockTransport(_handle))
-        movie = tmdb.get_movie_detail(client, 12345)
+        movie = api.get_movie_detail(client, 12345)
 
         assert movie.id == 12345
         assert movie.title == "John Wick"
@@ -458,7 +458,7 @@ class TestSearchTVShows:
 
         client = httpx.Client(transport=httpx.MockTransport(_handle))
 
-        shows = tmdb.search_tv_shows(client, query={"murder"})
+        shows = api.search_tv_shows(client, query={"murder"})
         assert len(shows) == 1
         show = shows[0]
         assert show.id == 484
@@ -498,7 +498,7 @@ class TestSearchMovies:
 
         client = httpx.Client(transport=httpx.MockTransport(_handle))
 
-        movies = tmdb.search_movies(client, query={"Wick"})
+        movies = api.search_movies(client, query={"Wick"})
         assert len(movies) == 1
         movie = movies[0]
         assert movie.id == 603692

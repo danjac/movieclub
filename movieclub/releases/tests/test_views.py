@@ -3,7 +3,6 @@ import http
 import pytest
 from django.urls import reverse_lazy
 
-from movieclub import tmdb
 from movieclub.releases.models import Release
 from movieclub.releases.tests.factories import (
     create_genre,
@@ -11,6 +10,7 @@ from movieclub.releases.tests.factories import (
     create_tv_show,
 )
 from movieclub.tests.factories import create_batch
+from movieclub.tmdb.models import Movie, TVShow
 
 
 class TestMovieList:
@@ -102,9 +102,9 @@ class TestSearchTmdbMovies:
     @pytest.mark.django_db()
     def test_get(self, client, mocker, auth_user):
         mocker.patch(
-            "movieclub.tmdb.search_movies",
+            "movieclub.tmdb.api.search_movies",
             return_value=[
-                tmdb.Movie(
+                Movie(
                     id=1000,
                     title="John Wick",
                     release_date="2014-01-01",
@@ -122,9 +122,9 @@ class TestSearchTmdbTVShows:
     @pytest.mark.django_db()
     def test_get(self, client, mocker, auth_user):
         mocker.patch(
-            "movieclub.tmdb.search_tv_shows",
+            "movieclub.tmdb.api.search_tv_shows",
             return_value=[
-                tmdb.TVShow(
+                TVShow(
                     id=1000,
                     name="Poker Face",
                     first_air_date="2023-01-01",

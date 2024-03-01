@@ -1,15 +1,15 @@
 import attrs
 import httpx
 
-from movieclub import tmdb
 from movieclub.credits.models import CastMember, CrewMember, Person
 from movieclub.releases.models import Genre, Release
+from movieclub.tmdb import api, models
 
 
 def populate_movie(client: httpx.Client, tmdb_id: int) -> Release:
     """Generate movie from Tmdb."""
-    details = tmdb.get_movie_detail(client, tmdb_id)
-    fields = attrs.fields(tmdb.MovieDetail)
+    details = api.get_movie_detail(client, tmdb_id)
+    fields = attrs.fields(models.MovieDetail)
 
     movie = Release.objects.create(
         tmdb_id=tmdb_id,
@@ -42,8 +42,8 @@ def populate_movie(client: httpx.Client, tmdb_id: int) -> Release:
 def populate_tv_show(client: httpx.Client, tmdb_id: int) -> Release:
     """Populate TV show."""
 
-    details = tmdb.get_tv_show_detail(client, tmdb_id)
-    fields = attrs.fields(tmdb.TVShowDetail)
+    details = api.get_tv_show_detail(client, tmdb_id)
+    fields = attrs.fields(models.TVShowDetail)
 
     tv_show = Release.objects.create(
         tmdb_id=tmdb_id,
@@ -80,16 +80,16 @@ def populate_tv_show(client: httpx.Client, tmdb_id: int) -> Release:
     return tv_show
 
 
-def _populate_genres(release: Release, genres: list[tmdb.Genre]) -> None:
+def _populate_genres(release: Release, genres: list[models.Genre]) -> None:
     release.genres.set(Genre.objects.filter(tmdb_id__in=[g.id for g in genres]))
 
 
 def _populate_credits(
     release: Release,
-    cast_members: list[tmdb.CastMember],
-    crew_members: list[tmdb.CrewMember],
+    cast_members: list[models.CastMember],
+    crew_members: list[models.CrewMember],
 ):
-    cast_member_fields = attrs.fields(tmdb.CastMember)
+    cast_member_fields = attrs.fields(models.CastMember)
 
     persons = [
         Person(
@@ -108,7 +108,7 @@ def _populate_credits(
         for member in cast_members
     ]
 
-    crew_member_fields = attrs.fields(tmdb.CrewMember)
+    crew_member_fields = attrs.fields(models.CrewMember)
 
     persons += [
         Person(

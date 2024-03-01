@@ -1,9 +1,8 @@
 import httpx
 import pytest
 
-from movieclub import tmdb
 from movieclub.releases.tests.factories import create_genre
-from movieclub.releases.tmdb import populate_movie, populate_tv_show
+from movieclub.tmdb import models, populate_movie, populate_tv_show
 
 
 class TestPopulateTVShow:
@@ -14,8 +13,8 @@ class TestPopulateTVShow:
         create_genre(tmdb_id=18, name="Drama")
 
         mocker.patch(
-            "movieclub.tmdb.get_tv_show_detail",
-            return_value=tmdb.TVShowDetail(
+            "movieclub.tmdb.api.get_tv_show_detail",
+            return_value=models.TVShowDetail(
                 id=484,
                 name="Murder, She Wrote",
                 overview="An unassuming mystery writer turned sleuth uses her professional insight to help solve real-life homicide cases.",
@@ -28,12 +27,12 @@ class TestPopulateTVShow:
                 number_of_episodes=264,
                 number_of_seasons=12,
                 genres=[
-                    tmdb.Genre(id=9648, name="Mystery"),
-                    tmdb.Genre(id=80, name="Crime"),
-                    tmdb.Genre(id=18, name="Drama"),
+                    models.Genre(id=9648, name="Mystery"),
+                    models.Genre(id=80, name="Crime"),
+                    models.Genre(id=18, name="Drama"),
                 ],
                 cast_members=[
-                    tmdb.CastMember(
+                    models.CastMember(
                         id=14730,
                         gender=1,
                         name="Angela Lansbury",
@@ -43,49 +42,49 @@ class TestPopulateTVShow:
                     )
                 ],
                 crew_members=[
-                    tmdb.CrewMember(
+                    models.CrewMember(
                         id=14930,
                         gender=2,
                         name="John Addison",
                         profile_path="",
                         job="Main Title Theme Composer",
                     ),
-                    tmdb.CrewMember(
+                    models.CrewMember(
                         id=372172,
                         gender=2,
                         name="Robert F. O'Neill",
                         profile_path="",
                         job="Producer",
                     ),
-                    tmdb.CrewMember(
+                    models.CrewMember(
                         id=1217028,
                         gender=0,
                         name="Douglas Benton",
                         profile_path="",
                         job="Producer",
                     ),
-                    tmdb.CrewMember(
+                    models.CrewMember(
                         id=14730,
                         gender=1,
                         name="Angela Lansbury",
                         profile_path="https://image.tmdb.org/t/p/original/sNIHnWjXEpBcTjRxzmrwuJyHqfi.jpg",
                         job="Producer",
                     ),
-                    tmdb.CrewMember(
+                    models.CrewMember(
                         id=151395,
                         gender=2,
                         name="Peter S. Fischer",
                         profile_path="",
                         job="Executive Producer",
                     ),
-                    tmdb.CrewMember(
+                    models.CrewMember(
                         id=42058,
                         gender=2,
                         name="William Link",
                         profile_path="",
                         job="Executive Producer",
                     ),
-                    tmdb.CrewMember(
+                    models.CrewMember(
                         id=42057,
                         gender=2,
                         name="Richard Levinson",
@@ -117,8 +116,8 @@ class TestPopulateMovie:
         create_genre(tmdb_id=28, name="Action")
         create_genre(tmdb_id=53, name="Thriller")
         mocker.patch(
-            "movieclub.tmdb.get_movie_detail",
-            return_value=tmdb.MovieDetail(
+            "movieclub.tmdb.api.get_movie_detail",
+            return_value=models.MovieDetail(
                 id=12345,
                 title="John Wick",
                 homepage="https://www.lionsgate.com/movies/john-wick",
@@ -131,17 +130,17 @@ class TestPopulateMovie:
                 overview="Ex-hitman John Wick comes out of retirement to track down the gangsters that took everything from him.",
                 tagline="Don't set him off.",
                 production_countries=[
-                    tmdb.Country(
+                    models.Country(
                         iso_3166_1="US",
                         name="United States of America",
                     ),
                 ],
                 genres=[
-                    tmdb.Genre(id=28, name="Action"),
-                    tmdb.Genre(id=53, name="Thriller"),
+                    models.Genre(id=28, name="Action"),
+                    models.Genre(id=53, name="Thriller"),
                 ],
                 cast_members=[
-                    tmdb.CastMember(
+                    models.CastMember(
                         gender=2,
                         id=6384,
                         name="Keanu Reeves",
@@ -150,7 +149,7 @@ class TestPopulateMovie:
                     )
                 ],
                 crew_members=[
-                    tmdb.CrewMember(
+                    models.CrewMember(
                         gender=2,
                         id=40644,
                         name="Chad Stahelski",

@@ -1,15 +1,20 @@
+from typing import TYPE_CHECKING
+
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST, require_safe
 
-from movieclub import tmdb
 from movieclub.client import get_client
 from movieclub.decorators import require_auth
 from movieclub.pagination import render_pagination
 from movieclub.releases.models import Genre, Release, ReleaseQuerySet
-from movieclub.releases.tmdb import populate_movie, populate_tv_show
+from movieclub.tmdb import populate_movie, populate_tv_show
+from movieclub.tmdb.api import search_movies, search_tv_shows
+
+if TYPE_CHECKING:  # pragma: no cover
+    from movieclub.tmdb.models import Movie, TVShow
 
 
 @require_safe
@@ -101,10 +106,10 @@ def search_tmdb_movies(request: HttpRequest, limit: int = 12) -> HttpResponse:
 
     TBD: make full page, with "Add" button.
     """
-    results: list[tmdb.Movie] = []
+    results: list[Movie] = []
 
     if request.search:
-        results = tmdb.search_movies(get_client(), request.search)
+        results = search_movies(get_client(), request.search)
 
     return render(
         request,
@@ -122,10 +127,10 @@ def search_tmdb_tv_shows(request: HttpRequest, limit: int = 12) -> HttpResponse:
 
     TBD: make full page, with "Add" button.
     """
-    results: list[tmdb.TVShow] = []
+    results: list[TVShow] = []
 
     if request.search:
-        results = tmdb.search_tv_shows(get_client(), request.search)
+        results = search_tv_shows(get_client(), request.search)
 
     return render(
         request,
