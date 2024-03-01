@@ -1,13 +1,12 @@
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django_htmx.http import reswap, retarget
 
 from movieclub.decorators import require_auth, require_DELETE, require_form_methods
-from movieclub.htmx import render_htmx
 from movieclub.releases.models import Release
 from movieclub.reviews.forms import ReviewForm
 from movieclub.reviews.models import Review
@@ -93,29 +92,27 @@ def delete_review(request: HttpRequest, review_id: int) -> HttpResponse:
 def _render_review(
     request: HttpRequest, review: Review, extra_context: dict | None = None
 ) -> HttpResponse:
-    return render_htmx(
+    return render(
         request,
-        "reviews/_reviews.html",
+        "reviews/_reviews.html#review",
         {
             "review": review,
             **(extra_context or {}),
         },
-        partial="review",
     )
 
 
 def _render_review_form(
     request: HttpRequest, form: ReviewForm, extra_context: dict | None = None
 ) -> HttpResponse:
-    return render_htmx(
+    return render(
         request,
-        "reviews/_reviews.html",
+        "reviews/_reviews.html#review_form",
         {
             "review_form": form,
             "review_submit_url": request.path,
             **(extra_context or {}),
         },
-        partial="review_form",
     )
 
 

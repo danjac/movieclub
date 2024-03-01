@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_safe
@@ -217,13 +217,12 @@ def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
                 target = f"#{proposal.get_target_id()}"
                 response = retarget(
                     reswap(
-                        render_htmx(
+                        render(
                             request,
-                            "blogathons/proposals.html",
+                            "blogathons/proposals.html#proposal",
                             {
                                 "proposal": proposal,
                             },
-                            partial="proposal",
                         ),
                         f"outerHTML show:{target}:top",  # type: ignore [arg-type]
                     ),
@@ -241,14 +240,13 @@ def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
     else:
         form = ProposalResponseForm(instance=proposal)
 
-    return render_htmx(
+    return render(
         request,
-        "blogathons/proposals.html",
+        "blogathons/proposals.html#response_form",
         {
             "response_form": form,
             "proposal": proposal,
         },
-        partial="response_form",
     )
 
 
