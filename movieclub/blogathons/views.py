@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_safe
 
@@ -149,7 +149,7 @@ def submit_proposal(request: HttpRequest, blogathon_id: int) -> HttpResponse:
     """Submit proposal to blogathon."""
     blogathon = get_object_or_404(
         Blogathon.objects.available(request.user).select_related("organizer"),
-        starts__gt=timezone.now(),
+        ends__gt=timezone.now(),
         pk=blogathon_id,
     )
     if not blogathon.can_submit_proposal(request.user):
@@ -183,10 +183,7 @@ def submit_proposal(request: HttpRequest, blogathon_id: int) -> HttpResponse:
 @require_form_methods
 @require_auth
 def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
-    """Reject or accept proposal.
-
-    TBD: break this up into discrete action endpoints.
-    """
+    """Reject or accept proposal."""
     proposal = get_object_or_404(
         Proposal.objects.select_related("blogathon", "participant"),
         blogathon__organizer=request.user,
@@ -213,15 +210,19 @@ def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
     else:
         form = ProposalResponseForm(instance=proposal)
 
-    return render_htmx(
+    template_name = (
+        "blogathons/_proposal.html"
+        if form is None or is_valid
+        else "blogathons/_proposal_response_form.html"
+    )
+
+    return render(
         request,
-        "blogathons/proposals.html",
+        template_name,
         {
             "form": form,
             "proposal": proposal,
         },
-        partial="proposal" if is_valid or form is None else "response_form",
-        target=proposal.get_hx_target(),
     )
 
 
