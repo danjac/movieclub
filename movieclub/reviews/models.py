@@ -26,8 +26,4 @@ class Review(TimeStampedModel):
 
     def get_target_id(self) -> str:
         """Return HTMX target in DOM."""
-        raise NotImplementedError  # pragma: no cover
-
-    def get_delete_url(self) -> str:
-        """URL to delete endpoint."""
-        raise NotImplementedError  # pragma: no cover
+        return f"review-{self.pk}"

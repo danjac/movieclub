@@ -22,7 +22,7 @@
                 <button class="text-xs lg:text-sm link"
                         hx-post="{{ review_submit_url }}"
                         hx-vals='{"action": "cancel"}'
-                        hx-target="#review-{{ review.pk }}"
+                        hx-target="#{{ review.get_target_id }}"
                         hx-swap="outerHTML show:#review-{{ review.pk }}:top">Cancel</button>
             {% endif %}
             <button class="inline-flex items-center btn btn-primary">
@@ -41,36 +41,38 @@
 <div id="reviews" class="divide-y divide">
     {% for review in reviews %}
         {% partialdef review inline=True %}
-        <div class="relative py-3 space-y-3" id="review-{{ review.pk }}">
-            <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
-                <div class="flex items-center space-x-3">
-                    <a href="" class="link">{{ review.user.username }}</a>
+        {% with target=review.get_target_id %}
+            <div class="relative py-3 space-y-3" id="{{ target }}">
+                <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
+                    <div class="flex items-center space-x-3">
+                        <a href="" class="link">{{ review.user.username }}</a>
+                    </div>
+                    <div class="font-semibold">Posted {{ review.created|date }}</div>
                 </div>
-                <div class="font-semibold">Posted {{ review.created|date }}</div>
+                <div class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ review.comment|linebreaksbr }}</div>
+                <div class="flex justify-between items-center text-xs lg:text-sm">
+                    <div class="flex items-center space-x-3">
+                        {% if request.user == review.user %}
+                            <button class="link"
+                                    hx-get="{% url 'reviews:edit_review' review.pk %}"
+                                    hx-target="#review-form"
+                                    hx-swap="outerHTML show:#review-form:top">Edit</button>
+                            <button class="link"
+                                    hx-delete="{% url 'reviews:delete_review' review.pk %}"
+                                    hx-target="#{{ target }}"
+                                    hx-swap="delete"
+                                    hx-confirm="Are you sure you want to delete your review?">Delete</button>
+                        {% else %}
+                            <button class="link">Like</button>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="font-semibold">3 Likes</div>
+                        {% if review.url %}<a href="{{ review.url }}" target="_blank" rel="noopener" class="link">Link</a>{% endif %}
+                    </div>
+                </div>
             </div>
-            <div class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ review.comment|linebreaksbr }}</div>
-            <div class="flex justify-between items-center text-xs lg:text-sm">
-                <div class="flex items-center space-x-3">
-                    {% if request.user == review.user %}
-                        <button class="link"
-                                hx-get="{% url 'reviews:edit_review' review.pk %}"
-                                hx-target="#review-form"
-                                hx-swap="outerHTML show:#review-form:top">Edit</button>
-                        <button class="link"
-                                hx-delete="{% url 'reviews:delete_review' review.pk %}"
-                                hx-target="#review-{{ review.pk }}"
-                                hx-swap="delete"
-                                hx-confirm="Are you sure you want to delete your review?">Delete</button>
-                    {% else %}
-                        <button class="link">Like</button>
-                    {% endif %}
-                </div>
-                <div class="flex items-center space-x-3">
-                    <div class="font-semibold">3 Likes</div>
-                    {% if review.url %}<a href="{{ review.url }}" target="_blank" rel="noopener" class="link">Link</a>{% endif %}
-                </div>
-            </div>
-        </div>
+        {% endwith %}
     {% endpartialdef %}
 {% endfor %}
 </div>

@@ -52,31 +52,35 @@ class TestEditReview:
     def url(self, review):
         return reverse("reviews:edit_review", args=[review.pk])
 
+    @pytest.fixture()
+    def target(self, review):
+        return review.get_target_id()
+
     @pytest.mark.django_db()
-    def test_get(self, client, review, url):
+    def test_get(self, client, review, url, target):
         response = client.get(
             url,
             HTTP_HX_REQUEST="true",
-            HTTP_HX_TARGET=f"review-{review.pk}",
+            HTTP_HX_TARGET=target,
         )
         assert response.status_code == http.HTTPStatus.OK
 
     @pytest.mark.django_db()
-    def test_post(self, client, review, url):
+    def test_post(self, client, review, url, target):
         response = client.post(
             url,
             {
                 "comment": "test",
             },
             HTTP_HX_REQUEST="true",
-            HTTP_HX_TARGET=f"review-{review.pk}",
+            HTTP_HX_TARGET=target,
         )
         assert response.status_code == http.HTTPStatus.OK
         review.refresh_from_db()
         assert review.comment == "test"
 
     @pytest.mark.django_db()
-    def test_post_cancel(self, client, review, url):
+    def test_post_cancel(self, client, review, url, target):
         response = client.post(
             url,
             {
@@ -84,7 +88,7 @@ class TestEditReview:
                 "action": "cancel",
             },
             HTTP_HX_REQUEST="true",
-            HTTP_HX_TARGET=f"review-{review.pk}",
+            HTTP_HX_TARGET=target,
         )
         assert response.status_code == http.HTTPStatus.OK
         review.refresh_from_db()

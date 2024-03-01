@@ -34,7 +34,7 @@ def add_review(request: HttpRequest, release_id: int) -> HttpResponse:
                     _render_review(request, review),
                     release=release,
                 ),
-                f"afterbegin show:#review-{review.pk}:top",  # type: ignore[arg-type]
+                f"afterbegin show:#{review.get_target_id()}:top",  # type: ignore[arg-type]
             ),
             "#reviews",
         )
@@ -70,7 +70,7 @@ def edit_review(request: HttpRequest, review_id: int) -> HttpResponse:
             reswap(
                 retarget(
                     _render_review(request, review),
-                    f"#review-{review.pk}",
+                    f"#{review.get_target_id()}",
                 ),
                 f"outerHTML show:#review-{review.pk}:top",  # type: ignore[arg-type]
             ),
