@@ -1,9 +1,11 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_safe
+from django_htmx.http import reswap, retarget
 
 from movieclub.blogathons.forms import (
     BlogathonForm,
@@ -211,22 +213,42 @@ def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
                     f"Proposal has been {proposal.get_status_display()}",
                 )
 
+            if is_valid or action == "cancel":
+                target = f"#{proposal.get_target_id()}"
+                response = retarget(
+                    reswap(
+                        render_htmx(
+                            request,
+                            "blogathons/proposals.html",
+                            {
+                                "proposal": proposal,
+                            },
+                            partial="proposal",
+                        ),
+                        f"outerHTML show:{target}:top",  # type: ignore [arg-type]
+                    ),
+                    target,
+                )
+                response.write(
+                    render_to_string(
+                        "blogathons/proposals.html#response_form",
+                        {"hx_oob": True},
+                        request=request,
+                    )
+                )
+                return response
+
     else:
         form = ProposalResponseForm(instance=proposal)
 
-    template_name = (
-        "blogathons/_proposal.html"
-        if form is None or is_valid
-        else "blogathons/_proposal_response_form.html"
-    )
-
-    return render(
+    return render_htmx(
         request,
-        template_name,
+        "blogathons/proposals.html",
         {
-            "form": form,
+            "response_form": form,
             "proposal": proposal,
         },
+        partial="response_form",
     )
 
 
