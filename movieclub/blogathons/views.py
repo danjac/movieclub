@@ -206,6 +206,11 @@ def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
                 proposal.status_changed_at = timezone.now()
                 proposal.save()
 
+                messages.success(
+                    request,
+                    f"Proposal has been {proposal.get_status_display()}",
+                )
+
     else:
         form = ProposalResponseForm(instance=proposal)
 
