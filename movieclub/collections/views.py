@@ -110,7 +110,7 @@ def add_release_to_collection(
     with contextlib.suppress(IntegrityError):
         CollectionItem.objects.create(collection=collection, release=release)
 
-    return _render_dropdown_input(
+    return _render_dropdown_update(
         request,
         collection,
         release,
@@ -130,7 +130,7 @@ def remove_release_from_collection(
 
     CollectionItem.objects.filter(collection=collection, release=release).delete()
 
-    return _render_dropdown_input(
+    return _render_dropdown_update(
         request,
         collection,
         release,
@@ -138,15 +138,20 @@ def remove_release_from_collection(
     )
 
 
-def _render_dropdown_input(
-    request: HttpRequest, collection: Collection, release: Release, *, is_added: bool
+def _render_dropdown_update(
+    request: HttpRequest,
+    collection: Collection,
+    release: Release,
+    *,
+    is_added: bool,
 ) -> HttpResponse:
-    return render(
+    return render_htmx(
         request,
-        "collections/_dropdown_input.html",
+        "collections/_dropdown.html",
         {
             "collection": collection,
             "release": release,
             "is_added": is_added,
         },
+        partial="dropdown_input",
     )

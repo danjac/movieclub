@@ -1,5 +1,4 @@
-{# vim: set filetype=htmldjango #}
-{% load heroicons %}
+{% load heroicons partials %}
 {% if collections %}
     <nav x-data="{showDropdown: false}" class="relative">
         <button id="collections-dropdown-btn"
@@ -19,12 +18,23 @@
                 {% for collection in collections %}
                     <li>
                         <label class="flex items-center p-2 space-x-3 cursor-pointer hover:bg-gray-100 hover:dark:bg-gray-800">
-                            {% include "collections/_dropdown_input.html" with is_added=collection.is_added %}
-                            <span class="max-w-full truncate">{{ collection.name }}</span>
-                        </label>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </nav>
+                            {% with is_added=collection.is_added %}
+                                {% partialdef dropdown_input inline=True %}
+                                <input type="checkbox"
+                                       class="bg-inherit"
+                                       autocomplete="off"
+                                       {% if is_added %} checked hx-delete="{% url 'collections:remove_release_from_collection' collection.pk release.pk %}" {% else %} hx-post="{% url 'collections:add_release_to_collection' collection.pk release.pk %}" {% endif %}
+                                       hx-swap="outerHTML"
+                                       hx-indicator="this"
+                                       hx-target="this"
+                                       hx-trigger="click">
+                            {% endpartialdef %}
+                        {% endwith %}
+                        <span class="max-w-full truncate">{{ collection.name }}</span>
+                    </label>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</nav>
 {% endif %}
