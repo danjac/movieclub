@@ -71,7 +71,7 @@ class Blogathon(TimeStampedModel):
             user.is_anonymous
             or not self.published
             or user == self.organizer
-            or timezone.now().date() > self.starts
+            or timezone.now().date() > self.ends
         ):
             return False
         return not self.proposals.filter(

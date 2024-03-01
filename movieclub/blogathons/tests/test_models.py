@@ -99,8 +99,11 @@ class TestBlogathon:
         assert not public_blogathon.can_submit_proposal(public_blogathon.organizer)
 
     @pytest.mark.django_db()
-    def test_can_submit_proposal_has_started(self, user):
-        blogathon = create_blogathon(starts=timezone.now() - datetime.timedelta(days=7))
+    def test_can_submit_proposal_has_ended(self, user):
+        now = timezone.now()
+        blogathon = create_blogathon(
+            ends=(now - datetime.timedelta(days=7)).date(), published=now
+        )
         assert not blogathon.can_submit_proposal(user)
 
     @pytest.mark.django_db()

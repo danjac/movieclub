@@ -149,7 +149,6 @@ def submit_proposal(request: HttpRequest, blogathon_id: int) -> HttpResponse:
     """Submit proposal to blogathon."""
     blogathon = get_object_or_404(
         Blogathon.objects.available(request.user).select_related("organizer"),
-        ends__gt=timezone.now(),
         pk=blogathon_id,
     )
     if not blogathon.can_submit_proposal(request.user):
