@@ -154,7 +154,7 @@ class Proposal(TimeStampedModel):
             )
         ]
 
-    def get_hx_target(self) -> str:
+    def get_target_id(self) -> str:
         """Returns HTMX target ID."""
         return f"proposal-{self.pk}"
 

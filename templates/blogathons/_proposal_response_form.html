@@ -1,6 +1,6 @@
 {% load heroicons %}
 <form post="{{ request.path }}"
-      hx-target="#{{ proposal.get_hx_target }}"
+      hx-target="#{{ proposal.get_target_id }}"
       class="space-y-3"
       id="proposal-form">
     {{ form }}

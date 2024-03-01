@@ -144,7 +144,7 @@ class TestRespondToProposal:
     @pytest.mark.django_db()
     def test_get(self, client, proposal, url):
         response = client.get(
-            url, HTTP_HX_REQUEST="true", HTTP_HX_TARGET=proposal.get_hx_target()
+            url, HTTP_HX_REQUEST="true", HTTP_HX_TARGET=proposal.get_target_id()
         )
         assert response.status_code == http.HTTPStatus.OK
 
@@ -154,7 +154,7 @@ class TestRespondToProposal:
             url,
             {"action": "cancel"},
             HTTP_HX_REQUEST="true",
-            HTTP_HX_TARGET=proposal.get_hx_target(),
+            HTTP_HX_TARGET=proposal.get_target_id(),
         )
         assert response.status_code == http.HTTPStatus.OK
         proposal.refresh_from_db()
@@ -167,7 +167,7 @@ class TestRespondToProposal:
             url,
             {"action": "accept", "response": "ok"},
             HTTP_HX_REQUEST="true",
-            HTTP_HX_TARGET=proposal.get_hx_target(),
+            HTTP_HX_TARGET=proposal.get_target_id(),
         )
         assert response.status_code == http.HTTPStatus.OK
         proposal.refresh_from_db()
@@ -180,7 +180,7 @@ class TestRespondToProposal:
             url,
             {"action": "reject", "response": "ok"},
             HTTP_HX_REQUEST="true",
-            HTTP_HX_TARGET=proposal.get_hx_target(),
+            HTTP_HX_TARGET=proposal.get_target_id(),
         )
         assert response.status_code == http.HTTPStatus.OK
         proposal.refresh_from_db()
