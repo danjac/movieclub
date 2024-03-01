@@ -10,8 +10,8 @@ from movieclub.client import get_client
 from movieclub.decorators import require_auth
 from movieclub.pagination import render_pagination
 from movieclub.releases.models import Genre, Release, ReleaseQuerySet
-from movieclub.tmdb import populate_movie, populate_tv_show
 from movieclub.tmdb.api import search_movies, search_tv_shows
+from movieclub.tmdb.populate import populate_movie, populate_tv_show
 
 if TYPE_CHECKING:  # pragma: no cover
     from movieclub.tmdb.models import Movie, TVShow

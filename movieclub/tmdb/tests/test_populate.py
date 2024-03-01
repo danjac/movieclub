@@ -2,7 +2,7 @@ import httpx
 import pytest
 
 from movieclub.releases.tests.factories import create_genre
-from movieclub.tmdb import models, populate_movie, populate_tv_show
+from movieclub.tmdb.populate import models, populate_movie, populate_tv_show
 
 
 class TestPopulateTVShow:
