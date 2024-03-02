@@ -1,6 +1,5 @@
 from django import template
 from django.template.context import RequestContext
-from django.template.defaultfilters import urlencode
 from django.urls import reverse
 
 from movieclub.releases.models import Release
@@ -14,6 +13,7 @@ def review_list(context: RequestContext, release: Release) -> dict:
     """Render list of reviews and form if authenticated."""
     rv = {
         "request": context.request,
+        "release": release,
         "reviews": release.reviews.select_related(
             "user",
             "parent",
@@ -26,10 +26,5 @@ def review_list(context: RequestContext, release: Release) -> dict:
             **rv,
             "review_form": ReviewForm(),
             "review_submit_url": reverse("reviews:add_review", args=[release.pk]),
-        }
-    else:
-        rv = {
-            **rv,
-            "login_url": f"{reverse('account_login')}?next={urlencode(context.request.path)}",
         }
     return rv

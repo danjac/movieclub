@@ -1,8 +1,6 @@
 {# vim: set filetype=htmldjango #}
 {% load heroicons partials %}
-{% if request.user.is_anonymous %}
-    <a class="block link" href="{{ login_url }}">Log in or sign up to post your review!</a>
-{% else %}
+{% if request.user.is_authenticated %}
     {% partialdef review_form inline=True %}
     <form hx-post="{{ review_submit_url }}"
           hx-target="this"
@@ -66,25 +64,25 @@
                     </div>
                 {% endif %}
                 <div class="flex justify-between items-center text-xs lg:text-sm">
-                    <div class="flex items-center space-x-3">
-                        {% if request.user == review.user %}
+                    {% if request.user.is_authenticated %}
+                        <div class="flex items-center space-x-3">
+                            {% if request.user == review.user %}
+                                <button class="link"
+                                        hx-get="{% url 'reviews:edit_review' review.pk %}"
+                                        hx-target="#review-form"
+                                        hx-swap="outerHTML show:#review-form:top">Edit</button>
+                                <button class="link"
+                                        hx-delete="{% url 'reviews:delete_review' review.pk %}"
+                                        hx-target="#{{ target }}"
+                                        hx-swap="delete"
+                                        hx-confirm="Are you sure you want to delete your review?">Delete</button>
+                            {% endif %}
                             <button class="link"
-                                    hx-get="{% url 'reviews:edit_review' review.pk %}"
+                                    hx-get="{% url 'reviews:reply_to_review' review.pk %}"
                                     hx-target="#review-form"
-                                    hx-swap="outerHTML show:#review-form:top">Edit</button>
-                            <button class="link"
-                                    hx-delete="{% url 'reviews:delete_review' review.pk %}"
-                                    hx-target="#{{ target }}"
-                                    hx-swap="delete"
-                                    hx-confirm="Are you sure you want to delete your review?">Delete</button>
-                        {% else %}
-                            <button class="link">Like</button>
-                        {% endif %}
-                        <button class="link"
-                                hx-get="{% url 'reviews:reply_to_review' review.pk %}"
-                                hx-target="#review-form"
-                                hx-swap="outerHTML show:#review-form:top">Reply</button>
-                    </div>
+                                    hx-swap="outerHTML show:#review-form:top">Reply</button>
+                        </div>
+                    {% endif %}
                     <div class="flex items-center space-x-3">
                         <div class="font-semibold">3 Likes</div>
                         {% if review.url %}<a href="{{ review.url }}" target="_blank" rel="noopener" class="link">Link</a>{% endif %}
@@ -93,5 +91,7 @@
             </div>
         {% endwith %}
     {% endpartialdef %}
+{% empty %}
+    This {{ release.get_category_display|lower }} does not have any reviews yet.
 {% endfor %}
 </div>

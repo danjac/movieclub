@@ -1,0 +1,17 @@
+{# vim: set filetype=htmldjango #}
+{% if user.is_anonymous %}
+    {% with next=request.get_full_path|urlencode %}
+        <div id="signup-cta"
+             {% if hx_oob %}hx-swap-oob="true"{% endif %}
+             class="p-3 font-bold text-center text-white bg-blue-700">
+            {% with css_class="underline text-white hover:text-gray-300" %}
+                <a class="{{ css_class }}"
+                   href="{% url 'account_signup' %}?next={{ next }}">Sign up</a>
+                or
+                <a class="{{ css_class }}"
+                   href="{% url 'account_login' %}?next={{ next }}">log in</a>
+                to take part in blogathons, make your own collections, and post reviews of your favorite movies and TV shows!
+            {% endwith %}
+        </div>
+    {% endwith %}
+{% endif %}

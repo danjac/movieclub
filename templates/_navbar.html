@@ -9,12 +9,7 @@
             <div class="flex flex-shrink-0 items-center">
                 <a class="inline-flex items-center text-lg font-bold md:text-xl xl:text-2xl"
                    href="{% url 'releases:movie_list' %}"
-                   title="{{ site_name }}: Home Page">
-                    {% comment %}
-                    <img src="{% static 'img/wave-white.png' %}" height="100" width="100" alt="{{ site_name }}" class="mr-3 w-6 h-6 lg:w-8 lg:h-8" title="{{ site_name }}" aria-hidden="true">
-                    {% endcomment %}
-                    {{ site_name }}
-                </a>
+                   title="{{ site_name }}: Home Page">{{ site_name }}</a>
             </div>
         {% endwith %}
         <ul class="hidden items-center space-x-6 lg:flex">
@@ -76,25 +71,6 @@
                         </button>
                     </form>
                 </li>
-            {% else %}
-                <li>
-                    <a href="{% url 'account_login' %}"
-                       aria-label="Sign in"
-                       title="Sign in"
-                       class="flex items-center space-x-2 font-bold hover:text-blue-300">
-                        {% heroicon_mini "arrow-right-end-on-rectangle" title="Sign in" %}
-                        <span class="hidden md:inline-block">Sign in</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'account_signup' %}"
-                       aria-label="Sign up"
-                       title="Sign up"
-                       class="flex items-center space-x-2 font-bold hover:text-blue-300">
-                        {% heroicon_mini "user-plus" title="Sign up" %}
-                        <span class="hidden md:inline-block">Sign up</span>
-                    </a>
-                </li>
             {% endif %}
             <li class="flex items-center lg:hidden">
                 <button class="transition transform focus:outline-none"
@@ -146,4 +122,5 @@
             </nav>
         {% endwith %}
     </div>
+    {% include "_signup_cta.html" %}
 </header>
