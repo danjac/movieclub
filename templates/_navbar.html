@@ -41,12 +41,6 @@
                    title=""
                    class="font-semibold text-gray-100 hover:text-blue-300">Blogathons</a>
             </li>
-            <li>
-                <a href=""
-                   aria-label=""
-                   title=""
-                   class="font-semibold text-gray-100 hover:text-blue-300">About</a>
-            </li>
         </ul>
         <ul class="flex items-center space-x-3 lg:space-x-6">
             {% if user.is_authenticated %}
@@ -70,6 +64,13 @@
                             <span class="hidden md:inline-block">Logout</span>
                         </button>
                     </form>
+                </li>
+            {% else %}
+                <li>
+                    <a href=""
+                       aria-label=""
+                       title=""
+                       class="font-semibold text-gray-100 hover:text-blue-300">About</a>
                 </li>
             {% endif %}
             <li class="flex items-center lg:hidden">
