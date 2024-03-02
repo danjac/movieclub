@@ -50,7 +50,7 @@
 <div id="reviews"
      class="divide-y divide"
      x-data="{ isReviews: {{ reviews.exists|yesno:"true,false" }} }"
-     @click.window="console.log('yay')">
+     @add-or-remove-reviews.window="isReviews=$event.detail.isReviews">
     {% for review in reviews %}
         {% partialdef review inline=True %}
         {% with target=review.get_target_id %}
