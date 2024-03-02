@@ -6,6 +6,7 @@
           hx-target="this"
           {% if hx_oob %}hx-swap-oob="true"{% endif %}
           class="space-y-3{% if not review %} pb-3 mb-3 border-b{% endif %}"
+          autocomplete="off"
           id="review-form">
         <h3 class="my-3 text-base font-semibold lg:text-lg">
             {% if review %}
@@ -46,7 +47,10 @@
     </form>
 {% endpartialdef %}
 {% endif %}
-<div id="reviews" class="divide-y divide">
+<div id="reviews"
+     class="divide-y divide"
+     x-data="{ isReviews: {{ reviews.exists|yesno:"true,false" }} }"
+     @click.window="console.log('yay')">
     {% for review in reviews %}
         {% partialdef review inline=True %}
         {% with target=review.get_target_id %}
@@ -91,7 +95,9 @@
             </div>
         {% endwith %}
     {% endpartialdef %}
-{% empty %}
-    This {{ release.get_category_display|lower }} does not have any reviews yet.
 {% endfor %}
+<div id="no-reviews"
+     class="py-3 font-semibold"
+     x-cloak
+     x-show="!isReviews">This {{ release.get_category_display|lower }} does not have any reviews yet.</div>
 </div>
