@@ -31,7 +31,7 @@
             {% for item in page_obj %}
                 <li class="py-3 first-of-type:pt-0">{% include "releases/_release.html" with release=item.release %}</li>
             {% empty %}
-                <li class="py-3"></li>
+                <li class="py-3">This collection doesn't have any items yet.</li>
             {% endfor %}
             {% if has_other_pages %}
                 <li class="pt-3">{% include "_pagination_links.html" %}</li>
