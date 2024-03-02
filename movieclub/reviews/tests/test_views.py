@@ -47,52 +47,59 @@ class TestAddReview:
         assert Review.objects.count() == 0
 
 
+class TestReplyToReview:
+    @pytest.fixture()
+    def url(self, review):
+        return reverse("reviews:reply_to_review", args=[review.pk])
+
+    @pytest.mark.django_db()
+    def test_get(self, client, url):
+        response = client.get(url)
+        assert response.status_code == http.HTTPStatus.OK
+
+    @pytest.mark.django_db()
+    def test_post(self, client, review, url):
+        response = client.post(
+            url,
+            {
+                "comment": "test",
+            },
+        )
+        assert response.status_code == http.HTTPStatus.OK
+        reply = review.replies.get()
+        assert reply.comment == "test"
+
+
 class TestEditReview:
     @pytest.fixture()
     def url(self, review):
         return reverse("reviews:edit_review", args=[review.pk])
 
-    @pytest.fixture()
-    def target(self, review):
-        return review.get_target_id()
-
     @pytest.mark.django_db()
-    def test_get(self, client, review, url, target):
-        response = client.get(
-            url,
-            HTTP_HX_REQUEST="true",
-            HTTP_HX_TARGET=target,
-        )
+    def test_get(self, client, review, url):
+        response = client.get(url)
         assert response.status_code == http.HTTPStatus.OK
 
     @pytest.mark.django_db()
-    def test_post(self, client, review, url, target):
+    def test_post(self, client, review, url):
         response = client.post(
             url,
             {
                 "comment": "test",
             },
-            HTTP_HX_REQUEST="true",
-            HTTP_HX_TARGET=target,
         )
         assert response.status_code == http.HTTPStatus.OK
         review.refresh_from_db()
         assert review.comment == "test"
 
+
+class TestCancelReview:
     @pytest.mark.django_db()
-    def test_post_cancel(self, client, review, url, target):
-        response = client.post(
-            url,
-            {
-                "comment": "test",
-                "action": "cancel",
-            },
-            HTTP_HX_REQUEST="true",
-            HTTP_HX_TARGET=target,
+    def test_get(self, client, review):
+        response = client.get(
+            reverse("reviews:cancel_review", args=[review.pk]),
         )
         assert response.status_code == http.HTTPStatus.OK
-        review.refresh_from_db()
-        assert review.comment != "test"
 
 
 class TestDeleteReview:

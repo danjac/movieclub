@@ -3,7 +3,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_safe
 from django_htmx.http import reswap, retarget
 
 from movieclub.decorators import require_auth, require_DELETE, require_form_methods
@@ -25,19 +25,35 @@ def add_review(request: HttpRequest, release_id: int) -> HttpResponse:
         review.save()
 
         messages.success(request, "Your review has been posted, thanks!")
+        return _render_new_review(request, review)
 
-        return retarget(
-            reswap(
-                _render_review_form_to_response(
-                    request,
-                    _render_review(request, review),
-                    release=release,
-                ),
-                f"afterbegin show:#{review.get_target_id()}:top",  # type: ignore[arg-type]
-            ),
-            "#reviews",
-        )
     return _render_review_form(request, form)
+
+
+@require_form_methods
+@require_auth
+def reply_to_review(request: HttpRequest, parent_id: int) -> HttpResponse:
+    """Add new review in reply to another review."""
+    parent = get_object_or_404(
+        Review.objects.select_related("user", "release"), pk=parent_id
+    )
+    if request.method == "POST":
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.user = request.user
+            review.parent = parent
+            review.release = parent.release
+            review.save()
+
+            messages.success(request, "Your reply has been posted, thanks!")
+            # TBD: notify parent user
+
+            return _render_new_review(request, review)
+    else:
+        form = ReviewForm()
+
+    return _render_review_form(request, form, {"parent": parent})
 
 
 @require_form_methods
@@ -50,33 +66,36 @@ def edit_review(request: HttpRequest, review_id: int) -> HttpResponse:
         pk=review_id,
     )
 
-    form = None
-    is_valid = False
-
     if request.method == "POST":
-        if request.POST.get("action") != "cancel":
-            form = ReviewForm(request.POST, instance=review)
-            if is_valid := form.is_valid():
-                form.save()
-                messages.success(request, "Your review has been updated")
+        form = ReviewForm(request.POST, instance=review)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your review has been updated")
 
     else:
         form = ReviewForm(instance=review)
 
-    if is_valid or form is None:
-        return _render_review_form_to_response(
-            request,
-            reswap(
-                retarget(
-                    _render_review(request, review),
-                    f"#{review.get_target_id()}",
-                ),
-                f"outerHTML show:#review-{review.pk}:top",  # type: ignore[arg-type]
-            ),
-            release=review.release,
-        )
-
     return _render_review_form(request, form, {"review": review})
+
+
+@require_safe
+def cancel_review(request: HttpRequest, review_id: int) -> HttpResponse:
+    """Cancel form edit or reply action."""
+    review = get_object_or_404(
+        Review.objects.select_related(
+            "parent",
+            "parent__user",
+            "release",
+            "user",
+        ),
+        pk=review_id,
+    )
+
+    return _render_review_form_to_response(
+        request,
+        _render_review(request, review),
+        release=review.release,
+    )
 
 
 @require_DELETE
@@ -113,6 +132,20 @@ def _render_review_form(
             "review_submit_url": request.path,
             **(extra_context or {}),
         },
+    )
+
+
+def _render_new_review(request: HttpRequest, review: Review) -> HttpResponse:
+    return retarget(
+        reswap(
+            _render_review_form_to_response(
+                request,
+                _render_review(request, review),
+                release=review.release,
+            ),
+            f"afterbegin show:#{review.get_target_id()}:top",
+        ),
+        "#reviews",
     )
 
 

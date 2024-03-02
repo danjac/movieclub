@@ -14,7 +14,11 @@ def review_list(context: RequestContext, release: Release) -> dict:
     """Render list of reviews and form if authenticated."""
     rv = {
         "request": context.request,
-        "reviews": release.reviews.select_related("user").order_by("-created"),
+        "reviews": release.reviews.select_related(
+            "user",
+            "parent",
+            "parent__user",
+        ).order_by("-created"),
     }
 
     if context.request.user.is_authenticated:

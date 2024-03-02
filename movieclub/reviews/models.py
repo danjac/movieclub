@@ -20,6 +20,14 @@ class Review(TimeStampedModel):
         related_name="reviews",
     )
 
+    parent = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="replies",
+    )
+
     url = models.URLField(blank=True)
 
     comment = models.TextField()
