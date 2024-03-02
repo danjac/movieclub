@@ -61,7 +61,7 @@ def reply_to_review(request: HttpRequest, parent_id: int) -> HttpResponse:
 def edit_review(request: HttpRequest, review_id: int) -> HttpResponse:
     """Update review."""
     review = get_object_or_404(
-        Review.objects.select_related("release"),
+        Review.objects.select_related("release", "parent", "user", "parent__user"),
         user=request.user,
         pk=review_id,
     )
@@ -71,6 +71,17 @@ def edit_review(request: HttpRequest, review_id: int) -> HttpResponse:
         if form.is_valid():
             form.save()
             messages.success(request, "Your review has been updated")
+            target = f"#{review.get_target_id()}"
+            return reswap(
+                retarget(
+                    _render_current_review(
+                        request,
+                        review,
+                    ),
+                    target,
+                ),
+                f"outerHTML show:{target}:top",
+            )
 
     else:
         form = ReviewForm(instance=review)
@@ -90,12 +101,7 @@ def cancel_review(request: HttpRequest, review_id: int) -> HttpResponse:
         ),
         pk=review_id,
     )
-
-    return _render_review_form_to_response(
-        request,
-        _render_review(request, review),
-        release=review.release,
-    )
+    return _render_current_review(request, review)
 
 
 @require_DELETE
@@ -146,6 +152,14 @@ def _render_new_review(request: HttpRequest, review: Review) -> HttpResponse:
             f"afterbegin show:#{review.get_target_id()}:top",
         ),
         "#reviews",
+    )
+
+
+def _render_current_review(request: HttpRequest, review: Review) -> HttpResponse:
+    return _render_review_form_to_response(
+        request,
+        _render_review(request, review),
+        release=review.release,
     )
 
 
