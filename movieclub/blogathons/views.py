@@ -184,7 +184,10 @@ def submit_proposal(request: HttpRequest, blogathon_id: int) -> HttpResponse:
 @require_form_methods
 @require_auth
 def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
-    """Reject or accept proposal."""
+    """Reject or accept proposal.
+
+    TBD: break this up into multiple endpoints.
+    """
     proposal = get_object_or_404(
         Proposal.objects.select_related("blogathon", "participant"),
         blogathon__organizer=request.user,
@@ -224,7 +227,7 @@ def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
                                 "proposal": proposal,
                             },
                         ),
-                        f"outerHTML show:{target}:top",  # type: ignore [arg-type]
+                        f"outerHTML show:{target}:top",
                     ),
                     target,
                 )
