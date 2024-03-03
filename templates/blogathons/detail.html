@@ -66,17 +66,24 @@
     {% if proposal and not blogathon.is_ended %}
         <div class="p-3 mb-3 space-y-3 border bg-neutral-200 dark:bg-neutral-900">
             <p>
-                You submitted a proposal to take part in this blogathon on <strong>{{ proposal.created|date }}</strong>.
+                You submitted a proposal to take part in this blogathon on <strong>{{ proposal.created|date }}</strong>:
             </p>
+            <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ proposal.proposal|linebreaksbr }}</p>
             {% if proposal.is_rejected %}
                 <p>
-                    Your proposal was <strong>rejected</strong>.
+                    Your proposal was <strong>rejected</strong>{{ proposal.response|yesno:":,." }}
                 </p>
+                {% if proposal.response %}
+                    <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ proposal.response|linebreaksbr }}</p>
+                {% endif %}
                 {% if can_submit_proposal %}<p>You can submit another proposal if you want to.</p>{% endif %}
             {% elif proposal.is_accepted %}
                 <p>
-                    Your proposal was <strong>accepted</strong>.
+                    Your proposal was <strong>accepted</strong>{{ proposal.response|yesno:":,." }}
                 </p>
+                {% if proposal.response %}
+                    <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ proposal.response|linebreaksbr }}</p>
+                {% endif %}
                 <p>
                     {% if blogathon.is_started %}
                         You can now submit your entry to this blogathon!
@@ -84,10 +91,6 @@
                         You can submit your entry when the blogathon starts!
                     {% endif %}
                 </p>
-            {% endif %}
-            {% if proposal.response %}
-                <p>Comment from organizer:</p>
-                <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ proposal.response|linebreaksbr }}</p>
             {% endif %}
         </div>
     {% endif %}
