@@ -18,7 +18,7 @@ def cast_list(request: HttpRequest) -> HttpResponse:
     if request.search:
         persons = persons.search(request.search.value).order_by("-rank")
     else:
-        persons = persons.order_by("-pk")
+        persons = persons.order_by("-num_credits")
 
     return render_pagination(request, persons, "credits/cast_members.html")
 
@@ -34,7 +34,7 @@ def crew_list(request: HttpRequest) -> HttpResponse:
     if request.search:
         persons = persons.search(request.search.value).order_by("-rank")
     else:
-        persons = persons.order_by("-pk")
+        persons = persons.order_by("-num_credits")
 
     return render_pagination(request, persons, "credits/crew_members.html")
 
