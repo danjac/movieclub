@@ -195,7 +195,7 @@ def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
 def cancel_response(request: HttpRequest, proposal_id: int) -> HttpResponse:
     """Render proposal response form."""
     proposal = _get_proposal_for_response_or_404(request.user, proposal_id)
-    return _render_proposal(request, proposal)
+    return _render_responded_proposal(request, proposal)
 
 
 @require_POST
@@ -211,7 +211,7 @@ def accept_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
         proposal.accept()
 
         messages.success(request, "Proposal has been accepted")
-        return _render_proposal(request, proposal)
+        return _render_responded_proposal(request, proposal)
 
     return _render_proposal_response_form(request, proposal, form)  # pragma: no cover
 
@@ -229,7 +229,7 @@ def reject_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
         proposal.reject()
 
         messages.info(request, "Proposal has been rejected")
-        return _render_proposal(request, proposal)
+        return _render_responded_proposal(request, proposal)
 
     return _render_proposal_response_form(request, proposal, form)  # pragma: no cover
 
@@ -293,7 +293,9 @@ def _render_proposal_response_form(
     )
 
 
-def _render_proposal(request: HttpRequest, proposal: Proposal) -> HttpResponse:
+def _render_responded_proposal(
+    request: HttpRequest, proposal: Proposal
+) -> HttpResponse:
     target = f"#{proposal.get_target_id()}"
     response = retarget(
         reswap(
