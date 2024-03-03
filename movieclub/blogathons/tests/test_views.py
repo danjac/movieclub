@@ -93,6 +93,11 @@ class TestBlogathonDetail:
         response = client.get(public_blogathon.get_absolute_url())
         assert response.status_code == http.HTTPStatus.OK
 
+    @pytest.mark.django_db()
+    def test_get_organizer(self, client, auth_user_blogathon):
+        response = client.get(auth_user_blogathon.get_absolute_url())
+        assert response.status_code == http.HTTPStatus.OK
+
 
 class TestBlogathonProposals:
     @pytest.mark.django_db()
@@ -169,6 +174,7 @@ class TestAcceptProposal:
         proposal.refresh_from_db()
         assert proposal.status_changed_at
         assert proposal.is_accepted()
+        assert proposal.response == "ok"
 
 
 class TestRejectProposal:
@@ -182,6 +188,7 @@ class TestRejectProposal:
         proposal.refresh_from_db()
         assert proposal.status_changed_at
         assert proposal.is_rejected()
+        assert proposal.response == "ok"
 
 
 class TestSubmitEntry:

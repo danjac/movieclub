@@ -53,6 +53,12 @@
                                 <div class="font-semibold">Submitted {{ proposal.created|date }}</div>
                             </div>
                             <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ proposal.proposal|linebreaksbr }}</p>
+                            {% if proposal.response %}
+                                <div>
+                                    <strong>Response:</strong>
+                                    <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ proposal.response|linebreaksbr }}</p>
+                                </div>
+                            {% endif %}
                             <div class="flex justify-between items-center text-xs lg:text-sm">
                                 {% if proposal.is_submitted %}
                                     <div class="flex items-center space-x-3">

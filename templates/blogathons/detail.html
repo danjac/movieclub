@@ -62,36 +62,57 @@
         <p>
             Organizer: <a href="" class="link">{{ blogathon.organizer.username }}</a>
         </p>
-    </div>
-    {% partialdef pagination inline=True %}
-    <ul class="mt-6 space-y-3" id="{{ pagination_target }}">
-        {% with has_other_pages=page_obj.has_other_pages %}
-            {% if has_other_pages %}
-                <li>{% include "_pagination_links.html" %}</li>
+        {% if proposal %}
+            <p>
+                You submitted a proposal to take part in this blogathon on <strong>{{ proposal.created|date }}</strong>.
+            </p>
+            {% if proposal.is_rejected %}
+                <p>
+                    The proposal was <strong>rejected</strong>.
+                </p>
+                {% if can_submit_proposal %}<p>You can submit another proposal if you want to.</p>{% endif %}
+            {% elif proposal.is_accepted %}
+                <p>
+                    The proposal was <strong>accepted</strong>.
+                </p>
+                <p>You can post your entry when the blogathon starts!</p>
             {% endif %}
-            {% for entry in page_obj %}
-                <li>
-                    <article class="relative p-3 space-y-3 border">
-                        <h3 class="text-base font-bold md:text-lg">
-                            <a href="{{ entry.blog_url }}"
-                               class="link"
-                               target="_blank"
-                               rel="noopener">{{ entry.blog_title }}</a>
-                        </h3>
-                        <div>
-                            <a href="" class="link">{{ entry.participant.username }}</a>
-                        </div>
-                        {% if entry.blog_summary %}
-                            <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ entry.blog_summary|linebreaksbr }}</p>
-                        {% endif %}
-                        <div class="font-semibold">Submitted {{ entry.created|date }}</div>
-                    </article>
-                </li>
-            {% endfor %}
-            {% if has_other_pages %}
-                <li>{% include "_pagination_links.html" %}</li>
+            {% if proposal.response %}
+                <div>
+                    The organizer provided this message:
+                    <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ proposal.response|linebreaksbr }}</p>
+                </div>
             {% endif %}
-        {% endwith %}
-    </ul>
-{% endpartialdef pagination %}
+        </div>
+        {% partialdef pagination inline=True %}
+        <ul class="mt-6 space-y-3" id="{{ pagination_target }}">
+            {% with has_other_pages=page_obj.has_other_pages %}
+                {% if has_other_pages %}
+                    <li>{% include "_pagination_links.html" %}</li>
+                {% endif %}
+                {% for entry in page_obj %}
+                    <li>
+                        <article class="relative p-3 space-y-3 border">
+                            <h3 class="text-base font-bold md:text-lg">
+                                <a href="{{ entry.blog_url }}"
+                                   class="link"
+                                   target="_blank"
+                                   rel="noopener">{{ entry.blog_title }}</a>
+                            </h3>
+                            <div>
+                                <a href="" class="link">{{ entry.participant.username }}</a>
+                            </div>
+                            {% if entry.blog_summary %}
+                                <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ entry.blog_summary|linebreaksbr }}</p>
+                            {% endif %}
+                            <div class="font-semibold">Submitted {{ entry.created|date }}</div>
+                        </article>
+                    </li>
+                {% endfor %}
+                {% if has_other_pages %}
+                    <li>{% include "_pagination_links.html" %}</li>
+                {% endif %}
+            {% endwith %}
+        </ul>
+    {% endpartialdef pagination %}
 {% endblock content %}
