@@ -209,7 +209,6 @@ def accept_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
     if form.is_valid():
         proposal = form.save(commit=False)
         proposal.accept()
-        proposal.save()
 
         messages.success(request, "Proposal has been accepted")
         return _render_proposal(request, proposal)
@@ -228,7 +227,6 @@ def reject_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
     if form.is_valid():
         proposal = form.save(commit=False)
         proposal.reject()
-        proposal.save()
 
         messages.info(request, "Proposal has been rejected")
         return _render_proposal(request, proposal)
