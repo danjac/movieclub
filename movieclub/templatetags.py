@@ -16,6 +16,7 @@ ACCEPT_COOKIES_NAME: Final = "accept-cookies"
 COVER_IMAGE_SIZES: Final = (
     (100, 150),
     (200, 300),
+    (800, 800),
 )
 
 register = template.Library()

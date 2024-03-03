@@ -1,5 +1,35 @@
 {% extends "base.html" %}
+{% load cache releases %}
 {% block content %}
-    <h1>Welcome to Movieclub!</h1>
-    <p>Some content goes here...</p>
+    {% cache 600 request.path %}
+    {% get_random_release as some_release %}
+    <header class="grid relative place-items-center pb-12 mb-12 bg-fixed bg-center bg-no-repeat bg-cover border-b h-lvh"
+            {% if some_release %}style="background-image: linear-gradient(rgba(60, 60, 60, 0.9), rgba(60, 60, 60, 0.9)), url('{% get_cover_image_url some_release.backdrop_url 800 800 %}')"{% endif %}>
+        <div class="flex flex-col justify-center p-3 space-y-12 text-center">
+            <h1 class="text-2xl font-bold text-white lg:text-5xl">{{ request.site.name|capfirst }}</h1>
+            <div class="flex justify-center items-center">
+                {% url "releases:movie_list" as search_url %}
+                {% include "_search_form.html" with placeholder="Find a movie..." clear_search_url=request.path css_class="text-base lg:text-lg" %}
+            </div>
+            <p class="text-base font-semibold text-white lg:text-xl prose">
+                <strong class="text-white">{{ request.site.name }}</strong> is a site for people who love to talk about movies and TV shows! Review what you wathc, make lists of your favorite shows and films, and run blogathons with your friends!
+            </p>
+            {% if some_release %}
+                <p class="font-semibold text-white">
+                    Featured: <a href="{{ some_release.get_absolute_url }}"
+    class="hover:text-blue-300 text-bold dark:hover:text-blue-600">{{ some_release.title }}
+                    {% if some_release.release_date %}({{ some_release.release_date|date:"Y" }}){% endif %}
+                </a>
+            </p>
+        {% endif %}
+    </div>
+</header>
+<h2 class="mb-6 text-lg font-semibold text-center lg:text-2xl">Latest Movies and TV Shows</h2>
+<div class="grid grid-cols-3 gap-2 place-items-center md:grid-cols-4 xl:grid-cols-6">
+    {% get_latest_releases 12 as releases %}
+    {% for release in releases %}
+        <a href="{{ release.get_absolute_url }}" class="hover:grayscale">{% cover_image release.poster_url 200 300 title=release.title %}</a>
+    {% endfor %}
+</div>
+{% endcache %}
 {% endblock content %}

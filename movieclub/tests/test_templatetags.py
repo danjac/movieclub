@@ -2,7 +2,7 @@ import pytest
 from django.template.context import RequestContext
 
 from movieclub.middleware import Pagination
-from movieclub.template import cover_image, pagination_url
+from movieclub.templatetags import cover_image, pagination_url
 
 
 class TestPaginationUrl:
