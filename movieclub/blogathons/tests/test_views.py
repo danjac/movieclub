@@ -15,6 +15,11 @@ def auth_user_blogathon(auth_user):
     return create_blogathon(organizer=auth_user)
 
 
+@pytest.fixture()
+def proposal(auth_user_blogathon):
+    return create_proposal(blogathon=auth_user_blogathon)
+
+
 class TestBlogathonList:
     url = reverse_lazy("blogathons:blogathon_list")
 
@@ -134,53 +139,44 @@ class TestPublishBlogathon:
 
 class TestRespondToProposal:
     @pytest.fixture()
-    def proposal(self, auth_user_blogathon):
-        return create_proposal(blogathon=auth_user_blogathon)
-
-    @pytest.fixture()
     def url(self, proposal):
         return reverse("blogathons:respond_to_proposal", args=[proposal.pk])
 
     @pytest.mark.django_db()
     def test_get(self, client, proposal, url):
-        response = client.get(
-            url, HTTP_HX_REQUEST="true", HTTP_HX_TARGET=proposal.get_target_id()
-        )
+        response = client.get(url)
         assert response.status_code == http.HTTPStatus.OK
 
+
+class TestCancelResponse:
     @pytest.mark.django_db()
-    def test_post_cancel(self, client, proposal, url):
-        response = client.post(
-            url,
-            {"action": "cancel"},
-            HTTP_HX_REQUEST="true",
-            HTTP_HX_TARGET=proposal.get_target_id(),
-        )
+    def test_get(self, client, proposal):
+        response = client.get(reverse("blogathons:cancel_response", args=[proposal.pk]))
         assert response.status_code == http.HTTPStatus.OK
         proposal.refresh_from_db()
         assert proposal.status_changed_at is None
         assert proposal.is_submitted()
 
+
+class TestAcceptProposal:
     @pytest.mark.django_db()
-    def test_post_accept(self, client, proposal, url):
+    def test_post(self, client, proposal):
         response = client.post(
-            url,
-            {"action": "accept", "response": "ok"},
-            HTTP_HX_REQUEST="true",
-            HTTP_HX_TARGET=proposal.get_target_id(),
+            reverse("blogathons:accept_proposal", args=[proposal.pk]),
+            {"response": "ok"},
         )
         assert response.status_code == http.HTTPStatus.OK
         proposal.refresh_from_db()
         assert proposal.status_changed_at
         assert proposal.is_accepted()
 
+
+class TestRejectProposal:
     @pytest.mark.django_db()
-    def test_post_reject(self, client, proposal, url):
+    def test_post(self, client, proposal):
         response = client.post(
-            url,
-            {"action": "reject", "response": "ok"},
-            HTTP_HX_REQUEST="true",
-            HTTP_HX_TARGET=proposal.get_target_id(),
+            reverse("blogathons:reject_proposal", args=[proposal.pk]),
+            {"response": "ok"},
         )
         assert response.status_code == http.HTTPStatus.OK
         proposal.refresh_from_db()

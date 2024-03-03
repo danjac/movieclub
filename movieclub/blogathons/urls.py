@@ -33,6 +33,21 @@ urlpatterns = [
         name="respond_to_proposal",
     ),
     path(
+        "<int:proposal_id>/proposals/respond/cancel/",
+        views.cancel_response,
+        name="cancel_response",
+    ),
+    path(
+        "<int:proposal_id>/proposals/respond/accept/",
+        views.accept_proposal,
+        name="accept_proposal",
+    ),
+    path(
+        "<int:proposal_id>/proposals/respond/reject/",
+        views.reject_proposal,
+        name="reject_proposal",
+    ),
+    path(
         "<int:blogathon_id>/entries/submit/",
         views.submit_entry,
         name="submit_entry",

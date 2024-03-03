@@ -17,6 +17,7 @@ from movieclub.blogathons.models import Blogathon, Proposal
 from movieclub.decorators import require_auth, require_form_methods
 from movieclub.htmx import render_htmx
 from movieclub.pagination import render_pagination
+from movieclub.users.models import User
 
 
 @require_safe
@@ -181,76 +182,58 @@ def submit_proposal(request: HttpRequest, blogathon_id: int) -> HttpResponse:
     )
 
 
-@require_form_methods
+@require_safe
 @require_auth
 def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
-    """Reject or accept proposal.
+    """Render proposal response form."""
+    proposal = _get_proposal_for_response_or_404(request.user, proposal_id)
+    return _render_proposal_response_form(request, proposal, ProposalForm())
 
-    TBD: break this up into multiple endpoints.
-    """
-    proposal = get_object_or_404(
-        Proposal.objects.select_related("blogathon", "participant"),
-        blogathon__organizer=request.user,
-        status=Proposal.Status.SUBMITTED,
-        pk=proposal_id,
-    )
 
-    form = None
-    is_valid = False
+@require_safe
+@require_auth
+def cancel_response(request: HttpRequest, proposal_id: int) -> HttpResponse:
+    """Render proposal response form."""
+    proposal = _get_proposal_for_response_or_404(request.user, proposal_id)
+    return _render_proposal(request, proposal)
 
-    if request.method == "POST":
-        if (action := request.POST.get("action")) in ("accept", "reject"):
-            form = ProposalResponseForm(request.POST, instance=proposal)
-            if is_valid := form.is_valid():
-                proposal = form.save(commit=False)
-                proposal.status = (
-                    Proposal.Status.ACCEPTED
-                    if action == "accept"
-                    else Proposal.Status.REJECTED
-                )
-                proposal.status_changed_at = timezone.now()
-                proposal.save()
 
-                messages.success(
-                    request,
-                    f"Proposal has been {proposal.get_status_display()}",
-                )
+@require_POST
+@require_auth
+def accept_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
+    """Accept proposal."""
 
-            if is_valid or action == "cancel":
-                target = f"#{proposal.get_target_id()}"
-                response = retarget(
-                    reswap(
-                        render(
-                            request,
-                            "blogathons/proposals.html#proposal",
-                            {
-                                "proposal": proposal,
-                            },
-                        ),
-                        f"outerHTML show:{target}:top",
-                    ),
-                    target,
-                )
-                response.write(
-                    render_to_string(
-                        "blogathons/proposals.html#response_form",
-                        {"hx_oob": True},
-                        request=request,
-                    )
-                )
-                return response
+    proposal = _get_proposal_for_response_or_404(request.user, proposal_id)
 
-    else:
-        form = ProposalResponseForm(instance=proposal)
+    form = ProposalResponseForm(request.POST, instance=proposal)
+    if form.is_valid():
+        proposal = form.save(commit=False)
+        proposal.accept()
+        proposal.save()
 
-    return render(
-        request,
-        "blogathons/proposals.html#response_form",
-        {
-            "response_form": form,
-            "proposal": proposal,
-        },
-    )
+        messages.success(request, "Proposal has been accepted")
+        return _render_proposal(request, proposal)
+
+    return _render_proposal_response_form(request, proposal, form)  # pragma: no cover
+
+
+@require_POST
+@require_auth
+def reject_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
+    """Accept proposal."""
+
+    proposal = _get_proposal_for_response_or_404(request.user, proposal_id)
+
+    form = ProposalResponseForm(request.POST, instance=proposal)
+    if form.is_valid():
+        proposal = form.save(commit=False)
+        proposal.reject()
+        proposal.save()
+
+        messages.info(request, "Proposal has been rejected")
+        return _render_proposal(request, proposal)
+
+    return _render_proposal_response_form(request, proposal, form)  # pragma: no cover
 
 
 @require_form_methods
@@ -288,3 +271,50 @@ def submit_entry(request: HttpRequest, blogathon_id: int) -> HttpResponse:
         partial="form",
         target="entry-form",
     )
+
+
+def _get_proposal_for_response_or_404(user: User, proposal_id: int) -> Proposal:
+    return get_object_or_404(
+        Proposal.objects.select_related("blogathon", "participant"),
+        blogathon__organizer=user,
+        status=Proposal.Status.SUBMITTED,
+        pk=proposal_id,
+    )
+
+
+def _render_proposal_response_form(
+    request: HttpRequest, proposal: Proposal, form: ProposalForm
+) -> HttpResponse:
+    return render(
+        request,
+        "blogathons/proposals.html#response_form",
+        {
+            "response_form": form,
+            "proposal": proposal,
+        },
+    )
+
+
+def _render_proposal(request: HttpRequest, proposal: Proposal) -> HttpResponse:
+    target = f"#{proposal.get_target_id()}"
+    response = retarget(
+        reswap(
+            render(
+                request,
+                "blogathons/proposals.html#proposal",
+                {
+                    "proposal": proposal,
+                },
+            ),
+            f"outerHTML show:{target}:top",
+        ),
+        target,
+    )
+    response.write(
+        render_to_string(
+            "blogathons/proposals.html#response_form",
+            {"hx_oob": True},
+            request=request,
+        )
+    )
+    return response

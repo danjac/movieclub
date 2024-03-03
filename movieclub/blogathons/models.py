@@ -170,6 +170,21 @@ class Proposal(TimeStampedModel):
         """If SUBMITTED status."""
         return self.status == self.Status.SUBMITTED
 
+    def accept(self) -> None:
+        """Set ACCEPTED status."""
+        self.set_status(self.Status.ACCEPTED)  # type: ignore [arg-type]
+
+    def reject(self) -> None:
+        """Set REJECTED status."""
+        self.set_status(self.Status.REJECTED)  # type: ignore [arg-type]
+
+    def set_status(self, status: Status) -> None:
+        """Set new status."""
+
+        self.status = status
+        self.status_changed_at = timezone.now()
+        self.save()
+
 
 class Entry(TimeStampedModel):
     """Blogathon entry."""
