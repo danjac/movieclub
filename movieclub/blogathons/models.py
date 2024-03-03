@@ -56,6 +56,18 @@ class Blogathon(TimeStampedModel):
             kwargs={"blogathon_id": self.pk, "slug": slugify(self.name)},
         )
 
+    def is_started(self) -> bool:
+        """
+        If blogathon is open for entries.
+        """
+        return timezone.now().date() > self.starts
+
+    def is_ended(self) -> bool:
+        """
+        If blogathon is closed for entries.
+        """
+        return timezone.now().date() > self.ends
+
     def can_submit_proposal(self, user: User | AnonymousUser) -> bool:
         """If user is able to submit a proposal.
 
@@ -71,7 +83,7 @@ class Blogathon(TimeStampedModel):
             user.is_anonymous
             or not self.published
             or user == self.organizer
-            or timezone.now().date() > self.ends
+            or self.is_ended()
         ):
             return False
         return not self.proposals.filter(
@@ -92,13 +104,12 @@ class Blogathon(TimeStampedModel):
 
         A participant can only submit one entry per blogathon.
         """
-        now = timezone.now().date()
 
         if (
             user.is_anonymous
             or not self.published
-            or self.starts > now
-            or now > self.ends
+            or not self.is_started()
+            or self.is_ended()
         ):
             return False
 
