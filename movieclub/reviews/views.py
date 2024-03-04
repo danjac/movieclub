@@ -147,7 +147,7 @@ def _render_review_form(
 
 
 def _render_new_review(request: HttpRequest, review: Review) -> HttpResponse:
-    retarget(
+    return retarget(
         reswap(
             _render_review_form_to_response(
                 request,
