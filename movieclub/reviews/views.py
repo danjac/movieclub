@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.http import require_POST, require_safe
-from django_htmx.http import reswap, retarget, trigger_client_event
+from django_htmx.http import reswap, retarget
 
 from movieclub.decorators import require_auth, require_DELETE, require_form_methods
 from movieclub.releases.models import Release
@@ -116,10 +116,7 @@ def delete_review(request: HttpRequest, review_id: int) -> HttpResponse:
     review.delete()
     messages.info(request, "Your review has been deleted")
 
-    return _trigger_add_or_remove_reviews(
-        HttpResponse(),
-        is_reviews=review.release.reviews.exists(),
-    )
+    return HttpResponse()
 
 
 def _render_review(
@@ -150,19 +147,16 @@ def _render_review_form(
 
 
 def _render_new_review(request: HttpRequest, review: Review) -> HttpResponse:
-    return _trigger_add_or_remove_reviews(
-        retarget(
-            reswap(
-                _render_review_form_to_response(
-                    request,
-                    _render_review(request, review),
-                    release=review.release,
-                ),
-                f"afterbegin show:#{review.get_target_id()}:top",
+    retarget(
+        reswap(
+            _render_review_form_to_response(
+                request,
+                _render_review(request, review),
+                release=review.release,
             ),
-            "#reviews",
+            f"afterbegin show:#{review.get_target_id()}:top",
         ),
-        is_reviews=True,
+        "#reviews",
     )
 
 
@@ -171,14 +165,6 @@ def _render_current_review(request: HttpRequest, review: Review) -> HttpResponse
         request,
         _render_review(request, review),
         release=review.release,
-    )
-
-
-def _trigger_add_or_remove_reviews(
-    response: HttpResponse, *, is_reviews: bool
-) -> HttpResponse:
-    return trigger_client_event(
-        response, "addOrRemoveReviews", {"isReviews": is_reviews}
     )
 
 

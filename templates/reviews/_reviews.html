@@ -53,11 +53,11 @@
 <div id="reviews"
      class="divide-y divide"
      x-data="{ isReviews: {{ reviews.exists|yesno:"true,false" }} }"
-     @add-or-remove-reviews.window="isReviews=$event.detail.isReviews">
+     @htmx:after-request.window="isReviews=$el.querySelectorAll('[data-review]').length > 0">
     {% for review in reviews %}
         {% partialdef review inline=True %}
         {% with target=review.get_target_id %}
-            <div class="relative py-3 space-y-3" id="{{ target }}">
+            <div data-review id="{{ target }}" class="relative py-3 space-y-3">
                 <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
                     <div class="flex items-center space-x-3">
                         <a href="" class="link">{{ review.user.username }}</a>
