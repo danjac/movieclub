@@ -7,45 +7,15 @@
         </h1>
     </header>
     <div class="space-y-3">
-        {% partialdef response_form inline=True %}
-        {% if response_form %}
-            <form post="{{ request.path }}"
-                  id="proposal-response-form"
-                  hx-target="this"
-                  hx-swap="outerHTML"
-                  class="space-y-3">
-                {{ response_form }}
-                <div class="flex items-center space-x-3">
-                    <button class="items-center flex-inline link"
-                            hx-get="{% url 'blogathons:cancel_response' proposal.pk %}">Cancel</button>
-                    <button class="flex items-center btn btn-primary"
-                            hx-post="{% url 'blogathons:accept_proposal' proposal.pk %}">
-                        {% heroicon_mini "check" class="mr-2" %}
-                        Accept
-                    </button>
-                    <button class="flex items-center btn btn-default"
-                            hx-post="{% url 'blogathons:reject_proposal' proposal.pk %}">
-                        {% heroicon_mini "x-mark" class="mr-2" %}
-                        Reject
-                    </button>
-                </div>
-            </form>
-        {% else %}
-            <div id="proposal-response-form"
-                 {% if hx_oob %}hx-swap-oob="true"{% endif %}></div>
-        {% endif %}
-    {% endpartialdef %}
-    {% partialdef pagination inline=True %}
-    <ul class="divide-y divide-solid" id="{{ pagination_target }}">
-        {% with has_other_pages=page_obj.has_other_pages %}
-            {% if has_other_pages %}
-                <li class="pb-3">{% include "_pagination_links.html" %}</li>
-            {% endif %}
-            {% for proposal in page_obj %}
-                <li class="py-3 first-of-type:pt-0">
-                    {% partialdef proposal inline=True %}
-                    {% with target=proposal.get_target_id %}
-                        <article class="relative py-3 space-y-3" id="{{ target }}">
+        {% partialdef pagination inline=True %}
+        <ul class="divide-y divide-solid" id="{{ pagination_target }}">
+            {% with has_other_pages=page_obj.has_other_pages %}
+                {% if has_other_pages %}
+                    <li class="pb-3">{% include "_pagination_links.html" %}</li>
+                {% endif %}
+                {% for proposal in page_obj %}
+                    <li class="py-3 first-of-type:pt-0">
+                        <article class="relative py-3 space-y-3">
                             <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
                                 <div class="flex items-center space-x-3">
                                     <a href="" class="link">{{ proposal.participant.username }}</a>
@@ -62,27 +32,23 @@
                             <div class="flex justify-between items-center text-xs lg:text-sm">
                                 {% if proposal.is_submitted %}
                                     <div class="flex items-center space-x-3">
-                                        <button class="link"
-                                                hx-get="{% url 'blogathons:respond_to_proposal' proposal.pk %}"
-                                                hx-target="#proposal-response-form"
-                                                hx-swap="outerHTML show:#proposal-response-form:top">Reply</button>
+                                        <a class="link"
+                                           href="{% url 'blogathons:respond_to_proposal' proposal.pk %}">Reply</a>
                                     </div>
                                 {% else %}
                                     <strong>{{ proposal.get_status_display }}</strong>
                                 {% endif %}
                             </div>
                         </article>
-                    {% endwith %}
-                {% endpartialdef %}
-            </li>
-        {% empty %}
-            <li class="py-3"></li>
-        {% endfor %}
-        {% if has_other_pages %}
-            <li class="pt-3">{% include "_pagination_links.html" %}</li>
-        {% endif %}
-    {% endwith %}
-</ul>
-{% endpartialdef pagination %}
+                    </li>
+                {% empty %}
+                    <li class="py-3"></li>
+                {% endfor %}
+                {% if has_other_pages %}
+                    <li class="pt-3">{% include "_pagination_links.html" %}</li>
+                {% endif %}
+            {% endwith %}
+        </ul>
+    {% endpartialdef pagination %}
 </div>
 {% endblock content %}
