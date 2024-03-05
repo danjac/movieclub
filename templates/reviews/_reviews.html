@@ -11,28 +11,16 @@
         <h3 class="my-3 text-base font-semibold lg:text-lg">
             {% if review %}
                 Edit Review
-            {% elif parent %}
-                Reply to Review by {{ parent.user }}:
             {% else %}
                 Submit a Review
             {% endif %}
         </h3>
-        {% if parent %}
-            <div class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ parent.comment|linebreaksbr }}</div>
-        {% endif %}
         {{ review_form }}
         <div class="flex items-center space-x-2">
             {% if review %}
                 {% with target=review.get_target_id %}
                     <button class="text-xs lg:text-sm link"
                             hx-get="{% url 'reviews:cancel_review' review.pk %}"
-                            hx-target="#{{ target }}"
-                            hx-swap="outerHTML show:#{{ target }}:top">Cancel</button>
-                {% endwith %}
-            {% elif parent %}
-                {% with target=parent.get_target_id %}
-                    <button class="text-xs lg:text-sm link"
-                            hx-get="{% url 'reviews:cancel_review' parent.pk %}"
                             hx-target="#{{ target }}"
                             hx-swap="outerHTML show:#{{ target }}:top">Cancel</button>
                 {% endwith %}
@@ -57,16 +45,11 @@
             <div data-review id="{{ target }}" class="relative py-3 space-y-3">
                 <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
                     <div class="flex items-center space-x-3">
-                        <a href="" class="link">{{ review.user.username }}</a>
+                        <a href="{{ review.user.get_absolute_url }}" class="link">{{ review.user.username }}</a>
                     </div>
                     <div class="font-semibold">Posted {{ review.created|date }}</div>
                 </div>
                 <div class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ review.comment|linebreaksbr }}</div>
-                {% if review.parent %}
-                    <div class="text-xs font-semibold lg:text-sm">
-                        Reply to: <a class="underline link" href="#{{ review.parent.get_target_id }}">{{ review.parent.comment|truncatechars:120 }}</a>
-                    </div>
-                {% endif %}
                 {% if request.user.is_authenticated %}
                     <div class="flex justify-between items-center text-xs lg:text-sm">
                         <div class="flex items-center space-x-3">

@@ -2,10 +2,11 @@ from django.contrib import messages
 from django.db.models import Exists, OuterRef, Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
-from django.views.decorators.http import require_POST, require_safe
+from django.views.decorators.http import require_safe
 
 from movieclub.blogathons.models import Blogathon, Entry
-from movieclub.decorators import require_auth, require_DELETE, require_form_methods
+from movieclub.decorators import require_auth, require_form_methods
+from movieclub.htmx import render_htmx
 from movieclub.pagination import render_pagination
 from movieclub.users.forms import UserDetailsForm
 from movieclub.users.models import User
@@ -22,8 +23,29 @@ def user_detail(request: HttpRequest, username: str) -> HttpResponse:
         "users/detail.html",
         {
             "current_user": user,
+            "is_current_user": user == request.user,
             "links": user.links.order_by("title"),
         },
+    )
+
+
+@require_form_methods
+@require_auth
+def edit_user_details(request: HttpRequest) -> HttpResponse:
+    """Edit user details"""
+    if request.method == "POST":
+        form = UserDetailsForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your details have been updated")
+    else:
+        form = UserDetailsForm(instance=request.user)
+    return render_htmx(
+        request,
+        "users/user_form.html",
+        {"form": form},
+        partial="form",
+        target="user-form",
     )
 
 
@@ -86,38 +108,6 @@ def user_collections(request: HttpRequest, username: str) -> HttpResponse:
             "current_user": user,
         },
     )
-
-
-@require_form_methods
-@require_auth
-def edit_user_details(request: HttpRequest) -> HttpResponse:
-    """Edit user details"""
-    if request.method == "POST":
-        form = UserDetailsForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Your details have been updated")
-    else:
-        form = UserDetailsForm(instance=request.user)
-    return render(request, "users/user_form.html", {"form": form})
-
-
-@require_POST
-@require_auth
-def add_user_link(request: HttpRequest) -> HttpResponse:
-    """Add a user link"""
-
-
-@require_form_methods
-@require_auth
-def edit_user_link(request: HttpRequest, link_id: int) -> HttpResponse:
-    """Edit user link"""
-
-
-@require_DELETE
-@require_auth
-def remove_user_link(request: HttpRequest, link_id: int) -> HttpResponse:
-    """Delete user link"""
 
 
 def _get_user_or_404(username: str) -> User:

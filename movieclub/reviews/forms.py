@@ -10,10 +10,12 @@ class ReviewForm(forms.ModelForm):
     """Base form."""
 
     class Meta:
-        fields: ClassVar = ["comment", "url"]
         model = Review
+        fields = (
+            "comment",
+            "score",
+        )
         help_texts: ClassVar = {
-            "url": "URL to Blog Page",
             "comment": "Review (max 500 chars)",
         }
         validators: ClassVar = {

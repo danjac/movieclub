@@ -1,4 +1,7 @@
+from typing import ClassVar
+
 from django.conf import settings
+from django.core import validators
 from django.db import models
 from model_utils.models import TimeStampedModel
 
@@ -20,18 +23,23 @@ class Review(TimeStampedModel):
         related_name="reviews",
     )
 
-    parent = models.ForeignKey(
-        "self",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="replies",
+    score = models.FloatField(
+        default=0,
+        validators=(
+            validators.MinValueValidator(0),
+            validators.MaxValueValidator(5.0),
+        ),
     )
-
-    url = models.URLField(blank=True)
 
     comment = models.TextField()
 
-    def get_target_id(self) -> str:
-        """Return HTMX target in DOM."""
-        return f"review-{self.pk}"
+    class Meta:
+        constraints: ClassVar = [
+            models.CheckConstraint(
+                check=models.Q(score__range=(0, 5.0)),
+                name="%(app_label)s_%(class)s_score_in_range",
+            ),
+            models.UniqueConstraint(
+                fields=["user", "release"], name="%(app_label)s_%(class)s_unique_review"
+            ),
+        ]

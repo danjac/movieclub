@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from django.urls import reverse
 
 
 class UserManager(BaseUserManager):
@@ -44,6 +45,10 @@ class User(AbstractUser):
     bio = models.TextField(blank=True)
 
     objects: models.Manager[User] = UserManager()
+
+    def get_absolute_url(self) -> str:
+        """Return URL to detail page."""
+        return reverse("users:user_detail", kwargs={"username": self.username})
 
 
 class Link(models.Model):

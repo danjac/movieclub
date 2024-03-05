@@ -45,7 +45,7 @@
         <ul class="flex items-center space-x-3 lg:space-x-6">
             {% if user.is_authenticated %}
                 <li>
-                    <a href=""
+                    <a href="{{ user.get_absolute_url }}"
                        aria-label="Settings for {{ user.username }}"
                        title="Settings for {{ user.username }}"
                        class="flex items-center space-x-2 font-bold hover:text-blue-300">

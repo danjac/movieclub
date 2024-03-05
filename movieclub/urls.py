@@ -14,6 +14,7 @@ urlpatterns = [
     path("collections/", include("movieclub.collections.urls")),
     path("credits/", include("movieclub.credits.urls")),
     path("reviews/", include("movieclub.reviews.urls")),
+    path("users/", include("movieclub.users.urls")),
     path("accept-cookies/", views.accept_cookies, name="accept_cookies"),
     path(
         "cover/<int:width>/<int:height>/",

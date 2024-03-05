@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+    <header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
+        <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
+            {{ current_user.username }}
+        </h1>
+        <nav>
+            <ul class="items-center space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
+                <li class="flex items-center">
+                    <a href="">Reviews</a>
+                </li>
+                <li class="flex items-center">
+                    <a href="">Collections</a>
+                </li>
+                <li class="flex items-center">
+                    <a href="">Blogathons</a>
+                </li>
+                {% if is_current_user %}
+                    <li class="flex items-center">
+                        <a href="{% url 'users:edit_user_details' %}">Settings</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    {% if current_user.bio %}
+        <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ current_user.bio|linebreaksbr }}</p>
+    {% endif %}
+    {% if links %}
+        <ul>
+            {% for link in links %}
+                <li>
+                    <a href="{{ link.url }}" class="link" target="_blank" rel="noopener">{{ link.title }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock content %}
