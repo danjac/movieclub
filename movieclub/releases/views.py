@@ -168,9 +168,21 @@ def _render_release_detail(
     request: HttpRequest, release_id: int, queryset: ReleaseQuerySet
 ) -> HttpResponse:
     release = get_object_or_404(queryset, pk=release_id)
-    context = {
-        "release": release,
-        "cast_members": release.cast_members.select_related("person").order_by("order"),
-        "crew_members": release.crew_members.select_related("person"),
-    }
-    return render(request, "releases/release.html", context)
+    reviews = release.reviews.all()
+
+    return render(
+        request,
+        "releases/release.html",
+        {
+            "release": release,
+            "cast_members": release.cast_members.select_related("person").order_by(
+                "order"
+            ),
+            "crew_members": release.crew_members.select_related("person"),
+            "reviews": reviews.select_related("user", "release").order_by("-created")[
+                :12
+            ],
+            "can_submit_review": request.user.is_authenticated
+            and not reviews.filter(user=request.user).exists(),
+        },
+    )

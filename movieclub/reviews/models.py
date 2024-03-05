@@ -3,6 +3,7 @@ from typing import ClassVar
 from django.conf import settings
 from django.core import validators
 from django.db import models
+from django.urls import reverse
 from model_utils.models import TimeStampedModel
 
 
@@ -43,3 +44,7 @@ class Review(TimeStampedModel):
                 fields=["user", "release"], name="%(app_label)s_%(class)s_unique_review"
             ),
         ]
+
+    def get_absolute_url(self) -> str:
+        """Return review detail."""
+        return reverse("reviews:review_detail", kwargs={"review_id": self.pk})

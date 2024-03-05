@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load partials %}
+{% block content %}
+    <header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
+        <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
+            <a href="{{ reviewer.get_absolute_url }}" class="link">{{ reviewer.username }}</a> - Reviews
+        </h1>
+    </header>
+    {% partialdef pagination inline=True %}
+    <ul class="divide-y divide-solid" id="{{ pagination_target }}">
+        {% with has_other_pages=page_obj.has_other_pages %}
+            {% if has_other_pages %}
+                <li class="pb-3">{% include "_pagination_links.html" %}</li>
+            {% endif %}
+            {% for review in page_obj %}
+                <li class="py-3 first-of-type:pt-0">
+                    <div class="relative py-3 space-y-3">
+                        <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
+                            <div class="flex items-center space-x-3">
+                                <a href="{{ review.release.get_absolute_url }}" class="link">Review for {{ review.release.title }}</a>
+                            </div>
+                            <div class="font-semibold">Posted {{ review.created|date }}</div>
+                        </div>
+                        <div class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ review.comment|linebreaksbr }}</div>
+                    </div>
+                </li>
+            {% empty %}
+                <li class="pt-3">{{ reviewer.username }} has not posted any reviews.</li>
+            {% endfor %}
+            {% if has_other_pages %}
+                <li class="pt-3">{% include "_pagination_links.html" %}</li>
+            {% endif %}
+        {% endwith %}
+    </ul>
+{% endpartialdef pagination %}
+{% endblock content %}
