@@ -5,7 +5,11 @@ from movieclub.reviews import views
 app_name = "reviews"
 
 urlpatterns = [
-    path("release/<int:release_id>/", views.add_review, name="release_review_list"),
+    path(
+        "release/<int:release_id>/",
+        views.release_review_list,
+        name="release_review_list",
+    ),
     path("release/<int:release_id>/new/", views.add_review, name="add_review"),
     path("user/<slug:username>/", views.user_review_list, name="user_review_list"),
     path("<int:review_id>/", views.review_detail, name="review_detail"),

@@ -14,17 +14,15 @@ from movieclub.users.models import User
 
 
 @require_safe
-def release_review_list(
-    request: HttpRequest, release_id: int, slug: str
-) -> HttpResponse:
+def release_review_list(request: HttpRequest, release_id: int) -> HttpResponse:
     """List of reviews for a release."""
 
     release = get_object_or_404(Release, pk=release_id)
 
     return render_pagination(
         request,
-        "reviews/release_list.html",
         release.reviews.select_related("release", "user").order_by("-created"),
+        "reviews/release_list.html",
         {
             "release": release,
         },
