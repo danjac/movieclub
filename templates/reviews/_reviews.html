@@ -50,10 +50,7 @@
     </form>
 {% endpartialdef %}
 {% endif %}
-<div id="reviews"
-     class="divide-y divide"
-     x-data="{ isReviews: {{ reviews.exists|yesno:"true,false" }} }"
-     @htmx:after-request.window="isReviews=$el.querySelectorAll('[data-review]').length > 0">
+<div id="reviews" class="divide-y divide">
     {% for review in reviews %}
         {% partialdef review inline=True %}
         {% with target=review.get_target_id %}
@@ -94,9 +91,9 @@
             </div>
         {% endwith %}
     {% endpartialdef %}
+{% empty %}
+    {% if not request.user.is_authenticated %}
+        <div class="py-3 font-semibold">This {{ release.get_category_display|lower }} does not have any reviews yet.</div>
+    </div>
+{% endif %}
 {% endfor %}
-<div id="no-reviews"
-     class="py-3 font-semibold"
-     x-cloak
-     x-show="!isReviews">This {{ release.get_category_display|lower }} does not have any reviews yet.</div>
-</div>
