@@ -7,17 +7,18 @@
         <nav>
             <ul class="items-center space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
                 <li class="flex items-center">
-                    <a href="{% url 'reviews:user_review_list' current_user.username %}">Reviews</a>
+                    <a href="{% url 'reviews:user_review_list' current_user.username %}"
+                       class="link">Reviews</a>
                 </li>
                 <li class="flex items-center">
-                    <a href="">Collections</a>
+                    <a href="" class="link">Collections</a>
                 </li>
                 <li class="flex items-center">
-                    <a href="">Blogathons</a>
+                    <a href="" class="link">Blogathons</a>
                 </li>
                 {% if is_current_user %}
                     <li class="flex items-center">
-                        <a href="{% url 'users:edit_user_details' %}">Settings</a>
+                        <a href="{% url 'users:edit_user_details' %}" class="link">Settings</a>
                     </li>
                 {% endif %}
             </ul>

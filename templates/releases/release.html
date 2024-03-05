@@ -115,7 +115,7 @@
     <div class="divide-y divide">
         {% for review in reviews %}
             <div class="relative py-3 space-y-3">
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-3 text-yellow-500">
                     {% for value in review.get_score_values %}
                         {% if value %}
                             {% heroicon_solid "star" %}
