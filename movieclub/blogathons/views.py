@@ -1,6 +1,5 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.db.models import Exists, OuterRef, Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -14,7 +13,7 @@ from movieclub.blogathons.forms import (
     ProposalForm,
     ProposalResponseForm,
 )
-from movieclub.blogathons.models import Blogathon, Entry, Proposal
+from movieclub.blogathons.models import Blogathon, Proposal
 from movieclub.decorators import require_auth, require_form_methods
 from movieclub.htmx import render_htmx
 from movieclub.pagination import render_pagination
@@ -28,31 +27,6 @@ def blogathon_list(request: HttpRequest) -> HttpResponse:
         request,
         Blogathon.objects.available(request.user).order_by("-starts"),
         "blogathons/index.html",
-    )
-
-
-@require_safe
-def user_blogathon_list(request: HttpRequest, username: str) -> HttpResponse:
-    """Blogathons organized or contributed to by this user."""
-
-    user = get_object_or_404(User, is_active=True, username__iexact=username)
-
-    return render_pagination(
-        request,
-        Blogathon.objects.annotate(
-            has_entries=Exists(
-                Entry.objects.filter(
-                    participant=user,
-                    blogathon=OuterRef("pk"),
-                )
-            )
-        )
-        .filter(Q(organizer=user) | Q(has_entries=True))
-        .order_by("-created"),
-        "users/blogathons.html",
-        {
-            "organizer_or_participant": user,
-        },
     )
 
 
