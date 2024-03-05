@@ -127,8 +127,8 @@ class TestSubmitProposal:
     @pytest.mark.django_db()
     def test_post(self, client, auth_user, public_blogathon, url):
         response = client.post(url, {"proposal": "test"})
-        assert response.url == public_blogathon.get_absolute_url()
-        assert public_blogathon.proposals.count() == 1
+        proposal = public_blogathon.proposals.get()
+        assert response.url == proposal.get_absolute_url()
 
 
 class TestPublishBlogathon:
@@ -140,6 +140,25 @@ class TestPublishBlogathon:
         assert response.url == auth_user_blogathon.get_absolute_url()
         auth_user_blogathon.refresh_from_db()
         assert auth_user_blogathon.published
+
+
+class TestProposalDetail:
+    @pytest.mark.django_db()
+    def test_get_organizer(self, client, proposal):
+        response = client.get(proposal.get_absolute_url())
+        assert response.status_code == http.HTTPStatus.OK
+
+    @pytest.mark.django_db()
+    def test_get_participant(self, client, auth_user):
+        proposal = create_proposal(participant=auth_user)
+        response = client.get(proposal.get_absolute_url())
+        assert response.status_code == http.HTTPStatus.OK
+
+    @pytest.mark.django_db()
+    def test_get_non_participant(self, client, auth_user):
+        proposal = create_proposal()
+        response = client.get(proposal.get_absolute_url())
+        assert response.status_code == http.HTTPStatus.NOT_FOUND
 
 
 class TestRespondToProposal:
@@ -158,9 +177,7 @@ class TestRespondToProposal:
             reverse("blogathons:respond_to_proposal", args=[proposal.pk]),
             {"response": "ok", "action": "accept"},
         )
-        assert response.url == reverse(
-            "blogathons:blogathon_proposals", args=[proposal.blogathon.pk]
-        )
+        assert response.url == proposal.get_absolute_url()
         proposal.refresh_from_db()
         assert proposal.status_changed_at
         assert proposal.is_accepted()
@@ -172,9 +189,8 @@ class TestRespondToProposal:
             reverse("blogathons:respond_to_proposal", args=[proposal.pk]),
             {"response": "ok", "action": "reject"},
         )
-        assert response.url == reverse(
-            "blogathons:blogathon_proposals", args=[proposal.blogathon.pk]
-        )
+
+        assert response.url == proposal.get_absolute_url()
         proposal.refresh_from_db()
         assert proposal.status_changed_at
         assert proposal.is_rejected()

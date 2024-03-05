@@ -1,8 +1,8 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_safe
 
@@ -152,6 +152,35 @@ def blogathon_proposals(request: HttpRequest, blogathon_id: int) -> HttpResponse
     )
 
 
+@require_safe
+@require_auth
+def proposal_detail(request: HttpRequest, proposal_id: int) -> HttpResponse:
+    """Return all proposals."""
+    proposal = get_object_or_404(
+        Proposal.objects.filter(
+            Q(
+                blogathon__organizer=request.user,
+            )
+            | Q(participant=request.user)
+        ).select_related(
+            "blogathon",
+            "blogathon__organizer",
+            "participant",
+        ),
+        pk=proposal_id,
+    )
+
+    return render(
+        request,
+        "blogathons/proposal.html",
+        {
+            "blogathon": proposal.blogathon,
+            "proposal": proposal,
+            "is_organizer": proposal.blogathon.organizer == request.user,
+        },
+    )
+
+
 @require_form_methods
 @require_auth
 def submit_proposal(request: HttpRequest, blogathon_id: int) -> HttpResponse:
@@ -175,7 +204,7 @@ def submit_proposal(request: HttpRequest, blogathon_id: int) -> HttpResponse:
 
             messages.success(request, "Your proposal has been submitted")
 
-            return redirect(blogathon)
+            return redirect(proposal.get_absolute_url())
     else:
         form = ProposalForm()
 
@@ -223,9 +252,7 @@ def respond_to_proposal(request: HttpRequest, proposal_id: int) -> HttpResponse:
                 f"Proposal has been {proposal.get_status_display()}",
             )
 
-            return redirect(
-                reverse("blogathons:blogathon_proposals", args=[proposal.blogathon.pk])
-            )
+            return redirect(proposal.get_absolute_url())
     else:
         form = ProposalResponseForm(instance=proposal)
 

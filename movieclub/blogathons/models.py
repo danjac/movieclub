@@ -165,6 +165,10 @@ class Proposal(TimeStampedModel):
             )
         ]
 
+    def get_absolute_url(self) -> str:
+        """Return detail URL."""
+        return reverse("blogathons:proposal_detail", kwargs={"proposal_id": self.pk})
+
     def is_accepted(self) -> bool:
         """If ACCEPTED status."""
         return self.status == self.Status.ACCEPTED

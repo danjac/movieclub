@@ -28,7 +28,12 @@ urlpatterns = [
         name="submit_proposal",
     ),
     path(
-        "<int:proposal_id>/proposals/respond/",
+        "proposals/<int:proposal_id>/",
+        views.proposal_detail,
+        name="proposal_detail",
+    ),
+    path(
+        "proposals/<int:proposal_id>/respond/",
         views.respond_to_proposal,
         name="respond_to_proposal",
     ),
