@@ -1,3 +1,4 @@
+from collections.abc import Iterator
 from typing import ClassVar
 
 from django.conf import settings
@@ -24,11 +25,11 @@ class Review(TimeStampedModel):
         related_name="reviews",
     )
 
-    score = models.FloatField(
+    score = models.PositiveSmallIntegerField(
         default=0,
         validators=(
             validators.MinValueValidator(0),
-            validators.MaxValueValidator(5.0),
+            validators.MaxValueValidator(5),
         ),
     )
 
@@ -37,7 +38,7 @@ class Review(TimeStampedModel):
     class Meta:
         constraints: ClassVar = [
             models.CheckConstraint(
-                check=models.Q(score__range=(0, 5.0)),
+                check=models.Q(score__range=(0, 5)),
                 name="%(app_label)s_%(class)s_score_in_range",
             ),
             models.UniqueConstraint(
@@ -48,3 +49,11 @@ class Review(TimeStampedModel):
     def get_absolute_url(self) -> str:
         """Return review detail."""
         return reverse("reviews:review_detail", kwargs={"review_id": self.pk})
+
+    def get_stars(self) -> Iterator[bool]:
+        """For each value in range, returns true or false if less than or equal to score."""
+        for i in range(1, 6):
+            if i > self.score:
+                yield False
+            else:
+                yield True

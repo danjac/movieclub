@@ -21,3 +21,4 @@ class ReviewForm(forms.ModelForm):
         validators: ClassVar = {
             "comment": MaxLengthValidator(500, "Max 500 characters")
         }
+        widgets: ClassVar = {"score": forms.HiddenInput()}

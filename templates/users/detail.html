@@ -7,7 +7,7 @@
         <nav>
             <ul class="items-center space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
                 <li class="flex items-center">
-                    <a href="">Reviews</a>
+                    <a href="{% url 'reviews:user_review_list' current_user.username %}">Reviews</a>
                 </li>
                 <li class="flex items-center">
                     <a href="">Collections</a>

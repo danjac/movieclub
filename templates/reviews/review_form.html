@@ -1,22 +1,37 @@
 {% extends "base.html" %}
-{% load heroicons partials %}
+{% load heroicons partials widget_tweaks %}
 {% block content %}
     <header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
-        <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
-            <a href="{{ release.get_absolute_url }}" class="link">{{ release.title }}</a>
-            {% if review %}
-                Edit Review
-            {% else %}
-                Add Review
-            {% endif %}
+        <h1 class="flex justify-center items-center space-x-3 text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
+            <a href="{{ release.get_absolute_url }}" class="link">{{ release.title }}:</a>
+            <span>
+                {% if review %}
+                    Edit Review
+                {% else %}
+                    Add Review
+                {% endif %}
+            </span>
         </h1>
     </header>
     {% partialdef form inline=True %}
     <form post="{{ request.path }}"
-          hx-post="{{ request.path }}"
-          class="space-y-3"
-          id="review-form">
-        {{ form }}
+        hx-post="{{ request.path }}"
+        class="space-y-3"
+        {#djlint: off#}
+        x-data="{score: {{ form.score.value }}, scores: [1, 2, 3, 4, 5]}"
+        {#djlint:on#}
+        id="review-form">
+        <label class="space-y-3 font-semibold">Score</label>
+        {{ form.score|append_attr:"x-model=score" }}
+        <div class="flex items-center">
+            <template x-for="value in scores">
+                <div class="mr-3">
+                    <button x-show="value > score" @click.prevent="score=value">{% heroicon_outline "star" %}</button>
+                    <button x-show="value <= score" @click.prevent="score=value-1">{% heroicon_solid "star" %}</button>
+                </div>
+            </template>
+        </div>
+        {{ form.comment.as_field_group }}
         <button class="flex items-center btn btn-primary">
             {% heroicon_mini "plus" class="mr-2" %}
             Submit
