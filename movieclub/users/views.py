@@ -21,7 +21,6 @@ def user_detail(request: HttpRequest, username: str) -> HttpResponse:
         {
             "current_user": user,
             "is_current_user": user == request.user,
-            "links": user.links.order_by("title"),
         },
     )
 

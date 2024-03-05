@@ -1,6 +1,6 @@
 from django import forms
 
-from movieclub.users.models import Link, User
+from movieclub.users.models import User
 
 
 class UserDetailsForm(forms.ModelForm):
@@ -9,11 +9,3 @@ class UserDetailsForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ("bio",)
-
-
-class LinkForm(forms.ModelForm):
-    """Form for adding or editing links"""
-
-    class Meta:
-        model = Link
-        fields = ("title", "url")

@@ -1,7 +1,7 @@
 import pytest
 from django.utils.crypto import get_random_string
 
-from movieclub.users.models import Link, User
+from movieclub.users.models import User
 
 
 def _make_random_password():
@@ -29,8 +29,3 @@ class TestUserManager:
         )
         assert user.is_superuser
         assert user.is_staff
-
-
-class TestLink:
-    def test_str(self):
-        assert str(Link(url="https://example.com")) == "https://example.com"

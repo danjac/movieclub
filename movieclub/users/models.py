@@ -49,16 +49,3 @@ class User(AbstractUser):
     def get_absolute_url(self) -> str:
         """Return URL to detail page."""
         return reverse("users:user_detail", kwargs={"username": self.username})
-
-
-class Link(models.Model):
-    """Link to user's webpage or social media etc."""
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="links")
-
-    title = models.CharField(max_length=12)
-    url = models.URLField()
-
-    def __str__(self) -> str:
-        """Return the URL"""
-        return self.url
