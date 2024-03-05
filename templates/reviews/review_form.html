@@ -26,8 +26,8 @@
         <div class="flex items-center">
             <template x-for="value in scores">
                 <div class="mr-3">
-                    <button x-show="value > score" @click.prevent="score=value">{% heroicon_outline "star" %}</button>
-                    <button x-show="value <= score" @click.prevent="score=value-1">{% heroicon_solid "star" %}</button>
+                    <button x-show="value > score" @click.prevent.debounce="score=value">{% heroicon_outline "star" %}</button>
+                    <button x-show="value <= score" @click.prevent.debounce="score=value-1">{% heroicon_solid "star" %}</button>
                 </div>
             </template>
         </div>

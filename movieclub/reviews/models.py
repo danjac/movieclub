@@ -50,7 +50,7 @@ class Review(TimeStampedModel):
         """Return review detail."""
         return reverse("reviews:review_detail", kwargs={"review_id": self.pk})
 
-    def get_stars(self) -> Iterator[bool]:
+    def get_score_values(self) -> Iterator[bool]:
         """For each value in range, returns true or false if less than or equal to score."""
         for i in range(1, 6):
             if i > self.score:
