@@ -6,7 +6,11 @@ from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 
 from movieclub.blogathons.models import Blogathon, Entry, Proposal
-from movieclub.blogathons.tests.factories import create_blogathon, create_proposal
+from movieclub.blogathons.tests.factories import (
+    create_blogathon,
+    create_entry,
+    create_proposal,
+)
 from movieclub.tests.factories import create_batch
 
 
@@ -244,3 +248,47 @@ class TestSubmitEntry:
 
         entry = Entry.objects.get()
         assert entry.participant == auth_user
+
+
+class TestEntryDetail:
+    @pytest.mark.django_db()
+    def test_get(self, client):
+        entry = create_entry()
+        response = client.get(entry.get_absolute_url())
+        assert response.status_code == http.HTTPStatus.OK
+
+
+class TestEditEntry:
+    @pytest.fixture()
+    def entry(self, auth_user):
+        return create_entry(participant=auth_user)
+
+    @pytest.fixture()
+    def url(self, entry):
+        return reverse("blogathons:edit_entry", args=[entry.pk])
+
+    @pytest.mark.django_db()
+    def test_get(self, client, entry, url):
+        response = client.get(url)
+        assert response.status_code == http.HTTPStatus.OK
+
+    @pytest.mark.django_db()
+    def test_post(self, client, entry, url):
+        response = client.post(
+            url,
+            {
+                "blog_title": "test",
+                "blog_url": "https://example.com",
+                "blog_summary": "test",
+            },
+        )
+        assert response.url == entry.get_absolute_url()
+
+
+class TestDeleteEntry:
+    @pytest.mark.django_db()
+    def test_delete(self, client, auth_user):
+        entry = create_entry(participant=auth_user)
+        response = client.delete(reverse("blogathons:delete_entry", args=[entry.pk]))
+        assert Entry.objects.count() == 0
+        assert response.url == entry.blogathon.get_absolute_url()

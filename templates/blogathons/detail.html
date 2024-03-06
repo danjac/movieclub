@@ -104,16 +104,15 @@
                 <li>
                     <article class="relative p-3 space-y-3 border">
                         <h3 class="text-base font-bold md:text-lg">
-                            <a href="{{ entry.blog_url }}"
-                               class="link"
-                               target="_blank"
-                               rel="noopener">{{ entry.blog_title }}</a>
+                            <a href="{{ entry.get_absolute_url }}" class="link">{{ entry.blog_title }}</a>
                         </h3>
                         <div>
                             <a href="" class="link">{{ entry.participant.username }}</a>
                         </div>
                         {% if entry.blog_summary %}
-                            <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ entry.blog_summary|linebreaksbr }}</p>
+                            <p class="break-words prose prose-sm md:prose-base dark:prose-invert">
+                                {{ entry.blog_summary|truncatechars:200|urlize|linebreaksbr }}
+                            </p>
                         {% endif %}
                         <div class="font-semibold">Submitted {{ entry.created|date }}</div>
                     </article>

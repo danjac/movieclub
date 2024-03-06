@@ -317,7 +317,14 @@ def entry_detail(request: HttpRequest, entry_id: int) -> HttpResponse:
         pk=entry_id,
     )
 
-    return render(request, "blogathons/entry.html", {"entry": entry})
+    return render(
+        request,
+        "blogathons/entry.html",
+        {
+            "entry": entry,
+            "blogathon": entry.blogathon,
+        },
+    )
 
 
 @require_form_methods
@@ -326,7 +333,9 @@ def edit_entry(request: HttpRequest, entry_id: int) -> HttpResponse:
     """Update an entry."""
     entry = get_object_or_404(
         Entry.objects.select_related(
-            "blogathon", "blogathon__organizer", "participant"
+            "blogathon",
+            "blogathon__organizer",
+            "participant",
         ),
         participant=request.user,
         pk=entry_id,
@@ -337,8 +346,11 @@ def edit_entry(request: HttpRequest, entry_id: int) -> HttpResponse:
 
         if form.is_valid():
             form.save()
-            messages.success("Your entry has been updated")
+            messages.success(request, "Your entry has been updated")
             return redirect(entry)
+
+    else:
+        form = EntryForm(instance=entry)
 
     return render_htmx(
         request,

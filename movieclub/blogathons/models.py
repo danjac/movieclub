@@ -210,3 +210,7 @@ class Entry(TimeStampedModel):
                 name="%(app_label)s_%(class)s_unique_blogathon_entry",
             )
         ]
+
+    def get_absolute_url(self) -> str:
+        """Return detail URL."""
+        return reverse("blogathons:entry_detail", kwargs={"entry_id": self.pk})
