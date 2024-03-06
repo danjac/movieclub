@@ -12,8 +12,8 @@ from movieclub.blogathons.forms import (
     ProposalForm,
     ProposalResponseForm,
 )
-from movieclub.blogathons.models import Blogathon, Proposal
-from movieclub.decorators import require_auth, require_form_methods
+from movieclub.blogathons.models import Blogathon, Entry, Proposal
+from movieclub.decorators import require_auth, require_DELETE, require_form_methods
 from movieclub.htmx import render_htmx
 from movieclub.pagination import render_pagination
 
@@ -304,3 +304,67 @@ def submit_entry(request: HttpRequest, blogathon_id: int) -> HttpResponse:
         partial="form",
         target="entry-form",
     )
+
+
+@require_safe
+def entry_detail(request: HttpRequest, entry_id: int) -> HttpResponse:
+    """Render entry details."""
+
+    entry = get_object_or_404(
+        Entry.objects.select_related(
+            "blogathon", "blogathon__organizer", "participant"
+        ),
+        pk=entry_id,
+    )
+
+    return render(request, "blogathons/entry.html", {"entry": entry})
+
+
+@require_form_methods
+@require_auth
+def edit_entry(request: HttpRequest, entry_id: int) -> HttpResponse:
+    """Update an entry."""
+    entry = get_object_or_404(
+        Entry.objects.select_related(
+            "blogathon", "blogathon__organizer", "participant"
+        ),
+        participant=request.user,
+        pk=entry_id,
+    )
+
+    if request.method == "POST":
+        form = EntryForm(request.POST, instance=entry)
+
+        if form.is_valid():
+            form.save()
+            messages.success("Your entry has been updated")
+            return redirect(entry)
+
+    return render_htmx(
+        request,
+        "blogathons/entry_form.html",
+        {
+            "blogathon": entry.blogathon,
+            "entry": entry,
+            "form": form,
+        },
+        partial="form",
+        target="entry-form",
+    )
+
+
+@require_DELETE
+def delete_entry(request: HttpRequest, entry_id: int) -> HttpResponse:
+    """Delete an entry."""
+    entry = get_object_or_404(
+        Entry.objects.select_related(
+            "blogathon",
+        ),
+        participant=request.user,
+        pk=entry_id,
+    )
+
+    entry.delete()
+
+    messages.info(request, "Your entry has been deleted")
+    return redirect(entry.blogathon)

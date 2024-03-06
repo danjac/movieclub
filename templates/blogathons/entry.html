@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static heroicons partials %}
+{% block content %}
+    <header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
+        <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
+            <a href="{{ blogathon.get_absolute_url }}" class="link">{{ blogathon.name }}</a> - Entries
+        </h1>
+    </header>
+    <article class="py-3 space-y-3">
+        <h2 class="text-base xl:text-lg">
+            <a href="{{ entry.blog_url }}" class="link">{{ entry.blog_title }}</a>
+        </h2>
+        <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
+            <div class="flex items-center space-x-3">
+                <a href="{{ entry.participant.get_absolute_url }}" class="link">{{ entry.participant.username }}</a>
+            </div>
+            <div class="font-semibold">Submitted {{ entry.created|date }}</div>
+        </div>
+        {% if entry.blog_summary %}
+            <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ entry.blog_summary|urlize|linebreaksbr }}</p>
+        {% endif %}
+        {% if entry.participant == request.user %}
+            <div class="flex items-center space-x-3">
+                <a class="inline-block link" href="">Edit</a>
+                <a class="inline-block link"
+                   hx-delete=""
+                   hx-confirm="Are you sure you want to delete your entry?">Delete</a>
+            </div>
+        {% endif %}
+    </article>
+{% endblock content %}
