@@ -108,8 +108,11 @@
     {% endif %}
     <h2 class="pb-6 mb-6 text-lg font-bold border-b lg:text-xl xl:text-2xl">Reviews</h2>
     {% if can_submit_review %}
-        <div>
-            <a href="{% url 'reviews:add_review' release.pk %}" class="link">Post your review</a>
+        <div class="mb-3">
+            <a href="{% url 'reviews:add_review' release.pk %}"
+               class="inline-flex items-center btn btn-default">
+                {% heroicon_mini "plus" class="mr-2" %}
+            Post your review</a>
         </div>
     {% endif %}
     <div class="divide-y divide">

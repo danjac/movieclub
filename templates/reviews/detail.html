@@ -4,7 +4,7 @@
     {% with release=review.release %}
         <header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
             <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
-                Review by&nbsp;<a href="{{ review.user.get_absolute_url }}" class="link">{{ review.user.username }}</a>&nbsp;for&nbsp;<a href="{{ release.get_absolute_url }}">{{ release.title }}</a>
+                Review by&nbsp;<a href="{{ review.user.get_absolute_url }}" class="underline link">{{ review.user.username }}</a>&nbsp;for&nbsp;<a href="{{ release.get_absolute_url }}" class="underline link">{{ release.title }}</a>
             </h1>
         </header>
         <div class="justify-between items-center py-6 space-y-2 sm:flex sm:space-y-0">
