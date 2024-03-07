@@ -7,7 +7,7 @@ from movieclub.reviews.models import Review
 
 
 class ReviewForm(forms.ModelForm):
-    """Base form."""
+    """Form for review model."""
 
     class Meta:
         model = Review
