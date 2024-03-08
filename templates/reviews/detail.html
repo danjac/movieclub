@@ -1,32 +1,46 @@
 {% extends "base.html" %}
 {% load heroicons %}
 {% block content %}
-    {% with release=review.release %}
-        <header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
-            <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
-                Review by&nbsp;<a href="{{ review.user.get_absolute_url }}" class="underline link">{{ review.user.username }}</a>&nbsp;for&nbsp;<a href="{{ release.get_absolute_url }}" class="underline link">{{ release.title }}</a>
-            </h1>
-        </header>
-        <div class="justify-between items-center py-6 space-y-2 sm:flex sm:space-y-0">
-            <div class="font-semibold">Posted {{ review.created|date }}</div>
-            <div class="flex items-center space-x-3 text-yellow-500">
-                {% for value in review.get_score_values %}
-                    {% if value %}
-                        {% heroicon_solid "star" %}
-                    {% else %}
-                        {% heroicon_outline "star" %}
-                    {% endif %}
-                {% endfor %}
+    {% with release=review.release reviewer=review.user %}
+        <nav class="pb-6 mb-6 border-b">
+            <ul class="flex flex-wrap items-center space-x-3">
+                <li>
+                    <a class="link" href="{{ release.get_absolute_url }}">{{ release.title }}</a>
+                </li>
+                <li class="font-semibold">{% heroicon_solid "chevron-right" %}</li>
+                <li>
+                    <a class="link"
+                       href="{% url 'reviews:release_review_list' release.pk %}">Reviews</a>
+                </li>
+                <li class="font-semibold">{% heroicon_solid "chevron-right" %}</li>
+                <li>{{ reviewer.username }}</li>
+            </ul>
+        </nav>
+        <div class="space-y-6">
+            <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
+                <div>
+                    Reviewed by <a class="link" href="{{ reviewer.get_absolute_url }}">{{ reviewer.username }}</a>
+                    on <span class="font-semibold">{{ review.created|date }}</span>
+                </div>
+                <div class="flex items-center space-x-3 text-yellow-500">
+                    {% for value in review.get_score_values %}
+                        {% if value %}
+                            {% heroicon_solid "star" %}
+                        {% else %}
+                            {% heroicon_outline "star" %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
             </div>
+            <p class="mb-6 break-words prose prose-sm md:prose-base dark:prose-invert">{{ review.comment|linebreaksbr }}</p>
+            {% if request.user == reviewer %}
+                <div class="flex items-center space-x-3">
+                    <a href="{% url 'reviews:edit_review' review.pk %}" class="block link">Edit</a>
+                    <button hx-delete="{% url 'reviews:delete_review' review.pk %}"
+                            hx-confirm="Are you sure you want to delete this review?"
+                            class="block link">Delete</button>
+                </div>
+            {% endif %}
         </div>
     {% endwith %}
-    <p class="mb-6 break-words prose prose-sm md:prose-base dark:prose-invert">{{ review.comment|linebreaksbr }}</p>
-    {% if request.user == review.user %}
-        <div class="flex items-center space-x-3">
-            <a href="{% url 'reviews:edit_review' review.pk %}" class="block link">Edit</a>
-            <button hx-delete="{% url 'reviews:delete_review' review.pk %}"
-                    hx-confirm="Are you sure you want to delete this review?"
-                    class="block link">Delete</button>
-        </div>
-    {% endif %}
 {% endblock content %}
