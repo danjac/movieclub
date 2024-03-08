@@ -51,7 +51,11 @@ def review_detail(request: HttpRequest, review_id: int) -> HttpResponse:
     review = get_object_or_404(
         Review.objects.select_related("release", "user"), pk=review_id
     )
-    return render(request, "reviews/detail.html", {"review": review})
+    return render(
+        request,
+        "reviews/detail.html",
+        {"review": review},
+    )
 
 
 @require_form_methods

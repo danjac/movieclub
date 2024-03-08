@@ -9,9 +9,9 @@
                 {% else %}
                     <a class="inline-block link" href="{% url 'releases:movie_list' %}">Movies</a>
                 {% endif %}
-                <span class="inline-block">{% heroicon_solid "chevron-right" %}</span>
+                <span class="hidden sm:inline-block">{% heroicon_solid "chevron-right" %}</span>
             </li>
-            <li class="flex items-center space-x-3">{{ release.title }}</li>
+            <li class="hidden items-center space-x-3 sm:flex">{{ release.title }}</li>
         </ul>
     </nav>
     <h1 class="mb-6 text-xl font-bold lg:text-2xl xl:text-3xl">
