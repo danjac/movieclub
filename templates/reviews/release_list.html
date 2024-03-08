@@ -2,14 +2,18 @@
 {% load heroicons partials %}
 {% block content %}
     <nav class="pb-6 mb-6 border-b">
-        <ul class="flex flex-wrap items-center space-x-3">
-            <li>
-                <a class="link" href="{{ release.get_absolute_url }}">{{ release.title }}</a>
+        <ul class="flex-wrap items-center space-y-3 font-semibold sm:flex sm:space-y-0 sm:space-x-3">
+            <li class="flex items-center space-x-3">
+                {% if release.is_tv_show %}
+                    <a class="inline-block link" href="{% url 'releases:tv_show_list' %}">TV Shows</a>
+                {% else %}
+                    <a class="inline-block link" href="{% url 'releases:movie_list' %}">Movies</a>
+                {% endif %}
+                <span class="hidden sm:inline-block">{% heroicon_solid "chevron-right" %}</span>
             </li>
-            <li class="font-semibold">{% heroicon_solid "chevron-right" %}</li>
-            <li>
-                <a class="link"
-                   href="{% url 'reviews:release_review_list' release.pk %}">Reviews</a>
+            <li class="flex items-center space-x-3">
+                <a class="link" href="{{ release.get_absolute_url }}">{{ release.title }}</a>
+                <span class="hidden sm:inline-block">{% heroicon_solid "chevron-right" %}</span>
             </li>
         </ul>
     </nav>

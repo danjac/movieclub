@@ -1,7 +1,20 @@
 {% extends "base.html" %}
 {% load static heroicons collections %}
 {% block content %}
-    <h1 class="pb-6 mb-6 text-xl font-bold border-b lg:text-2xl xl:text-3xl">
+    <nav class="pb-6 mb-6 border-b">
+        <ul class="flex-wrap items-center space-y-3 font-semibold sm:flex sm:space-y-0 sm:space-x-3">
+            <li class="flex items-center space-x-3">
+                {% if release.is_tv_show %}
+                    <a class="inline-block link" href="{% url 'releases:tv_show_list' %}">TV Shows</a>
+                {% else %}
+                    <a class="inline-block link" href="{% url 'releases:movie_list' %}">Movies</a>
+                {% endif %}
+                <span class="inline-block">{% heroicon_solid "chevron-right" %}</span>
+            </li>
+            <li class="flex items-center space-x-3">{{ release.title }}</li>
+        </ul>
+    </nav>
+    <h1 class="mb-6 text-xl font-bold lg:text-2xl xl:text-3xl">
         {{ release.title }}
         {% if release.original_title and release.title != release.original_title %}
             <span class="italic">({{ release.original_title }})</span>
