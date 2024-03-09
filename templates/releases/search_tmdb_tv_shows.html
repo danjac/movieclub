@@ -1,42 +1,48 @@
 {% extends "base.html" %}
 {% load heroicons %}
 {% block content %}
-    <header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
-        <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
-            Add TV Show
-        </h1>
-        <nav>
-            <ul class="items-center space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
-                <li class="flex justify-center items-center sm:justify-start">{% search_form placeholder="Search TMDB" %}</li>
-            </ul>
-        </nav>
-    </header>
-    {% if search_results %}
-        <ul class="divide-y divide-solid">
-            {% for result in search_results %}
-                <li class="flex justify-between items-center py-2 hover:bg-gray-100 dark:hover:bg-gray-900 first-of-type:pt-0">
-                    <div class="font-semibold">
-                        {{ result.name }}
-                        {% if result.first_air_date %}({{ result.first_air_date|date:"Y" }}){% endif %}
-                    </div>
-                    <div>
-                        <button class="inline-flex items-center space-x-2 btn btn-default"
-                                aria-label="Add TV Show"
-                                hx-post="{% url 'releases:add_tv_show' result.id %}">
-                            {% heroicon_mini "plus" title="Add TV Show" %}
-                            <span>Add</span>
-                        </button>
-                    </div>
-                </li>
-            {% endfor %}
+    <nav class="pb-3 mb-3 border-b">
+        {% breadcrumbs %}
+        {% breadcrumb 'TV Shows' 'releases:tv_show_list' %}
+        {% breadcrumb 'Add TV Show' %}
+    {% endbreadcrumbs %}
+</nav>
+<header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
+    <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
+        Add TV Show
+    </h1>
+    <nav>
+        <ul class="items-center space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
+            <li class="flex justify-center items-center sm:justify-start">{% search_form placeholder="Search TMDB" %}</li>
         </ul>
-    {% else %}
-        <p>
-            {% if request.search %}
-                Sorry, no results found for your query
-            {% else %}
-                Find a movie on <a href="">The Movie Database</a> and add it to our collection!
-            {% endif %}
-        </p>
-    {% endif %}
+    </nav>
+</header>
+{% if search_results %}
+    <ul class="divide-y divide-solid">
+        {% for result in search_results %}
+            <li class="flex justify-between items-center py-2 hover:bg-gray-100 dark:hover:bg-gray-900 first-of-type:pt-0">
+                <div class="font-semibold">
+                    {{ result.name }}
+                    {% if result.first_air_date %}({{ result.first_air_date|date:"Y" }}){% endif %}
+                </div>
+                <div>
+                    <button class="inline-flex items-center space-x-2 btn btn-default"
+                            aria-label="Add TV Show"
+                            hx-post="{% url 'releases:add_tv_show' result.id %}">
+                        {% heroicon_mini "plus" title="Add TV Show" %}
+                        <span>Add</span>
+                    </button>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>
+        {% if request.search %}
+            Sorry, no results found for your query
+        {% else %}
+            Find a movie on <a href="">The Movie Database</a> and add it to our collection!
+        {% endif %}
+    </p>
+{% endif %}
 {% endblock content %}

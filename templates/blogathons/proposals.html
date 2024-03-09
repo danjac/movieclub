@@ -1,50 +1,55 @@
 {% extends "base.html" %}
 {% load static heroicons partials %}
 {% block content %}
-    <header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
-        <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
-            <a href="{{ blogathon.get_absolute_url }}" class="link">{{ blogathon.name }}</a> - Proposals
-        </h1>
-    </header>
-    <div class="space-y-3">
-        {% partialdef pagination inline=True %}
-        <ul class="divide-y divide-solid" id="{{ pagination_target }}">
-            {% with has_other_pages=page_obj.has_other_pages %}
-                {% if has_other_pages %}
-                    <li class="pb-3">{% include "_pagination_links.html" %}</li>
-                {% endif %}
-                {% for proposal in page_obj %}
-                    <li class="py-3 first-of-type:pt-0">
-                        <article class="relative py-3 space-y-3">
-                            <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
+    <nav class="pb-3 mb-3 border-b">
+        {% breadcrumbs %}
+        {% breadcrumb "Blogathons" "blogathons:blogathon_list" %}
+        {% breadcrumb blogathon.name blogathon.get_absolute_url %}
+        {% breadcrumb "Proposals" %}
+    {% endbreadcrumbs %}
+</nav>
+<header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
+    <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">Proposals</h1>
+</header>
+<div class="space-y-3">
+    {% partialdef pagination inline=True %}
+    <ul class="divide-y divide-solid" id="{{ pagination_target }}">
+        {% with has_other_pages=page_obj.has_other_pages %}
+            {% if has_other_pages %}
+                <li class="pb-3">{% include "_pagination_links.html" %}</li>
+            {% endif %}
+            {% for proposal in page_obj %}
+                <li class="py-3 first-of-type:pt-0">
+                    <article class="relative py-3 space-y-3">
+                        <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
+                            <div class="flex items-center space-x-3">
+                                <a href="{{ proposal.get_absolute_url }}" class="link">{{ proposal.participant.username }}</a>
+                            </div>
+                            <div class="font-semibold">Submitted {{ proposal.created|date }}</div>
+                        </div>
+                        <p class="break-words prose prose-sm md:prose-base dark:prose-invert">
+                            {{ proposal.proposal|urlize|truncatechars:200|linebreaksbr }}
+                        </p>
+                        <div class="flex justify-between items-center text-xs lg:text-sm">
+                            {% if proposal.is_submitted %}
                                 <div class="flex items-center space-x-3">
-                                    <a href="{{ proposal.get_absolute_url }}" class="link">{{ proposal.participant.username }}</a>
+                                    <a class="link"
+                                       href="{% url 'blogathons:respond_to_proposal' proposal.pk %}">Reply</a>
                                 </div>
-                                <div class="font-semibold">Submitted {{ proposal.created|date }}</div>
-                            </div>
-                            <p class="break-words prose prose-sm md:prose-base dark:prose-invert">
-                                {{ proposal.proposal|urlize|truncatechars:200|linebreaksbr }}
-                            </p>
-                            <div class="flex justify-between items-center text-xs lg:text-sm">
-                                {% if proposal.is_submitted %}
-                                    <div class="flex items-center space-x-3">
-                                        <a class="link"
-                                           href="{% url 'blogathons:respond_to_proposal' proposal.pk %}">Reply</a>
-                                    </div>
-                                {% else %}
-                                    <strong>{{ proposal.get_status_display }}</strong>
-                                {% endif %}
-                            </div>
-                        </article>
-                    </li>
-                {% empty %}
-                    <li class="py-3"></li>
-                {% endfor %}
-                {% if has_other_pages %}
-                    <li class="pt-3">{% include "_pagination_links.html" %}</li>
-                {% endif %}
-            {% endwith %}
-        </ul>
-    {% endpartialdef pagination %}
+                            {% else %}
+                                <strong>{{ proposal.get_status_display }}</strong>
+                            {% endif %}
+                        </div>
+                    </article>
+                </li>
+            {% empty %}
+                <li class="py-3"></li>
+            {% endfor %}
+            {% if has_other_pages %}
+                <li class="pt-3">{% include "_pagination_links.html" %}</li>
+            {% endif %}
+        {% endwith %}
+    </ul>
+{% endpartialdef pagination %}
 </div>
 {% endblock content %}

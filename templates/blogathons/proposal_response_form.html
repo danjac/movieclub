@@ -1,35 +1,43 @@
 {% extends "base.html" %}
 {% load static heroicons partials %}
 {% block content %}
-    <header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
-        <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
-            <a href="{{ blogathon.get_absolute_url }}" class="link">{{ blogathon.name }}</a> - Proposals
-        </h1>
-    </header>
-    <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ proposal.proposal|urlize|linebreaksbr }}</p>
-    {% partialdef form inline=True %}
-    <form post="{{ request.path }}"
-          id="proposal-response-form"
-          hx-target="this"
-          hx-swap="outerHTML"
-          class="space-y-3">
-        {{ form }}
-        <div class="flex items-center space-x-3">
-            <a class="items-center flex-inline link"
-               hx-get="{% url 'blogathons:blogathon_proposals' blogathon.pk %}">Cancel</a>
-            <button class="flex items-center btn btn-primary"
-                    hx-post="{{ request.path }}"
-                    hx-vals='{"action": "accept"}'>
-                {% heroicon_mini "check" class="mr-2" %}
-                Accept
-            </button>
-            <button class="flex items-center btn btn-default"
-                    hx-post="{{ request.path }}"
-                    hx-vals='{"action": "reject"}'>
-                {% heroicon_mini "x-mark" class="mr-2" %}
-                Reject
-            </button>
-        </div>
-    </form>
+    <nav class="pb-3 mb-3 border-b">
+        {% breadcrumbs %}
+        {% breadcrumb "Blogathons" "blogathons:blogathon_list" %}
+        {% breadcrumb blogathon.name blogathon.get_absolute_url %}
+        {% breadcrumb "Proposals" "blogathons:proposal_list" proposal.pk %}
+        {% breadcrumb "Respond to Proposal" %}
+    {% endbreadcrumbs %}
+</nav>
+<header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
+    <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
+        Respond to Proposal
+    </h1>
+</header>
+<p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ proposal.proposal|urlize|linebreaksbr }}</p>
+{% partialdef form inline=True %}
+<form post="{{ request.path }}"
+      id="proposal-response-form"
+      hx-target="this"
+      hx-swap="outerHTML"
+      class="space-y-3">
+    {{ form }}
+    <div class="flex items-center space-x-3">
+        <a class="items-center flex-inline link"
+           hx-get="{% url 'blogathons:blogathon_proposals' blogathon.pk %}">Cancel</a>
+        <button class="flex items-center btn btn-primary"
+                hx-post="{{ request.path }}"
+                hx-vals='{"action": "accept"}'>
+            {% heroicon_mini "check" class="mr-2" %}
+            Accept
+        </button>
+        <button class="flex items-center btn btn-default"
+                hx-post="{{ request.path }}"
+                hx-vals='{"action": "reject"}'>
+            {% heroicon_mini "x-mark" class="mr-2" %}
+            Reject
+        </button>
+    </div>
+</form>
 {% endpartialdef form %}
 {% endblock content %}

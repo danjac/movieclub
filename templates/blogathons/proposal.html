@@ -1,34 +1,42 @@
 {% extends "base.html" %}
 {% load static heroicons partials %}
 {% block content %}
-    <header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
-        <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
-            <a href="{{ blogathon.get_absolute_url }}" class="link">{{ blogathon.name }}</a> - Proposals
-        </h1>
-    </header>
-    <article class="py-3 space-y-3">
-        <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
+    <nav class="pb-3 mb-3 border-b">
+        {% breadcrumbs %}
+        {% breadcrumb "Blogathons" "blogathons:blogathon_list" %}
+        {% breadcrumb blogathon.name blogathon.get_absolute_url %}
+        {% breadcrumb "Proposals" "blogathons:blogathon_proposals" blogathon.pk %}
+        {% breadcrumb proposal.participant.username %}
+    {% endbreadcrumbs %}
+</nav>
+<header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
+    <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
+        Proposals for {{ blogathon.name }}
+    </h1>
+</header>
+<article class="py-3 space-y-3">
+    <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
+        <div class="flex items-center space-x-3">
+            <a href="{{ proposal.participant.get_absolute_url }}" class="link">{{ proposal.participant.username }}</a>
+        </div>
+        <div class="font-semibold">Submitted {{ proposal.created|date }}</div>
+    </div>
+    <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ proposal.proposal|urlize|linebreaksbr }}</p>
+    {% if proposal.response %}
+        <div>
+            <strong>Response:</strong>
+            <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ proposal.response|urlize|linebreaksbr }}</p>
+        </div>
+    {% endif %}
+    <div class="flex justify-between items-center text-xs lg:text-sm">
+        {% if proposal.is_submitted and is_organizer %}
             <div class="flex items-center space-x-3">
-                <a href="{{ proposal.participant.get_absolute_url }}" class="link">{{ proposal.participant.username }}</a>
+                <a class="link"
+                   href="{% url 'blogathons:respond_to_proposal' proposal.pk %}">Reply</a>
             </div>
-            <div class="font-semibold">Submitted {{ proposal.created|date }}</div>
-        </div>
-        <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ proposal.proposal|urlize|linebreaksbr }}</p>
-        {% if proposal.response %}
-            <div>
-                <strong>Response:</strong>
-                <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ proposal.response|urlize|linebreaksbr }}</p>
-            </div>
+        {% else %}
+            <strong>{{ proposal.get_status_display }}</strong>
         {% endif %}
-        <div class="flex justify-between items-center text-xs lg:text-sm">
-            {% if proposal.is_submitted and is_organizer %}
-                <div class="flex items-center space-x-3">
-                    <a class="link"
-                       href="{% url 'blogathons:respond_to_proposal' proposal.pk %}">Reply</a>
-                </div>
-            {% else %}
-                <strong>{{ proposal.get_status_display }}</strong>
-            {% endif %}
-        </div>
-    </article>
+    </div>
+</article>
 {% endblock content %}
