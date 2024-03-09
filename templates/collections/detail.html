@@ -14,7 +14,7 @@
     <nav>
         <ul class="items-center space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
             <li class="flex justify-center items-center sm:justify-start">
-                Created by &nbsp;<a href="" class="link">{{ collection.user.username }}</a>
+                Created by &nbsp;<a href="{{ collection.user.get_absolute_url }}" class="link">{{ collection.user.username }}</a>
             </li>
             {% if request.user == collection.user %}
                 <li class="flex justify-center items-center sm:justify-start">
