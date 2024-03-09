@@ -11,10 +11,12 @@
 </nav>
 <header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
     <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
-        Respond to Proposal
+        Respond to Proposal for {{ blogathon.name }}
     </h1>
 </header>
-<p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ proposal.proposal|urlize|linebreaksbr }}</p>
+<p class="mb-3 break-words prose prose-sm md:prose-base dark:prose-invert">
+    {{ proposal.proposal|urlize|linebreaksbr }}
+</p>
 {% partialdef form inline=True %}
 <form post="{{ request.path }}"
       id="proposal-response-form"

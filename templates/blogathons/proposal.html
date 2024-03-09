@@ -5,13 +5,17 @@
         {% breadcrumbs %}
         {% breadcrumb "Blogathons" "blogathons:blogathon_list" %}
         {% breadcrumb blogathon.name blogathon.get_absolute_url %}
-        {% breadcrumb "Proposals" "blogathons:blogathon_proposals" blogathon.pk %}
-        {% breadcrumb proposal.participant.username %}
+        {% if request.user == blogathon.organizer %}
+            {% breadcrumb "Proposals" "blogathons:blogathon_proposals" blogathon.pk %}
+            {% breadcrumb proposal.participant.username %}
+        {% else %}
+            {% breadcrumb "Proposal" %}
+        {% endif %}
     {% endbreadcrumbs %}
 </nav>
 <header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
     <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
-        Proposals for {{ blogathon.name }}
+        Proposal from {{ proposal.participant.username }} for {{ blogathon.name }}
     </h1>
 </header>
 <article class="py-3 space-y-3">
