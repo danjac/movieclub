@@ -5,7 +5,7 @@
         {% breadcrumbs %}
         {% breadcrumb "Blogathons" "blogathons:blogathon_list" %}
         {% breadcrumb blogathon.name blogathon.get_absolute_url %}
-        {% breadcrumb "Proposals" "blogathons:proposal_list" proposal.pk %}
+        {% breadcrumb "Proposals" "blogathons:blogathon_proposals" proposal.pk %}
         {% breadcrumb "Respond to Proposal" %}
     {% endbreadcrumbs %}
 </nav>

@@ -144,7 +144,7 @@ TEMPLATES = [
         "DIRS": [BASE_DIR / "templates"],
         "OPTIONS": {
             "builtins": [
-                "movieclub.templatetags",
+                "movieclub.defaulttags",
             ],
             "debug": env("TEMPLATE_DEBUG"),
             "context_processors": [

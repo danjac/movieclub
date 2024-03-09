@@ -11,7 +11,7 @@ from django.views.decorators.http import require_POST, require_safe
 from PIL import Image
 
 from movieclub.client import get_client
-from movieclub.templatetags import ACCEPT_COOKIES_NAME, COVER_IMAGE_SIZES
+from movieclub.defaulttags import ACCEPT_COOKIES_NAME, COVER_IMAGE_SIZES
 
 
 @require_safe

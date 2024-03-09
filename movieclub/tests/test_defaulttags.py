@@ -1,8 +1,8 @@
 import pytest
 from django.template.context import RequestContext
 
+from movieclub.defaulttags import cover_image, pagination_url
 from movieclub.middleware import Pagination
-from movieclub.templatetags import cover_image, pagination_url
 
 
 class TestPaginationUrl:
