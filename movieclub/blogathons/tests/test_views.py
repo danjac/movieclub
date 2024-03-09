@@ -12,6 +12,7 @@ from movieclub.blogathons.tests.factories import (
     create_proposal,
 )
 from movieclub.tests.factories import create_batch
+from movieclub.users.tests.factories import create_user
 
 
 @pytest.fixture()
@@ -32,6 +33,36 @@ class TestBlogathonList:
         create_batch(create_blogathon, 3)
         response = client.get(self.url)
         assert response.status_code == http.HTTPStatus.OK
+
+
+class TestBlogathonsForUser:
+    @pytest.mark.django_db()
+    def test_get(self, client):
+        now = timezone.now()
+        user = create_user()
+        starts = now - datetime.timedelta(days=2)
+        ends = now + datetime.timedelta(days=30)
+
+        create_blogathon(
+            organizer=user,
+            published=now,
+            starts=starts,
+            ends=ends,
+        )
+
+        blogathon = create_blogathon(
+            published=now,
+            starts=starts,
+            ends=ends,
+        )
+
+        create_entry(blogathon=blogathon, participant=user)
+
+        response = client.get(
+            reverse("blogathons:blogathons_for_user", args=[user.username])
+        )
+        assert response.status_code == http.HTTPStatus.OK
+        assert len(response.context["page_obj"].object_list) == 2
 
 
 class TestAddBlogathon:

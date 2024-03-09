@@ -6,6 +6,11 @@ app_name = "blogathons"
 
 urlpatterns = [
     path("", views.blogathon_list, name="blogathon_list"),
+    path(
+        "user/<slug:username>/",
+        views.blogathons_for_user,
+        name="blogathons_for_user",
+    ),
     path("add/", views.add_blogathon, name="add_blogathon"),
     path(
         "<int:blogathon_id>/edit/",

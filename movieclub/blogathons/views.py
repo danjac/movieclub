@@ -16,6 +16,7 @@ from movieclub.blogathons.models import Blogathon, Entry, Proposal
 from movieclub.decorators import require_auth, require_DELETE, require_form_methods
 from movieclub.htmx import render_htmx
 from movieclub.pagination import render_pagination
+from movieclub.users.models import User
 
 
 @require_safe
@@ -85,6 +86,20 @@ def blogathon_detail(
             "can_submit_entry": blogathon.can_submit_entry(request.user),
             "can_submit_proposal": blogathon.can_submit_proposal(request.user),
         },
+    )
+
+
+def blogathons_for_user(request: HttpRequest, username: str) -> HttpResponse:
+    """Blogathons user has organized or participated in."""
+    user = get_object_or_404(User, is_active=True, username=username)
+    return render_pagination(
+        request,
+        Blogathon.objects.available(request.user)
+        .filter(Q(organizer=user) | Q(entries__participant=user))
+        .distinct()
+        .order_by("-starts"),
+        "blogathons/blogathon_user_list.html",
+        {"current_user": user},
     )
 
 
