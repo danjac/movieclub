@@ -1,15 +1,17 @@
 {% extends "base.html" %}
 {% load heroicons partials %}
 {% block content %}
-    {% if collection %}
-        <nav class="pb-3 mb-3 border-b">
-            {% breadcrumbs %}
-            {% breadcrumb 'Collections' 'collections:collection_list' %}
+    <nav class="pb-3 mb-3 border-b">
+        {% breadcrumbs %}
+        {% breadcrumb "Collections" "collections:collection_list" %}
+        {% if collection %}
             {% breadcrumb collection.name collection.get_absolute_url %}
-            {% breadcrumb 'Edit Collection' %}
-        {% endbreadcrumbs %}
-    </nav>
-{% endif %}
+            {% breadcrumb "Edit Collection" %}
+        {% else %}
+            {% breadcrumb "Add Collection" %}
+        {% endif %}
+    {% endbreadcrumbs %}
+</nav>
 <header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
     <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
         {% if collection %}

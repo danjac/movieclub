@@ -1,16 +1,22 @@
 {% extends "base.html" %}
 {% load heroicons partials %}
 {% block content %}
-    {% partialdef form inline=True %}
-    <form post="{{ request.path }}"
-          hx-post="{{ request.path }}"
-          class="space-y-3"
-          id="user-form">
-        {{ form }}
-        <button class="flex items-center btn btn-primary">
-            {% heroicon_mini "check" class="mr-2" %}
-            Save
-        </button>
-    </form>
+    <nav class="pb-3 mb-3 border-b">
+        {% breadcrumbs %}
+        {% breadcrumb request.user.username request.user.get_absolute_url %}
+        {% breadcrumb "Settings" %}
+    {% endbreadcrumbs %}
+</nav>
+{% partialdef form inline=True %}
+<form post="{{ request.path }}"
+      hx-post="{{ request.path }}"
+      class="space-y-3"
+      id="user-form">
+    {{ form }}
+    <button class="flex items-center btn btn-primary">
+        {% heroicon_mini "check" class="mr-2" %}
+        Save
+    </button>
+</form>
 {% endpartialdef %}
 {% endblock content %}

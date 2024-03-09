@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% load heroicons partials %}
 {% block content %}
-    <nav class="pb-6 mb-6 border-b">
+    <nav class="pb-3 mb-3 border-b">
         {% breadcrumbs %}
         {% if release.is_tv_show %}
-            {% breadcrumb 'TV Shows' 'releases:tv_show_list' %}
+            {% breadcrumb "TV Shows" "releases:tv_show_list" %}
         {% else %}
-            {% breadcrumb 'Movies' 'releases:movie_list' %}
+            {% breadcrumb "Movies" "releases:movie_list" %}
         {% endif %}
         {% breadcrumb release.title release.get_absolute_url %}
-        {% breadcrumb 'Reviews' %}
+        {% breadcrumb "Reviews" %}
     {% endbreadcrumbs %}
 </nav>
 {% partialdef pagination inline=True %}
