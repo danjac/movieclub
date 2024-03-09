@@ -2,7 +2,7 @@
 {% load heroicons %}
 {% block content %}
     {% with release=review.release reviewer=review.user %}
-        <nav class="pb-6 mb-6 border-b">
+        <nav class="pb-3 mb-3 border-b">
             {% breadcrumbs %}
             {% if release.is_tv_show %}
                 {% breadcrumb 'TV Shows' 'releases:tv_show_list' %}

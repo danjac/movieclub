@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static heroicons partials %}
 {% block content %}
-    <nav class="pb-6 mb-6 border-b">
+    <nav class="pb-3 mb-3 border-b">
         {% breadcrumbs %}
         {% breadcrumb 'Collections' 'collections:collection_list' %}
         {% breadcrumb collection.name %}
@@ -13,8 +13,8 @@
     </h1>
     <nav>
         <ul class="items-center space-y-3 sm:flex sm:space-y-0 sm:space-x-3">
-            <li>
-                by <a href="" class="link">{{ collection.user.username }}</a>
+            <li class="flex justify-center items-center sm:justify-start">
+                Created by &nbsp;<a href="" class="link">{{ collection.user.username }}</a>
             </li>
             {% if request.user == collection.user %}
                 <li class="flex justify-center items-center sm:justify-start">
