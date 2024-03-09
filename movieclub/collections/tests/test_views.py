@@ -10,6 +10,7 @@ from movieclub.collections.tests.factories import (
 )
 from movieclub.releases.tests.factories import create_movie
 from movieclub.tests.factories import create_batch
+from movieclub.users.tests.factories import create_user
 
 
 @pytest.fixture()
@@ -29,6 +30,19 @@ class TestCollectionList:
     def test_get(self, client):
         create_batch(create_collection, 3)
         assert client.get(self.url).status_code == http.HTTPStatus.OK
+
+
+class TestUserCollectionList:
+    @pytest.mark.django_db()
+    def test_get(self, client):
+        user = create_user()
+        create_batch(create_collection, 3, user=user)
+        assert (
+            client.get(
+                reverse("collections:user_collection_list", args=[user.username])
+            ).status_code
+            == http.HTTPStatus.OK
+        )
 
 
 class TestAddCollection:

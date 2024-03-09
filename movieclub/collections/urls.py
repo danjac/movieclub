@@ -6,6 +6,11 @@ app_name = "collections"
 
 urlpatterns = [
     path("", views.collection_list, name="collection_list"),
+    path(
+        "user/<slug:username>/",
+        views.user_collection_list,
+        name="user_collection_list",
+    ),
     path("add/", views.add_collection, name="add_collection"),
     path(
         "<int:collection_id>/edit/",

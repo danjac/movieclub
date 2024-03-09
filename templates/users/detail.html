@@ -11,7 +11,8 @@
                        class="link">Reviews</a>
                 </li>
                 <li class="flex items-center">
-                    <a href="" class="link">Collections</a>
+                    <a href="{% url 'collections:user_collection_list' current_user.username %}"
+                       class="link">Collections</a>
                 </li>
                 <li class="flex items-center">
                     <a href="{% url 'blogathons:blogathons_for_user' current_user.username %}"

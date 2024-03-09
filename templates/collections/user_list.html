@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load heroicons partials cache %}
+{% block content %}
+    <nav class="pb-3 mb-3 border-b">
+        {% breadcrumbs %}
+        {% breadcrumb current_user.username current_user.get_absolute_url %}
+        {% breadcrumb "Collections" %}
+    {% endbreadcrumbs %}
+</nav>
+<header class="justify-between items-center pb-3 mb-3 space-y-3 border-b sm:flex sm:space-y-0">
+    <h1 class="flex justify-center items-center text-xl font-bold sm:justify-start lg:text-2xl xl:text-3xl">
+        Collections by {{ current_user.username }}
+    </h1>
+</header>
+{% partialdef pagination inline=True %}
+<ul class="divide-y divide-solid" id="{{ pagination_target }}">
+    {% with has_other_pages=page_obj.has_other_pages %}
+        {% if has_other_pages %}
+            <li class="pb-3">{% include "_pagination_links.html" %}</li>
+        {% endif %}
+        {% for collection in page_obj %}
+            <li class="py-3 first-of-type:pt-0">
+                <article class="flex items-center space-x-3 cursor-pointer group"
+                         role="link"
+                         hx-get="{{ collection.get_absolute_url }}"
+                         hx-push-url="true">
+                    {% cover_image collection.poster_url 100 150 title=collection.name css_class="w-16 h-20 group-hover:grayscale" %}
+                    <div class="flex flex-col place-content-between h-16">
+                        <h2 class="font-bold tracking-tight leading-tight break-words line-clamp-2"
+                            aria-label="{{ collection.name }}"
+                            title="{{ collection.name }}">
+                            <a class="group-hover:text-blue-600 link dark:group-hover:text-blue-300"
+                               aria-label="{{ collection.name }}"
+                               href="{{ collection.get_absolute_url }}">{{ collection.name }}</a>
+                        </h2>
+                        <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm dark:text-gray-300 truncate">
+                            {{ collection.user.username }}
+                        </h3>
+                    </div>
+                </article>
+            </li>
+        {% empty %}
+            <li class="py-3"></li>
+        {% endfor %}
+        {% if has_other_pages %}
+            <li class="pt-3">{% include "_pagination_links.html" %}</li>
+        {% endif %}
+    {% endwith %}
+</ul>
+{% endpartialdef pagination %}
+{% endblock content %}

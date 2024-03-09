@@ -13,6 +13,7 @@ from movieclub.decorators import require_auth, require_DELETE, require_form_meth
 from movieclub.htmx import render_htmx
 from movieclub.pagination import render_pagination
 from movieclub.releases.models import Release
+from movieclub.users.models import User
 
 
 @require_safe
@@ -28,6 +29,27 @@ def collection_list(request: HttpRequest) -> HttpResponse:
         .order_by("-created")
         .select_related("user"),
         "collections/index.html",
+    )
+
+
+@require_safe
+def user_collection_list(request: HttpRequest, username: str) -> HttpResponse:
+    """User list of collections."""
+    user = get_object_or_404(User, is_active=True, username=username)
+    return render_pagination(
+        request,
+        Collection.objects.annotate(
+            poster_url=CollectionItem.objects.filter(collection=OuterRef("pk"))
+            .order_by("-created")
+            .values("release__poster_url")[:1]
+        )
+        .filter(user=user)
+        .order_by("-created")
+        .select_related("user"),
+        "collections/user_list.html",
+        {
+            "current_user": user,
+        },
     )
 
 
