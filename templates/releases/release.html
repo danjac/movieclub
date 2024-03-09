@@ -2,160 +2,157 @@
 {% load static heroicons collections %}
 {% block content %}
     <nav class="pb-6 mb-6 border-b">
-        <ul class="flex-wrap items-center space-y-3 font-semibold sm:flex sm:space-y-0 sm:space-x-3">
-            <li class="flex items-center space-x-3">
-                {% if release.is_tv_show %}
-                    <a class="inline-block link" href="{% url 'releases:tv_show_list' %}">TV Shows</a>
-                {% else %}
-                    <a class="inline-block link" href="{% url 'releases:movie_list' %}">Movies</a>
-                {% endif %}
-                <span class="hidden sm:inline-block">{% heroicon_solid "chevron-right" %}</span>
-            </li>
-            <li class="hidden items-center space-x-3 sm:flex">{{ release.title }}</li>
-        </ul>
-    </nav>
-    <h1 class="mb-6 text-xl font-bold lg:text-2xl xl:text-3xl">
-        {{ release.title }}
-        {% if release.original_title and release.title != release.original_title %}
-            <span class="italic">({{ release.original_title }})</span>
+        {% breadcrumbs %}
+        {% if release.is_tv_show %}
+            {% breadcrumb 'TV Shows' 'releases:tv_show_list' %}
+        {% else %}
+            {% breadcrumb 'Movies' 'releases:movie_list' %}
         {% endif %}
-        {% if release.release_date %}({{ release.release_date|date:"Y" }}){% endif %}
-    </h1>
-    <div class="mb-6 space-y-3 sm:flex sm:space-y-0 sm:space-x-6">
-        <div>{% cover_image release.poster_url 200 300 title=release.title %}</div>
-        <div class="space-y-6">
-            <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ release.overview }}</p>
-            <div class="flex flex-wrap items-center max-w-prose leading-loose">
-                {% for genre in release.genres.all %}
-                    <a class="inline-flex items-center m-2 link first-of-type:ml-0"
-                       aria-label="{{ genre.name }} releases"
-                       title="{{ genre.name }} releases"
-                       href="{{ genre.get_absolute_url }}">
-                        {% heroicon_mini "tag" class="mr-2" %}
-                        {{ genre.name }}
-                    </a>
-                {% endfor %}
-            </div>
-            {% collection_selector release %}
-            <div>
-                <a class="link"
-                   target="_blank"
-                   rel="noopener"
-                   href="{{ release.get_tmdb_url }}">
-                    <img alt="The Movie Database" title="View on TMDB" src="{% static "img/tmdb.svg" %}" height=30 width=120>
+        {% breadcrumb release.title %}
+    {% endbreadcrumbs %}
+</nav>
+<h1 class="mb-6 text-xl font-bold lg:text-2xl xl:text-3xl">
+    {{ release.title }}
+    {% if release.original_title and release.title != release.original_title %}
+        <span class="italic">({{ release.original_title }})</span>
+    {% endif %}
+    {% if release.release_date %}({{ release.release_date|date:"Y" }}){% endif %}
+</h1>
+<div class="mb-6 space-y-3 sm:flex sm:space-y-0 sm:space-x-6">
+    <div>{% cover_image release.poster_url 200 300 title=release.title %}</div>
+    <div class="space-y-6">
+        <p class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ release.overview }}</p>
+        <div class="flex flex-wrap items-center max-w-prose leading-loose">
+            {% for genre in release.genres.all %}
+                <a class="inline-flex items-center m-2 link first-of-type:ml-0"
+                   aria-label="{{ genre.name }} releases"
+                   title="{{ genre.name }} releases"
+                   href="{{ genre.get_absolute_url }}">
+                    {% heroicon_mini "tag" class="mr-2" %}
+                    {{ genre.name }}
                 </a>
-            </div>
+            {% endfor %}
         </div>
-    </div>
-    {% if cast_members %}
-        <details class="mb-6">
-            <summary class="mb-3 text-lg font-bold cursor-pointer lg:text-xl xl:text-2xl link">Cast</summary>
-            <ul class="border-t divide-y divide">
-                {% regroup cast_members by person as groups %}
-                {% for group in groups %}
-                    {% with person=group.grouper %}
-                        <li class="py-3">
-                            {% url 'credits:cast_detail' person_id=person.pk slug=person.slug as cast_member_url %}
-                            <article class="flex items-center space-x-3 cursor-pointer group"
-                                     role="link"
-                                     hx-get="{{ cast_member_url }}"
-                                     hx-push-url="true">
-                                {% cover_image person.profile_url 100 150 title=person.name css_class="w-16 h-20 group-hover:grayscale" %}
-                                <div class="flex flex-col place-content-between h-16">
-                                    <h2 class="font-bold tracking-tight leading-tight break-words line-clamp-2"
-                                        aria-label="{{ person.name }}"
-                                        title="{{ person.name }}">
-                                        <a class="group-hover:text-blue-600 link dark:group-hover:text-blue-300"
-                                           aria-label="{{ release.title }}"
-                                           href="{{ cast_member_url }}">{{ person.name }}</a>
-                                    </h2>
-                                    <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm dark:text-gray-300 truncate">
-                                        {% for credit in group.list %}
-                                            {{ credit.character }}
-                                            {% if not forloop.last %}/{% endif %}
-                                        {% endfor %}
-                                    </h3>
-                                </div>
-                            </article>
-                        </li>
-                    {% endwith %}
-                {% endfor %}
-            </ul>
-        </details>
-    {% endif %}
-    {% if crew_members %}
-        <details class="mb-6">
-            <summary class="mb-3 text-lg font-bold cursor-pointer lg:text-xl xl:text-2xl link">Crew</summary>
-            <ul class="border-t divide-y divide">
-                {% regroup crew_members by person as groups %}
-                {% for group in groups %}
-                    {% with person=group.grouper %}
-                        <li class="py-3">
-                            {% url 'credits:crew_detail' person_id=person.pk slug=person.slug as crew_member_url %}
-                            <article class="flex items-center space-x-3 cursor-pointer group"
-                                     role="link"
-                                     hx-get="{{ crew_member_url }}"
-                                     hx-push-url="true">
-                                {% cover_image person.profile_url 100 150 title=person.name css_class="w-16 h-20 group-hover:grayscale" %}
-                                <div class="flex flex-col place-content-between h-16">
-                                    <h2 class="font-bold tracking-tight leading-tight break-words line-clamp-2"
-                                        aria-label="{{ person.name }}"
-                                        title="{{ person.name }}">
-                                        <a class="group-hover:text-blue-600 link dark:group-hover:text-blue-300"
-                                           aria-label="{{ release.title }}"
-                                           href="{{ crew_member_url }}">{{ person.name }}</a>
-                                    </h2>
-                                    <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm dark:text-gray-300 truncate">
-                                        {% for credit in group.list %}
-                                            {{ credit.job }}
-                                            {% if not forloop.last %}/{% endif %}
-                                        {% endfor %}
-                                    </h3>
-                                </div>
-                            </article>
-                        </li>
-                    {% endwith %}
-                {% endfor %}
-            </ul>
-        </details>
-    {% endif %}
-    <h2 class="pb-6 mb-6 text-lg font-bold border-b lg:text-xl xl:text-2xl">Reviews</h2>
-    {% if can_submit_review %}
-        <div class="mb-3">
-            <a href="{% url 'reviews:add_review' release.pk %}"
-               class="inline-flex items-center btn btn-default">
-                {% heroicon_mini "plus" class="mr-2" %}
-            Post your review</a>
-        </div>
-    {% endif %}
-    <div class="divide-y divide">
-        {% for review in reviews %}
-            <div class="py-3 space-y-3">
-                <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
-                    <h2 class="flex items-center space-x-3 text-base lg:text-lg">
-                        <a href="{{ review.get_absolute_url }}" class="link">Review by {{ review.user.username }}</a>
-                    </h2>
-                    <div class="flex items-center space-x-3 text-yellow-500">
-                        {% for value in review.get_score_values %}
-                            {% if value %}
-                                {% heroicon_solid "star" %}
-                            {% else %}
-                                {% heroicon_outline "star" %}
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="font-semibold">Posted {{ review.created|date }}</div>
-                <div class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ review.comment|linebreaksbr }}</div>
-            </div>
-        {% empty %}
-            <div class="py-3 font-semibold">This {{ release.get_category_display|lower }} does not have any reviews yet.</div>
-        {% endfor %}
-    </div>
-    {% if reviews %}
+        {% collection_selector release %}
         <div>
-            <a href="{% url 'reviews:release_review_list' release.pk %}"
-               class="link">See All Reviews</a>
+            <a class="link"
+               target="_blank"
+               rel="noopener"
+               href="{{ release.get_tmdb_url }}">
+                <img alt="The Movie Database" title="View on TMDB" src="{% static "img/tmdb.svg" %}" height=30 width=120>
+            </a>
         </div>
-    {% endif %}
+    </div>
+</div>
+{% if cast_members %}
+    <details class="mb-6">
+        <summary class="mb-3 text-lg font-bold cursor-pointer lg:text-xl xl:text-2xl link">Cast</summary>
+        <ul class="border-t divide-y divide">
+            {% regroup cast_members by person as groups %}
+            {% for group in groups %}
+                {% with person=group.grouper %}
+                    <li class="py-3">
+                        {% url 'credits:cast_detail' person_id=person.pk slug=person.slug as cast_member_url %}
+                        <article class="flex items-center space-x-3 cursor-pointer group"
+                                 role="link"
+                                 hx-get="{{ cast_member_url }}"
+                                 hx-push-url="true">
+                            {% cover_image person.profile_url 100 150 title=person.name css_class="w-16 h-20 group-hover:grayscale" %}
+                            <div class="flex flex-col place-content-between h-16">
+                                <h2 class="font-bold tracking-tight leading-tight break-words line-clamp-2"
+                                    aria-label="{{ person.name }}"
+                                    title="{{ person.name }}">
+                                    <a class="group-hover:text-blue-600 link dark:group-hover:text-blue-300"
+                                       aria-label="{{ release.title }}"
+                                       href="{{ cast_member_url }}">{{ person.name }}</a>
+                                </h2>
+                                <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm dark:text-gray-300 truncate">
+                                    {% for credit in group.list %}
+                                        {{ credit.character }}
+                                        {% if not forloop.last %}/{% endif %}
+                                    {% endfor %}
+                                </h3>
+                            </div>
+                        </article>
+                    </li>
+                {% endwith %}
+            {% endfor %}
+        </ul>
+    </details>
+{% endif %}
+{% if crew_members %}
+    <details class="mb-6">
+        <summary class="mb-3 text-lg font-bold cursor-pointer lg:text-xl xl:text-2xl link">Crew</summary>
+        <ul class="border-t divide-y divide">
+            {% regroup crew_members by person as groups %}
+            {% for group in groups %}
+                {% with person=group.grouper %}
+                    <li class="py-3">
+                        {% url 'credits:crew_detail' person_id=person.pk slug=person.slug as crew_member_url %}
+                        <article class="flex items-center space-x-3 cursor-pointer group"
+                                 role="link"
+                                 hx-get="{{ crew_member_url }}"
+                                 hx-push-url="true">
+                            {% cover_image person.profile_url 100 150 title=person.name css_class="w-16 h-20 group-hover:grayscale" %}
+                            <div class="flex flex-col place-content-between h-16">
+                                <h2 class="font-bold tracking-tight leading-tight break-words line-clamp-2"
+                                    aria-label="{{ person.name }}"
+                                    title="{{ person.name }}">
+                                    <a class="group-hover:text-blue-600 link dark:group-hover:text-blue-300"
+                                       aria-label="{{ release.title }}"
+                                       href="{{ crew_member_url }}">{{ person.name }}</a>
+                                </h2>
+                                <h3 class="w-60 text-xs font-semibold tracking-tight leading-tight text-gray-600 md:w-96 md:text-sm dark:text-gray-300 truncate">
+                                    {% for credit in group.list %}
+                                        {{ credit.job }}
+                                        {% if not forloop.last %}/{% endif %}
+                                    {% endfor %}
+                                </h3>
+                            </div>
+                        </article>
+                    </li>
+                {% endwith %}
+            {% endfor %}
+        </ul>
+    </details>
+{% endif %}
+<h2 class="pb-6 mb-6 text-lg font-bold border-b lg:text-xl xl:text-2xl">Reviews</h2>
+{% if can_submit_review %}
+    <div class="mb-3">
+        <a href="{% url 'reviews:add_review' release.pk %}"
+           class="inline-flex items-center btn btn-default">
+            {% heroicon_mini "plus" class="mr-2" %}
+        Post your review</a>
+    </div>
+{% endif %}
+<div class="divide-y divide">
+    {% for review in reviews %}
+        <div class="py-3 space-y-3">
+            <div class="justify-between items-center space-y-2 sm:flex sm:space-y-0">
+                <h2 class="flex items-center space-x-3 text-base lg:text-lg">
+                    <a href="{{ review.get_absolute_url }}" class="link">Review by {{ review.user.username }}</a>
+                </h2>
+                <div class="flex items-center space-x-3 text-yellow-500">
+                    {% for value in review.get_score_values %}
+                        {% if value %}
+                            {% heroicon_solid "star" %}
+                        {% else %}
+                            {% heroicon_outline "star" %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="font-semibold">Posted {{ review.created|date }}</div>
+            <div class="break-words prose prose-sm md:prose-base dark:prose-invert">{{ review.comment|linebreaksbr }}</div>
+        </div>
+    {% empty %}
+        <div class="py-3 font-semibold">This {{ release.get_category_display|lower }} does not have any reviews yet.</div>
+    {% endfor %}
+</div>
+{% if reviews %}
+    <div>
+        <a href="{% url 'reviews:release_review_list' release.pk %}"
+           class="link">See All Reviews</a>
+    </div>
+{% endif %}
 {% endblock content %}

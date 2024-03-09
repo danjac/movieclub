@@ -1,0 +1,15 @@
+{% load heroicons %}
+{% if BREADCRUMBS %}
+    <ul class="flex-wrap items-center space-y-3 font-semibold sm:flex sm:space-y-0 sm:space-x-3">
+        {% for breadcrumb in BREADCRUMBS %}
+            {% if forloop.last %}
+                <li class="hidden items-center space-x-3 text-gray-600 sm:flex dark:text-gray-500">{{ breadcrumb.text }}</li>
+            {% else %}
+                <li class="flex items-center space-x-3">
+                    <a class="inline-block link" href="{{ breadcrumb.url }}">{{ breadcrumb.text }}</a>
+                    <span class="hidden sm:inline-block">{% heroicon_solid "chevron-right" %}</span>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endif %}

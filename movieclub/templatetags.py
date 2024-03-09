@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import functools
 import urllib.parse
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Final, TypedDict
 
 from django import template
 from django.core.signing import Signer
+from django.shortcuts import resolve_url
+from django.template.loader import render_to_string
 from django.urls import reverse
 
 if TYPE_CHECKING:  # pragma: nocover
+    from django.template.base import NodeList, Parser
     from django.template.context import RequestContext
 
 ACCEPT_COOKIES_NAME: Final = "accept-cookies"
@@ -18,6 +21,14 @@ COVER_IMAGE_SIZES: Final = (
     (200, 300),
     (800, 800),
 )
+
+
+class Breadcrumb(TypedDict):
+    """A breadcrumb in list"""
+
+    text: str
+    url: str | None
+
 
 register = template.Library()
 
@@ -102,3 +113,34 @@ def search_form(
         "clear_search_url": clear_search_url or context.request.path,
         "request": context.request,
     }
+
+
+class BreadcrumbsNode(template.Node):
+    """Renders breadcrumbs."""
+
+    def __init__(self, nodelist: NodeList):
+        self.nodelist = nodelist
+
+    def render(self, context: RequestContext) -> str:
+        """Render the breadcrumbs to template"""
+        with context.push():
+            for node in self.nodelist:
+                node.render_annotated(context)
+            return render_to_string("_breadcrumbs.html", context.flatten())
+
+
+@register.tag()
+def breadcrumbs(parser: Parser, _) -> BreadcrumbsNode:
+    """Render breadcrumbs."""
+    nodelist = parser.parse(("endbreadcrumbs",))
+    parser.delete_first_token()
+    return BreadcrumbsNode(nodelist)
+
+
+@register.simple_tag(takes_context=True)
+def breadcrumb(context, text: str, urlname: str | None = None, *args, **kwargs) -> None:
+    """Adds breadcrumb to list."""
+    breadcrumbs = context.get("BREADCRUMBS", [])
+    url = resolve_url(urlname, *args, **kwargs) if urlname else None
+    breadcrumbs.append(Breadcrumb(text=text, url=url))
+    context["BREADCRUMBS"] = breadcrumbs
