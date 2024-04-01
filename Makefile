@@ -1,19 +1,22 @@
-install: pyinstall npminstall precommitinstall nltkdownload
+install: pyinstall npminstall precommitinstall
 
 dbinstall: migrate fixtures
 
-update: pyupdate pyexport npmupdate precommitupdate
+update: pyupdate npmupdate precommitupdate
 
 pyinstall:
-	poetry env use 3.12
-	poetry install --no-cache
+	uv venv && source .venv/bin/activate
+	uv pip install -r requirements-ci.txt
 
-pyupdate:
-	poetry update --no-cache
+pydeps:
+	uv pip compile pyproject.toml --upgrade -o requirements.txt
+	uv pip compile pyproject.toml --upgrade --extra dev -o requirements-ci.txt
 
-pyexport:
-	poetry export -o requirements.txt --without-hashes
-	poetry export -o requirements-ci.txt --with=dev --without-hashes
+pysync:
+	uv pip sync requirements-ci.txt
+
+pyupdate: pydeps pysync
+
 
 npminstall:
 	npm ci
