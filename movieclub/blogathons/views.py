@@ -22,11 +22,10 @@ from movieclub.users.models import User
 @require_safe
 def blogathon_list(request: HttpRequest) -> HttpResponse:
     """Index list of blogathons."""
-    return render_pagination(
-        request,
-        Blogathon.objects.available(request.user).order_by("-starts"),
-        "blogathons/index.html",
-    )
+    blogathons = Blogathon.objects.available(request.user).order_by("-starts")
+    if request.search:
+        blogathons = blogathons.filter(name__icontains=request.search)
+    return render_pagination(request, blogathons, "blogathons/index.html")
 
 
 @require_form_methods

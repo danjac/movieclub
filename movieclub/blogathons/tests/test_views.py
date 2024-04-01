@@ -34,6 +34,12 @@ class TestBlogathonList:
         response = client.get(self.url)
         assert response.status_code == http.HTTPStatus.OK
 
+    @pytest.mark.django_db()
+    def test_get_search(self, client):
+        create_blogathon(name="testme")
+        response = client.get(self.url, {"query": "testme"})
+        assert response.status_code == http.HTTPStatus.OK
+
 
 class TestBlogathonsForUser:
     @pytest.mark.django_db()
