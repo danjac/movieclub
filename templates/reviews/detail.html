@@ -30,7 +30,7 @@
                 {% endfor %}
             </div>
         </div>
-        <p class="mb-6 break-words prose prose-sm md:prose-base dark:prose-invert">{{ review.comment|linebreaksbr }}</p>
+        <p class="mb-6 break-words prose prose-sm md:prose-base dark:prose-invert">{{ review.comment|urlize|linebreaksbr }}</p>
         {% if request.user == reviewer %}
             <div class="flex items-center space-x-3">
                 <a href="{% url 'reviews:edit_review' review.pk %}" class="block link">Edit</a>
