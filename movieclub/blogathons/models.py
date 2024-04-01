@@ -24,7 +24,10 @@ class BlogathonQuerySet(models.QuerySet):
 
     def available(self, user: User | AnonymousUser) -> models.QuerySet[Blogathon]:
         """Returns all available blogathons"""
-        return self.filter(published__isnull=False) | self.for_organizer(user)
+        qs = self.filter(published__isnull=False)
+        if user.is_authenticated:
+            qs = qs | self.for_organizer(user)
+        return qs
 
 
 class Blogathon(TimeStampedModel):

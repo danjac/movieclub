@@ -67,12 +67,18 @@ def blogathon_detail(
     )
     entries = blogathon.entries.order_by("-created").select_related("participant")
 
-    if request.user.is_authenticated and request.user != blogathon.organizer:
-        proposal = (
-            blogathon.proposals.filter(participant=request.user).order_by("-pk").first()
-        )
-    else:
-        proposal = None
+    proposal = None
+    has_entry = False
+    is_organizer = False
+
+    if request.user.is_authenticated:
+        if is_organizer := request.user == blogathon.organizer:
+            proposal = (
+                blogathon.proposals.filter(participant=request.user)
+                .order_by("-pk")
+                .first()
+            )
+        has_entry = Entry.objects.filter(participant=request.user).exists()
 
     return render_pagination(
         request,
@@ -81,10 +87,10 @@ def blogathon_detail(
         {
             "blogathon": blogathon,
             "proposal": proposal,
-            "is_organizer": request.user == blogathon.organizer,
+            "has_entry": has_entry,
+            "is_organizer": is_organizer,
             "can_submit_entry": blogathon.can_submit_entry(request.user),
             "can_submit_proposal": blogathon.can_submit_proposal(request.user),
-            "has_entry": Entry.objects.filter(participant=request.user).exists(),
         },
     )
 
