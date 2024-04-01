@@ -1,5 +1,6 @@
-{% spaceless %}
-    {% load static django_htmx heroicons %}
+{% extends "hx_base.html" %}
+{% load static django_htmx heroicons %}
+{% block container %}
     <!DOCTYPE html>
     <html lang="en">
         <head>
@@ -30,21 +31,15 @@
               hx-indicator="#hx-indicator"
               hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
             {% include "_hx_indicator.html" %}
-            <div class="flex flex-col h-screen">
-                <div class="grow">
-                    {% include "_messages.html" %}
-                    {% include "_navbar.html" %}
-                    <div class="flex relative p-2 py-6 mx-auto min-h-screen xl:pt-12">
-                        <main class="mx-auto w-full xl:w-5/6" id="content" hx-history-elt>
-                            {% block content %}
-                            {% endblock content %}
-                        </main>
-                    </div>
-                    {% cookie_notice %}
-                </div>
+            {% include "_messages.html" %}
+            <div class="flex flex-col h-screen" id="content" hx-history-elt>
+                {% block swappable_content %}
+                    {{ block.super }}
+                {% endblock swappable_content %}
             </div>
+            {% cookie_notice %}
             {% django_htmx_script %}
             <script defer src="{% static "js/bundle.js" %}{% if debug %}?{% now "U" %}{% endif %}"></script>
         </body>
     </html>
-{% endspaceless %}
+{% endblock container %}
