@@ -7,6 +7,7 @@ from django.urls import reverse_lazy
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 
+# defaults
 env = environ.Env(
     # should be one of "mandatory", "optional" or "none"
     ACCOUNT_EMAIL_VERIFICATION=(str, "none"),
