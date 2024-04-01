@@ -29,11 +29,7 @@
                 {% endwith %}
             {% endif %}
             {{ field.errors }}
-            {% if field.help_text %}
-                <p class="{% if field.errors %}text-red-800 dark:text-red-600{% else %}text-gray-600 dark:text-gray-300{% endif %}">
-                    {{ field.help_text }}
-                </p>
-            {% endif %}
+            {% if field.help_text %}<div class="text-gray-600 dark:text-gray-300">{{ field.help_text }}</div>{% endif %}
         </div>
     {% endwith %}
 {% endif %}
