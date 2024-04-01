@@ -323,11 +323,10 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 if USE_HTTPS := env("USE_HTTPS"):
-    SECURE_PROXY_SSL_HEADER = tuple(
-        env.str(
-            "SECURE_PROXY_SSL_HEADER", default="HTTP_X_FORWARDED_PROTO, https"
-        ).split(","),
+    SECURE_PROXY_SSL_HEADER = env.tuple(
+        "SECURE_PROXY_SSL_HEADER", default=("HTTP_X_FORWARDED_PROTO", "https")
     )
+
     SECURE_SSL_REDIRECT = True
 
 # Make sure to enable USE_HSTS if your load balancer is not using HSTS in production,
