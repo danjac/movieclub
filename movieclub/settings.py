@@ -190,11 +190,6 @@ CSRF_USE_SESSIONS = True
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = True
 
-# Email configuration
-
-EMAIL_CONFIG = env.email_url()
-EMAIL_HOST = EMAIL_CONFIG["EMAIL_HOST"]
-
 
 # Mailgun
 # https://anymail.dev/en/v9.0/esps/mailgun/
@@ -206,13 +201,17 @@ if MAILGUN_API_KEY := env("MAILGUN_API_KEY"):
 
     MAILGUN_API_URL = env("MAILGUN_API_URL")
 
+    MAILGUN_SENDER_DOMAIN = EMAIL_HOST = env("MAILGUN_SENDER_DOMAIN")
+
     ANYMAIL = {
         "MAILGUN_API_KEY": MAILGUN_API_KEY,
         "MAILGUN_API_URL": MAILGUN_API_URL,
-        "MAILGUN_SENDER_DOMAIN": EMAIL_HOST,
+        "MAILGUN_SENDER_DOMAIN": MAILGUN_SENDER_DOMAIN,
     }
 else:
+    EMAIL_CONFIG = env.email(default="smtp://localhost:1025")
     vars().update(EMAIL_CONFIG)
+    EMAIL_HOST = EMAIL_CONFIG["EMAIL_HOST"]
 
 ADMINS = getaddresses(env("ADMINS"))
 
