@@ -31,6 +31,13 @@ class TestCollectionList:
         create_batch(create_collection, 3)
         assert client.get(self.url).status_code == http.HTTPStatus.OK
 
+    @pytest.mark.django_db()
+    def test_get_search(self, client):
+        create_collection(name="testme")
+        assert (
+            client.get(self.url, {"query": "testme"}).status_code == http.HTTPStatus.OK
+        )
+
 
 class TestUserCollectionList:
     @pytest.mark.django_db()

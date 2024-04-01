@@ -19,15 +19,17 @@ from movieclub.users.models import User
 @require_safe
 def collection_list(request: HttpRequest) -> HttpResponse:
     """Index list of collections."""
+    collections = Collection.objects.annotate(
+        poster_url=CollectionItem.objects.filter(collection=OuterRef("pk"))
+        .order_by("-created")
+        .values("release__poster_url")[:1]
+    )
+    if request.search:
+        collections = collections.filter(name__icontains=request.search.value)
+
     return render_pagination(
         request,
-        Collection.objects.annotate(
-            poster_url=CollectionItem.objects.filter(collection=OuterRef("pk"))
-            .order_by("-created")
-            .values("release__poster_url")[:1]
-        )
-        .order_by("-created")
-        .select_related("user"),
+        collections.order_by("-created").select_related("user"),
         "collections/index.html",
     )
 
