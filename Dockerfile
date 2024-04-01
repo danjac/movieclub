@@ -1,6 +1,6 @@
 # Production Dockerfile for application
 
-FROM node:20-bookworm-slim AS frontend
+FROM node:21-bookworm-slim AS frontend
 
 WORKDIR /app
 
@@ -22,16 +22,16 @@ RUN npm run build
 
 # Python
 
-FROM python:3.12.1-bookworm AS backend
+FROM python:3.12.2-bookworm AS backend
 
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONHASHSEED=random \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONFAULTHANDLER=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DEFAULT_TIMEOUT=100 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_ROOT_USER_ACTION=ignore
+  PYTHONHASHSEED=random \
+  PYTHONDONTWRITEBYTECODE=1 \
+  PYTHONFAULTHANDLER=1 \
+  PIP_NO_CACHE_DIR=1 \
+  PIP_DEFAULT_TIMEOUT=100 \
+  PIP_DISABLE_PIP_VERSION_CHECK=1 \
+  PIP_ROOT_USER_ACTION=ignore
 
 WORKDIR /app
 
@@ -40,12 +40,6 @@ WORKDIR /app
 COPY ./requirements.txt /app/requirements.txt
 
 RUN pip install -r /app/requirements.txt
-
-# Download NLTK files
-
-COPY ./nltk.txt /app/nltk.txt
-
-RUN xargs -I{} python -c "import nltk; nltk.download('{}')" < /app/nltk.txt
 
 # Copy over files
 
