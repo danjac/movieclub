@@ -19,4 +19,13 @@
     </button>
 </form>
 {% endpartialdef %}
+<h2 class="py-3 my-3 text-base font-semibold border-t lg:text-lg">Account Settings</h2>
+<ul class="space-y-3">
+    <li>
+        <a class="underline link" href="{% url 'account_change_password' %}">Change Password</a>
+    </li>
+    <li>
+        <a class="underline link" href="{% url 'account_email' %}">Email Addresses</a>
+    </li>
+</ul>
 {% endblock content %}
