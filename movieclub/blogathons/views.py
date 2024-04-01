@@ -84,6 +84,7 @@ def blogathon_detail(
             "is_organizer": request.user == blogathon.organizer,
             "can_submit_entry": blogathon.can_submit_entry(request.user),
             "can_submit_proposal": blogathon.can_submit_proposal(request.user),
+            "has_entry": Entry.objects.filter(participant=request.user).exists(),
         },
     )
 
