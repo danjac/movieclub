@@ -11,20 +11,20 @@
     "check-updates": "ncu -u"
   },
   "dependencies": {
-    "@alpinejs/focus": "^3.13.5",
-    "alpinejs": "^3.13.5",
-    "htmx.org": "^1.9.10"
+    "@alpinejs/focus": "^3.13.8",
+    "alpinejs": "^3.13.8",
+    "htmx.org": "^1.9.11"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.23.10",
+    "@babel/eslint-parser": "^7.24.1",
     "@tailwindcss/forms": "^0.5.7",
-    "@tailwindcss/typography": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.12",
     "concurrently": "^8.2.2",
-    "esbuild": "^0.20.1",
+    "esbuild": "^0.20.2",
     "eslint": "^8.57.0",
     "eslint-plugin-prettier": "^5.1.3",
-    "npm-check-updates": "^16.14.15",
+    "npm-check-updates": "^16.14.18",
     "prettier": "3.2.5",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^3.4.3"
   }
 }
