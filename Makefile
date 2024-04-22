@@ -1,4 +1,4 @@
-install: pyinstall npminstall precommitinstall nltkdownload
+install: pyinstall npminstall precommitinstall
 
 update: pyupdate npmupdate precommitupdate
 
@@ -34,12 +34,11 @@ podbuild:
 	podman play kube podman-kube.yml
 
 podstart:
-	podman pod start radiofeed-pod
+	podman pod start movieclub-pod
 
 podstop:
-	podman pod stop radiofeed-pod
+	podman pod stop movieclub-pod
 
 podclean:
-	podman pod rm radiofeed-pod
-	podman volume rm radiofeed_pg_data
-
+	podman pod rm movieclub-pod
+	podman volume rm movieclub_pg_data
