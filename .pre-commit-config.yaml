@@ -15,9 +15,6 @@ repos:
           - id: debug-statements
           - id: destroyed-symlinks
           - id: detect-private-key
-          - id: file-contents-sorter
-            args: ["--ignore-case", "--unique"]
-            exclude: .gitignore|.dockerignore|requirements[-\w]*.txt
     - repo: local
       hooks:
           - id: rustywind
