@@ -64,7 +64,6 @@ dev = [
   "pytest-randomly",
   "pytest-sugar",
   "pytest-xdist",
-  "ruff",
 ]
 
 [tool.pytest.ini_options]
@@ -95,7 +94,6 @@ env = [
 source=["movieclub", "templates"]
 omit=[
     "**/migrations/*",
-    "*/nltk/*",
     "*/static/*",
     "*/tests/*",
     "*/asgi.py",
