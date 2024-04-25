@@ -20,6 +20,7 @@
 .coverage*
 .data
 .env
+.python-version
 .idea/
 .ipython/
 .mypy_cache/

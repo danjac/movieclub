@@ -19,6 +19,7 @@ ansible-example
 .git
 .github
 .idea
+.python-version
 .mypy_cache
 .pytest_cache
 .ruff_cache
